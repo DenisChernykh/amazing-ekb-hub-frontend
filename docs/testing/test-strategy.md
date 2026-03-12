@@ -2,12 +2,12 @@
 
 ## Цель
 
-Зафиксировать для frontend единый объём тестирования MVP-сценариев и убрать разрыв с backend-документацией, не вводя в этой итерации новые зависимости, команды и CI-checks.
+Зафиксировать для frontend единый объём тестирования MVP-сценариев и убрать разрыв с backend-документацией, постепенно синхронизируя frontend quality gates с локальным tooling и CI.
 
 ## Текущее состояние
 
-1. Сейчас обязательные frontend quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm build`.
-2. Автоматизированные frontend-тесты ещё не подключены в репозитории как рабочий tooling.
+1. Сейчас обязательные frontend quality gates: `pnpm format:check`, `pnpm lint:strict`, `pnpm typecheck`, `pnpm build`.
+2. Эти проверки воспроизводятся локально через Husky и в GitHub Actions CI для PR в `stage` и `main`.
 3. Этот документ фиксирует целевой объём тестирования заранее, чтобы дальнейшее внедрение шло по согласованной стратегии, а не точечно.
 
 ## Почему backend сейчас описан подробнее
@@ -18,9 +18,12 @@
 
 ## Текущие quality gates
 
-1. `pnpm lint`
-2. `pnpm typecheck`
-3. `pnpm build`
+1. `pnpm format:check`
+2. `pnpm lint:strict`
+3. `pnpm typecheck`
+4. `pnpm build`
+5. Conventional Commit validation
+6. Branch naming validation
 
 ## Целевая пирамида тестов
 

@@ -7,9 +7,7 @@ export default function HomePage() {
         <Text fontSize="sm" color="gray.fg">
           Стрельчук в Екатеринбурге
         </Text>
-        <Heading size="2xl">
-          Добро пожаловать в мой гид по Екатеринбургу
-        </Heading>
+        <Heading size="2xl">Добро пожаловать в мой гид по Екатеринбургу</Heading>
         <Text color="gray.solid">Автор: Стрельчук Татьяна</Text>
 
         <Button width="fit-content" colorPalette="teal">

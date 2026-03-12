@@ -103,11 +103,18 @@
 ## 6. Проверки, которые должны проходить
 
 1. `commit-msg` hook проверяет Conventional Commit.
-2. Текущий обязательный локальный набор перед push / PR: `lint + typecheck + build`.
-3. Команды `test:unit`, `test:e2e`, `test:coverage` являются целевым состоянием frontend и становятся обязательными только после их реального добавления в репозиторий.
-4. CI на PR в `stage` и `main` должен как минимум воспроизводить текущие обязательные проверки.
-5. После внедрения test tooling полный набор CI должен включать frontend unit/component и e2e-сценарии по `docs/testing/test-strategy.md`.
-
+2. `pre-commit` hook запускает `lint-staged` и форматирует staged-файлы через Prettier.
+3. `pre-push` проверяет:
+   - имя ветки;
+   - `pnpm format:check`;
+   - `pnpm lint:strict`;
+   - `pnpm typecheck`;
+   - `pnpm build`.
+4. CI на PR в `stage` и `main` должен воспроизводить те же обязательные проверки и дополнительно валидировать PR flow:
+   - в `stage` можно только из `<type>/<short-name>`;
+   - в `main` можно только из `stage`.
+5. Команды `test:unit`, `test:e2e`, `test:coverage` являются целевым состоянием frontend и становятся обязательными только после их реального добавления в репозиторий.
+6. После внедрения test tooling полный набор CI должен включать frontend unit/component и e2e-сценарии по `docs/testing/test-strategy.md`.
 
 ## 7. Быстрая диагностика истории
 
