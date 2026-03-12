@@ -23,6 +23,17 @@ Frontend для MVP "Гид по местам".
 - `pnpm build`
 - `pnpm start`
 
+## Тестирование
+
+- Сейчас обязательные frontend-проверки: `pnpm lint`, `pnpm typecheck`, `pnpm build`.
+- Целевой объём автоматизации зафиксирован в `docs/testing/test-strategy.md`.
+- Планируемые команды после внедрения test tooling:
+  - `pnpm test:unit`
+  - `pnpm test:e2e`
+  - `pnpm test:coverage`
+- До появления этих команд в репозитории workflow и CI не должны считать их уже внедрёнными.
+
+
 ## Источники истины
 
 - Product spec: `../amazing-ekb-hub-backend/docs/MVP_SPEC.md`
