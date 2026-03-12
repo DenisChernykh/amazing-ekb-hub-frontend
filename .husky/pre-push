@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -e
+
+pnpm run git:check-branch-name
+pnpm run format:check
+pnpm run lint:strict
+pnpm run typecheck
+pnpm run build

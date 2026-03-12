@@ -9,6 +9,9 @@ Frontend для MVP "Гид по местам".
 - TypeScript
 - Chakra UI 3
 - ESLint 9
+- Prettier 3
+- Husky 9
+- GitHub Actions
 
 ## Быстрый старт
 
@@ -19,20 +22,33 @@ Frontend для MVP "Гид по местам".
 
 - `pnpm lint`
 - `pnpm lint:strict`
+- `pnpm typegen`
 - `pnpm typecheck`
+- `pnpm format`
+- `pnpm format:check`
 - `pnpm build`
 - `pnpm start`
 
+## Проверки качества
+
+- Текущий обязательный frontend-набор перед push / PR:
+  - `pnpm lint:strict`
+  - `pnpm typecheck`
+  - `pnpm build`
+- `pre-commit` запускает `lint-staged` и форматирует только staged-файлы.
+- `commit-msg` проверяет Conventional Commits.
+- `pre-push` проверяет имя ветки, `lint:strict`, `typecheck` и `build`.
+- CI в GitHub Actions воспроизводит обязательные проверки для PR в `stage` и `main`.
+
 ## Тестирование
 
-- Сейчас обязательные frontend-проверки: `pnpm lint`, `pnpm typecheck`, `pnpm build`.
+- Сейчас отдельный frontend test tooling ещё не внедрён.
 - Целевой объём автоматизации зафиксирован в `docs/testing/test-strategy.md`.
 - Планируемые команды после внедрения test tooling:
   - `pnpm test:unit`
   - `pnpm test:e2e`
   - `pnpm test:coverage`
-- До появления этих команд в репозитории workflow и CI не должны считать их уже внедрёнными.
-
+- До появления этих команд hooks и CI не должны считать их уже внедрёнными.
 
 ## Источники истины
 
@@ -52,3 +68,4 @@ Frontend для MVP "Гид по местам".
 - `docs/security/security-baseline.md`
 - `docs/adr/ADR-0001-next-app-router.md`
 - `docs/adr/ADR-0002-chakra-ui-v3.md`
+- `docs/architecture/tsdoc-guidelines.md`

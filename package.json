@@ -8,7 +8,15 @@
     "start": "next start",
     "lint": "eslint .",
     "lint:strict": "eslint . --max-warnings=0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "pnpm run typegen && tsc --noEmit",
+    "prepare": "husky",
+    "typegen": "next typegen",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "git:check-branch-name": "bash ./scripts/git/check-branch-name.sh"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,css,md,json,yaml,yml}": "prettier --write"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.34.0",
@@ -20,11 +28,21 @@
     "react-icons": "^5.6.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.4.3",
+    "@commitlint/config-conventional": "^20.4.3",
+    "@microsoft/tsdoc": "^0.16.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsdoc": "^62.8.0",
+    "eslint-plugin-tsdoc": "^0.5.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.3",
+    "prettier": "^3.8.1",
+    "prettier-plugin-organize-imports": "^4.3.0",
     "typescript": "^5"
   }
 }
