@@ -1,34 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Amazing EKB Hub Frontend
 
-## Getting Started
+Frontend для MVP "Гид по местам".
 
-First, run the development server:
+## Стек
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 16
+- React 19
+- TypeScript
+- Chakra UI 3
+- ESLint 9
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Быстрый старт
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. `pnpm install`
+2. `pnpm dev`
 
-## Learn More
+## Основные команды
 
-To learn more about Next.js, take a look at the following resources:
+- `pnpm lint`
+- `pnpm lint:strict`
+- `pnpm typecheck`
+- `pnpm build`
+- `pnpm start`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Источники истины
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Product spec: `../amazing-ekb-hub-backend/docs/MVP_SPEC.md`
+- API contract: `../amazing-ekb-hub-backend/docs/api/specification.yaml`
+- Error standard: `../amazing-ekb-hub-backend/docs/api/error-response-standard.md`
+- Design artifacts: `../amazing-ekb-hub-backend/docs/design/README.md`
 
-## Deploy on Vercel
+## Документация
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `docs/GIT_WORKFLOW.md`
+- `docs/architecture/frontend-architecture.md`
+- `docs/architecture/api-integration.md`
+- `docs/runbooks/local-setup.md`
+- `docs/testing/test-strategy.md`
+- `docs/process/definition-of-ready-done.md`
+- `docs/security/security-baseline.md`
+- `docs/adr/ADR-0001-next-app-router.md`
+- `docs/adr/ADR-0002-chakra-ui-v3.md`
