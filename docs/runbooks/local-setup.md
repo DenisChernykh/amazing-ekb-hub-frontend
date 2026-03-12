@@ -19,15 +19,15 @@
 
 ## Проверка перед merge
 
-1. `pnpm lint:strict`
-2. `pnpm typecheck`
-3. `pnpm build`
+1. `pnpm format:check`
+2. `pnpm lint:strict`
+3. `pnpm typecheck`
+4. `pnpm build`
 
 Дополнительно:
 
-1. `pnpm format:check`
-2. Проверить, что commit message соответствует Conventional Commits.
-3. Проверить, что рабочая ветка соответствует шаблону `<type>/<short-name>`.
+1. Проверить, что commit message соответствует Conventional Commits.
+2. Проверить, что рабочая ветка соответствует шаблону `<type>/<short-name>`.
 
 ## Планируемый test workflow
 

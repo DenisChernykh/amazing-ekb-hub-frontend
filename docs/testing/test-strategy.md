@@ -6,7 +6,7 @@
 
 ## Текущее состояние
 
-1. Сейчас обязательные frontend quality gates: `pnpm lint:strict`, `pnpm typecheck`, `pnpm build`.
+1. Сейчас обязательные frontend quality gates: `pnpm format:check`, `pnpm lint:strict`, `pnpm typecheck`, `pnpm build`.
 2. Эти проверки воспроизводятся локально через Husky и в GitHub Actions CI для PR в `stage` и `main`.
 3. Этот документ фиксирует целевой объём тестирования заранее, чтобы дальнейшее внедрение шло по согласованной стратегии, а не точечно.
 
@@ -18,9 +18,12 @@
 
 ## Текущие quality gates
 
-1. `pnpm lint`
-2. `pnpm typecheck`
-3. `pnpm build`
+1. `pnpm format:check`
+2. `pnpm lint:strict`
+3. `pnpm typecheck`
+4. `pnpm build`
+5. Conventional Commit validation
+6. Branch naming validation
 
 ## Целевая пирамида тестов
 

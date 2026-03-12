@@ -106,6 +106,7 @@
 2. `pre-commit` hook запускает `lint-staged` и форматирует staged-файлы через Prettier.
 3. `pre-push` проверяет:
    - имя ветки;
+   - `pnpm format:check`;
    - `pnpm lint:strict`;
    - `pnpm typecheck`;
    - `pnpm build`.

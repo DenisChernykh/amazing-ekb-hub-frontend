@@ -32,12 +32,13 @@ Frontend для MVP "Гид по местам".
 ## Проверки качества
 
 - Текущий обязательный frontend-набор перед push / PR:
+  - `pnpm format:check`
   - `pnpm lint:strict`
   - `pnpm typecheck`
   - `pnpm build`
 - `pre-commit` запускает `lint-staged` и форматирует только staged-файлы.
 - `commit-msg` проверяет Conventional Commits.
-- `pre-push` проверяет имя ветки, `lint:strict`, `typecheck` и `build`.
+- `pre-push` проверяет имя ветки, `format:check`, `lint:strict`, `typecheck` и `build`.
 - CI в GitHub Actions воспроизводит обязательные проверки для PR в `stage` и `main`.
 
 ## Тестирование
