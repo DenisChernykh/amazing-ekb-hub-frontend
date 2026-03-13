@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "next dev --webpack --port 3001",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
@@ -13,7 +13,8 @@
     "typegen": "next typegen",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "git:check-branch-name": "bash ./scripts/git/check-branch-name.sh"
+    "git:check-branch-name": "bash ./scripts/git/check-branch-name.sh",
+    "api:generate": "openapi-typescript ../amazing-ekb-hub-backend/docs/api/specification.yaml -o src/shared/api/schema.generated.ts && prettier --write src/shared/api/schema.generated.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,css,md,json,yaml,yml}": "prettier --write"
@@ -23,6 +24,7 @@
     "@emotion/react": "^11.14.0",
     "next": "16.1.6",
     "next-themes": "^0.4.6",
+    "openapi-fetch": "^0.17.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-icons": "^5.6.0"
@@ -41,6 +43,7 @@
     "eslint-plugin-tsdoc": "^0.5.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.3",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.1",
     "prettier-plugin-organize-imports": "^4.3.0",
     "typescript": "^5"
