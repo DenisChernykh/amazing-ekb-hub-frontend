@@ -16,7 +16,7 @@ Next.js App Router с Ant Design как основным UI toolkit.
 - `src/app` — routes, layouts, providers
 - `src/features` — пользовательские сценарии
 - `src/entities` — place, material, favorite, user
-- `src/shared` — ui, api, lib, config, types
+- `src/shared` — ui, api, failures, lib, config, types
 
 ## Тестируемость
 
@@ -24,3 +24,5 @@ Next.js App Router с Ant Design как основным UI toolkit.
 2. Route-level UI и пользовательские взаимодействия должны быть пригодны для component/integration тестов.
 3. Сквозные пользовательские сценарии должны проверяться e2e-тестами на уровне приложения.
 4. Source of truth для API shape и error semantics — backend contract и `docs/testing/test-strategy.md`.
+5. Все remote-ошибки нормализуются в `src/shared/failures` с разделением на `api`, `contract` и `transport`.
+6. Result-first утилиты из `src/shared/lib/result.ts` используются как базовый контракт data-access слоя.
