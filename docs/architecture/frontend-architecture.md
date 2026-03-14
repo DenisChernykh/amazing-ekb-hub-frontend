@@ -2,13 +2,13 @@
 
 ## Стиль
 
-Next.js App Router с Chakra UI как основным UI toolkit.
+Next.js App Router с Ant Design как основным UI toolkit.
 
 ## Правила
 
 1. Server Components по умолчанию.
 2. Client Components только для интерактива и browser-only API.
-3. UI-компоненты строятся на Chakra UI.
+3. UI-компоненты строятся на Ant Design и обычной семантической HTML-разметке там, где это проще и надёжнее.
 4. Внутренние импорты через `@/*`.
 
 ## Структура

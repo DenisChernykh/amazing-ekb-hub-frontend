@@ -2,14 +2,13 @@
 
 ## Status
 
-Accepted
+Superseded by ADR-0003
 
 ## Decision
 
-Используем Chakra UI v3 как основной UI toolkit frontend.
+На момент bootstrap frontend использовали Chakra UI v3 как основной UI toolkit frontend.
 
 ## Consequences
 
-1. Быстрый старт с готовыми компонентами.
-2. Удобная работа с theme/tokens.
-3. Дизайн-артефакты проекта уже ориентированы на Chakra token system.
+1. Исторически Chakra UI позволил быстро поднять стартовый интерфейс.
+2. Решение больше не является актуальным после принятия ADR-0003.
