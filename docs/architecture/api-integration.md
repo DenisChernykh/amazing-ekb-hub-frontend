@@ -12,6 +12,8 @@
 3. UI ориентируется на `error.type`, `error.code`, `error.message`.
 4. Канонический frontend base path для backend API — `/v1`.
 5. Typed frontend client строится от `src/shared/api/schema.generated.ts`, сгенерированной из backend OpenAPI.
+6. Raw HTTP-ответы `openapi-fetch` сначала приводятся к `HttpResult`, затем нормализуются через `src/shared/failures/to-remote-result.ts`.
+7. UI и data-access слой ветвят поведение по `RemoteFailure`, `error.type` и `error.code`, а не по raw backend `message`.
 
 ## Routing model
 
