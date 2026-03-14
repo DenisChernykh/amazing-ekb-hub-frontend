@@ -7,7 +7,7 @@ Frontend для MVP "Гид по местам".
 - Next.js 16
 - React 19
 - TypeScript
-- Chakra UI 3
+- Ant Design 6
 - ESLint 9
 - Prettier 3
 - Husky 9
@@ -81,4 +81,5 @@ Frontend для MVP "Гид по местам".
 - `docs/security/security-baseline.md`
 - `docs/adr/ADR-0001-next-app-router.md`
 - `docs/adr/ADR-0002-chakra-ui-v3.md`
+- `docs/adr/ADR-0003-ant-design.md`
 - `docs/architecture/tsdoc-guidelines.md`
