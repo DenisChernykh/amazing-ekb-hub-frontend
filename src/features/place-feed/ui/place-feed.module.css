@@ -1,0 +1,163 @@
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.placeCard {
+  display: grid;
+  min-height: 100%;
+  background: #ffffff;
+  border: 1px solid #efe7de;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(24, 24, 27, 0.08);
+}
+
+.placeMedia {
+  min-height: 168px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  color: #27272a;
+}
+
+.placeMedia[data-category='pools'] {
+  background: linear-gradient(135deg, #eff4f8 0%, #dbe9f4 100%);
+}
+
+.placeMedia[data-category='spa'] {
+  background: linear-gradient(135deg, #faf0ed 0%, #f4ded7 100%);
+}
+
+.placeMedia[data-category='cafe'] {
+  background: linear-gradient(135deg, #fff4e8 0%, #ffe6ca 100%);
+}
+
+.placeMedia[data-category='hotels'] {
+  background: linear-gradient(135deg, #f4f3f1 0%, #e7e2da 100%);
+}
+
+.placeMedia[data-category='workshops'] {
+  background: linear-gradient(135deg, #f5efe7 0%, #eadbc7 100%);
+}
+
+.mediaEyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(39, 39, 42, 0.55);
+}
+
+.mediaFooter {
+  display: grid;
+  gap: 8px;
+}
+
+.mediaCategory {
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.mediaHint {
+  margin: 0;
+  color: rgba(39, 39, 42, 0.72);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.placeBody {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+}
+
+.placeTitle {
+  margin: 0 !important;
+  font-size: 28px !important;
+  line-height: 1.1 !important;
+}
+
+.placeSummary {
+  margin: 0 !important;
+  color: rgba(0, 0, 0, 0.68);
+  line-height: 1.65 !important;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tagRow :global(.ant-tag) {
+  margin-inline-end: 0;
+  border-radius: 999px;
+  padding-inline: 10px;
+  padding-block: 6px;
+}
+
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.actionLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding-inline: 18px;
+  border-radius: 999px;
+  background: #18181b;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.actionLink:hover {
+  background: #2c2c31;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.actionLink:focus-visible {
+  outline: 2px solid #fb923c;
+  outline-offset: 2px;
+}
+
+.skeletonBody {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+}
+
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .placeMedia {
+    min-height: 148px;
+  }
+
+  .placeTitle {
+    font-size: 24px !important;
+  }
+
+  .actionLink {
+    width: 100%;
+  }
+}
