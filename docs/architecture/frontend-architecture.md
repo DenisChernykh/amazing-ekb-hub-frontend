@@ -10,13 +10,27 @@ Next.js App Router с Ant Design как основным UI toolkit.
 2. Client Components только для интерактива и browser-only API.
 3. UI-компоненты строятся на Ant Design и обычной семантической HTML-разметке там, где это проще и надёжнее.
 4. Внутренние импорты через `@/*`.
+5. Для server-side data loading в Next.js сначала предпочтителен server-first подход через `app` page + `app/di`, а не client-side query cache.
 
 ## Структура
 
-- `src/app` — routes, layouts, providers
-- `src/features` — пользовательские сценарии
-- `src/entities` — place, material, favorite, user
+- `src/app` — routes, layouts, providers, route-level loading и app DI
+- `src/features` — пользовательские сценарии и presentation/model слой для экранов
+- `src/entities` — бизнес-сущности и их result-first data-access API
 - `src/shared` — ui, api, failures, lib, config, types
+
+## Текущий home-контур
+
+Первая версия home-ленты мест собрана по server-first схеме:
+
+- `src/app/page.tsx` — route-level server page, читает `searchParams`, нормализует `page/search/category` и вызывает app DI.
+- `src/app/loading.tsx` — route-level loading для home.
+- `src/app/di/place.ts` — server-side bridge между Next runtime и entity `place`.
+- `src/entities/place` — типы списка мест и result-first API загрузки `GET /places`.
+- `src/features/place-feed` — presentation/model слой home-ленты: `success`, `empty`, `error`, карточки и skeleton.
+- `src/app/places/[placeId]/page.tsx` — временный route-заглушка для перехода с карточки.
+
+Home пока не использует `TanStack Query`: для текущего сценария загрузка списка выполняется на сервере через Next App Router.
 
 ## Тестируемость
 
