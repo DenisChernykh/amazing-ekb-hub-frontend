@@ -22,3 +22,16 @@
 3. `API_PROXY_TARGET` — server-only переменная и не должна публиковаться через `NEXT_PUBLIC_*`.
 4. В production со схемой “frontend и backend на одном домене” маршрут `/v1/*` должен проксироваться на backend внешней инфраструктурой.
 5. Если `API_PROXY_TARGET` не задан, приложение считает, что same-origin routing для `/v1` уже настроен вне frontend runtime.
+6. В browser runtime frontend по-прежнему использует same-origin base path `/v1`.
+7. В server-side коде Next.js (`app` routes, server components, `src/app/di/*`) относительный base path `/v1` не должен использоваться напрямую, потому что Node runtime требует абсолютный URL.
+8. Для server-side API-вызовов absolute base URL должен строиться от текущего request origin через server-only helper `src/shared/api/server.ts`.
+9. Источник origin для server-side вызовов: `x-forwarded-proto` + `x-forwarded-host`, fallback на `host`.
+
+## Next.js server-side note
+
+В текущем frontend browser и server runtime используют один и тот же backend route `/v1`, но по-разному инициализируют base URL:
+
+- browser-код может безопасно работать с относительным `/v1`;
+- server-side код Next должен сначала восстановить absolute origin запроса, а затем строить URL вида `http://<host>/v1`.
+
+Это правило нужно соблюдать для всех server-side data-access сценариев, чтобы не получать runtime-ошибку вида `Failed to parse URL from /v1/...`.
