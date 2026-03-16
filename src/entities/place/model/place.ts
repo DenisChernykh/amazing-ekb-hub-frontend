@@ -1,8 +1,21 @@
 /**
+ * Канонический список категорий места во frontend-домене.
+ */
+export const PLACE_CATEGORIES = ['pools', 'spa', 'cafe', 'hotels', 'workshops'] as const;
+
+/**
  * Категория места в доменной модели frontend.
  */
-export type PlaceCategory = 'pools' | 'spa' | 'cafe' | 'hotels' | 'workshops';
-
+export type PlaceCategory = (typeof PLACE_CATEGORIES)[number];
+/**
+ * Проверяет, что строка является допустимой категорией места.
+ *
+ * @param value - Значение, пришедшее из URL, формы или внешнего источника.
+ * @returns `true`, если значение входит в доменный список `PLACE_CATEGORIES`.
+ */
+export function isPlaceCategory(value: string): value is PlaceCategory {
+  return PLACE_CATEGORIES.includes(value as PlaceCategory);
+}
 /**
  * Статус места в доменной модели frontend.
  */
