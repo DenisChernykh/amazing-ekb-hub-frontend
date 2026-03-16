@@ -1,17 +1,5 @@
 import { PlaceFeedSkeleton } from '@/features/place-feed';
-import { Card, Skeleton } from 'antd';
-import type { CSSProperties } from 'react';
-
-const pageStyle: CSSProperties = {
-  padding: '40px 24px',
-  display: 'grid',
-  gap: '24px',
-};
-
-const introCardStyle: CSSProperties = {
-  maxWidth: '960px',
-  borderRadius: '24px',
-};
+import { Box, Container, Paper, Skeleton, Stack } from '@mui/material';
 
 /**
  * Route-level loading для главного дерева приложения.
@@ -20,12 +8,21 @@ const introCardStyle: CSSProperties = {
  */
 export default function Loading() {
   return (
-    <main style={pageStyle}>
-      <Card style={introCardStyle}>
-        <Skeleton active title={{ width: '42%' }} paragraph={{ rows: 2 }} />
-      </Card>
+    <Box component="main" sx={{ py: { xs: 4, md: 6 } }}>
+      <Container maxWidth="lg">
+        <Stack spacing={3}>
+          <Paper variant="outlined" sx={{ p: { xs: 4, md: 6 } }}>
+            <Stack spacing={2}>
+              <Skeleton variant="text" width="20%" height={24} />
+              <Skeleton variant="text" width="55%" height={64} />
+              <Skeleton variant="text" width="100%" />
+              <Skeleton variant="text" width="72%" />
+            </Stack>
+          </Paper>
 
-      <PlaceFeedSkeleton />
-    </main>
+          <PlaceFeedSkeleton />
+        </Stack>
+      </Container>
+    </Box>
   );
 }

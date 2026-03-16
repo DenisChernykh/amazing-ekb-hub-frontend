@@ -2,15 +2,16 @@
 
 ## Стиль
 
-Next.js App Router с Ant Design как основным UI toolkit.
+Next.js App Router с Material UI как основным UI toolkit.
 
 ## Правила
 
 1. Server Components по умолчанию.
 2. Client Components только для интерактива и browser-only API.
-3. UI-компоненты строятся на Ant Design и обычной семантической HTML-разметке там, где это проще и надёжнее.
-4. Внутренние импорты через `@/*`.
-5. Для server-side data loading в Next.js сначала предпочтителен server-first подход через `app` page + `app/di`, а не client-side query cache.
+3. UI-компоненты строятся на Material UI и обычной семантической HTML-разметке там, где это проще и надёжнее.
+4. Визуальный слой по умолчанию опирается на stock Material UI look; кастомная верстка и кастомные theme overrides должны оставаться минимальными.
+5. Внутренние импорты через `@/*`.
+6. Для server-side data loading в Next.js сначала предпочтителен server-first подход через `app` page + `app/di`, а не client-side query cache.
 
 ## Структура
 

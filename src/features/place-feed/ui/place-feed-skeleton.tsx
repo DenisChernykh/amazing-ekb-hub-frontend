@@ -1,19 +1,11 @@
 import type { PlaceCategory } from '@/entities/place';
-import { Card, Skeleton } from 'antd';
-import type { CSSProperties } from 'react';
-
-import styles from './place-feed.module.css';
+import { Box, Grid, Paper, Skeleton, Stack, Typography } from '@mui/material';
 /**
  * Параметры skeleton-ленты мест.
  */
 export interface PlaceFeedSkeletonProps {
   count?: number;
 }
-
-const sectionCardStyle: CSSProperties = {
-  maxWidth: '960px',
-  borderRadius: '24px',
-};
 
 const SKELETON_CATEGORIES: readonly PlaceCategory[] = [
   'spa',
@@ -23,6 +15,14 @@ const SKELETON_CATEGORIES: readonly PlaceCategory[] = [
   'workshops',
 ];
 
+const categoryBackgroundByType: Record<PlaceCategory, string> = {
+  pools: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
+  spa: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)',
+  cafe: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)',
+  hotels: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
+  workshops: 'linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)',
+};
+
 /**
  * Презентационный skeleton одной карточки места.
  *
@@ -31,15 +31,27 @@ const SKELETON_CATEGORIES: readonly PlaceCategory[] = [
  */
 function PlaceCardSkeleton({ category }: Readonly<{ category: PlaceCategory }>) {
   return (
-    <article className={styles.placeCard}>
-      <div className={styles.placeMedia} data-category={category}>
-        <span className={styles.mediaEyebrow}>Загрузка</span>
-      </div>
+    <Paper variant="outlined" sx={{ height: '100%', overflow: 'hidden' }}>
+      <Box
+        sx={{
+          minHeight: 168,
+          px: 2.5,
+          py: 2,
+          background: categoryBackgroundByType[category],
+        }}
+      >
+        <Typography variant="overline" color="text.secondary">
+          Загрузка
+        </Typography>
+      </Box>
 
-      <div className={styles.skeletonBody}>
-        <Skeleton active paragraph={{ rows: 3 }} title={{ width: '68%' }} />
-      </div>
-    </article>
+      <Stack spacing={1.5} sx={{ p: 2.5 }}>
+        <Skeleton variant="text" width="62%" height={36} />
+        <Skeleton variant="text" width="100%" />
+        <Skeleton variant="text" width="88%" />
+        <Skeleton variant="rounded" width="38%" height={32} />
+      </Stack>
+    </Paper>
   );
 }
 
@@ -56,12 +68,20 @@ export function PlaceFeedSkeleton({ count = 5 }: Readonly<PlaceFeedSkeletonProps
   }));
 
   return (
-    <Card style={sectionCardStyle} title="Загружаем места...">
-      <section className={styles.grid}>
-        {items.map((item) => (
-          <PlaceCardSkeleton key={item.id} category={item.category} />
-        ))}
-      </section>
-    </Card>
+    <Paper variant="outlined" sx={{ p: { xs: 3, md: 4 } }}>
+      <Stack spacing={3}>
+        <Typography variant="h5" component="h2">
+          Загружаем места...
+        </Typography>
+
+        <Grid container spacing={3}>
+          {items.map((item) => (
+            <Grid key={item.id} size={{ xs: 12, sm: 6, lg: 4 }}>
+              <PlaceCardSkeleton category={item.category} />
+            </Grid>
+          ))}
+        </Grid>
+      </Stack>
+    </Paper>
   );
 }
