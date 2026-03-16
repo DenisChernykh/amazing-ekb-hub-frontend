@@ -2,15 +2,15 @@
 
 ## Status
 
-Accepted
+Superseded by ADR-0004
 
 ## Decision
 
-Используем Ant Design как основной UI toolkit frontend вместо Chakra UI.
+На предыдущем этапе frontend использовал Ant Design как основной UI toolkit вместо Chakra UI.
 
 ## Consequences
 
-1. Frontend использует единый актуальный UI toolkit без параллельной поддержки Chakra UI.
-2. Интеграция с Next.js App Router строится через `@ant-design/nextjs-registry`.
-3. Текущий этап миграции ориентирован только на светлую тему без слоя `next-themes`.
-4. Если в будущем понадобится light/dark switching или бренд-токены, это будет оформлено отдельным архитектурным решением.
+1. Исторически Ant Design использовался как основной UI toolkit frontend.
+2. Интеграция с Next.js App Router на том этапе строилась через `@ant-design/nextjs-registry`.
+3. Решение больше не является актуальным после принятия ADR-0004.
+4. Документ сохраняется как часть истории архитектурных решений проекта.

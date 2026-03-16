@@ -7,7 +7,8 @@ Frontend для MVP "Гид по местам".
 - Next.js 16
 - React 19
 - TypeScript
-- Ant Design 6
+- Material UI 7
+- Emotion 11
 - ESLint 9
 - Prettier 3
 - Husky 9
@@ -48,6 +49,7 @@ Frontend для MVP "Гид по местам".
   - `pnpm lint:strict`
   - `pnpm typecheck`
   - `pnpm build`
+- `typecheck` и `build` нужно запускать последовательно, а не параллельно, потому что обе команды используют артефакты `.next`.
 - `pre-commit` запускает `lint-staged` и форматирует только staged-файлы.
 - `commit-msg` проверяет Conventional Commits.
 - `pre-push` проверяет имя ветки, `format:check`, `lint:strict`, `typecheck` и `build`.
@@ -82,4 +84,5 @@ Frontend для MVP "Гид по местам".
 - `docs/adr/ADR-0001-next-app-router.md`
 - `docs/adr/ADR-0002-chakra-ui-v3.md`
 - `docs/adr/ADR-0003-ant-design.md`
+- `docs/adr/ADR-0004-material-ui.md`
 - `docs/architecture/tsdoc-guidelines.md`

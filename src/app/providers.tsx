@@ -1,27 +1,32 @@
 'use client';
 
-import { App as AntdApp, ConfigProvider, theme, type ThemeConfig } from 'antd';
+import { CssBaseline } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 interface ProvidersProps {
   children: React.ReactNode;
 }
 
-const antdTheme: ThemeConfig = {
-  algorithm: theme.defaultAlgorithm,
-};
-
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+  typography: {
+    fontFamily: 'var(--font-roboto)',
+  },
+});
 /**
  * Подключает корневые runtime providers приложения.
  *
  * @remarks
- * Сейчас здесь инициализируется только Ant Design.
+ * Сейчас здесь инициализируется Material UI theme runtime.
  * По мере роста приложения сюда могут добавляться и другие
  * app-level провайдеры, например query/auth/i18n.
  */
 export function Providers({ children }: Readonly<ProvidersProps>) {
   return (
-    <ConfigProvider theme={antdTheme}>
-      <AntdApp>{children}</AntdApp>
-    </ConfigProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline>{children}</CssBaseline>
+    </ThemeProvider>
   );
 }
