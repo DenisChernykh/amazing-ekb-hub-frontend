@@ -1,8 +1,17 @@
 import {
+  MaterialPreviewHttpDto,
+  PlaceDetailResponseDto,
   PlaceListResponseDto,
   PlaceSummaryHttpDto,
 } from '@/entities/place/api/http/place.http.schema';
-import { PlaceCategory, PlaceList, PlaceStatus, PlaceSummary } from '@/entities/place/model/place';
+import {
+  MaterialPreview,
+  PlaceCategory,
+  PlaceDetail,
+  PlaceList,
+  PlaceStatus,
+  PlaceSummary,
+} from '@/entities/place/model/place';
 
 /**
  * Нормализует HTTP DTO категорию места в доменное значение.
@@ -34,6 +43,7 @@ function mapPlaceStatusDtoToModel(status: PlaceSummaryHttpDto['status']): PlaceS
       return status;
   }
 }
+
 /**
  * Преобразует один place DTO в доменную модель.
  *
@@ -51,6 +61,7 @@ export function mapPlaceSummaryDtoToModel(dto: PlaceSummaryHttpDto): PlaceSummar
     popularityWeight: dto.popularityWeight,
   };
 }
+
 /**
  * Преобразует список мест из HTTP DTO в доменную модель.
  *
@@ -63,5 +74,42 @@ export function mapPlaceListDtoToModel(dto: PlaceListResponseDto): PlaceList {
     total: dto.total,
     page: dto.page,
     pageSize: dto.pageSize,
+  };
+}
+
+/**
+ * Преобразует DTO закрепленного материала в доменную preview-модель.
+ *
+ * @param dto - DTO закрепленного материала из detail-ответа места.
+ * @returns Доменную preview-модель материала.
+ */
+export function mapMaterialPreviewDtoToModel(dto: MaterialPreviewHttpDto): MaterialPreview {
+  return {
+    id: dto.id,
+    placeId: dto.placeId,
+    platform: dto.platform,
+    type: dto.type,
+    title: dto.title,
+    publishedAt: dto.publishedAt,
+    durationSec: dto.durationSec,
+    url: dto.url,
+  };
+}
+
+/**
+ * Преобразует detail DTO места в доменную detail-модель.
+ *
+ * @param dto - DTO ответа `GET /places/{placeId}`.
+ * @returns Доменную detail-модель места.
+ */
+export function mapPlaceDetailDtoToModel(dto: PlaceDetailResponseDto): PlaceDetail {
+  return {
+    ...mapPlaceSummaryDtoToModel(dto),
+    pinnedMaterial: dto.pinnedMaterial ? mapMaterialPreviewDtoToModel(dto.pinnedMaterial) : null,
+    counters: {
+      dzen: dto.counters.dzen,
+      telegram: dto.counters.telegram,
+      instagram: dto.counters.instagram,
+    },
   };
 }

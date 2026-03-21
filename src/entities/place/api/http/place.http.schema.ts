@@ -1,8 +1,10 @@
 import z from 'zod';
+
 /**
  * Схема допустимых категорий места в HTTP DTO.
  */
 export const PlaceCategorySchema = z.enum(['pools', 'spa', 'cafe', 'hotels', 'workshops']);
+
 /**
  * Схема допустимых статусов места в HTTP DTO.
  */
@@ -30,11 +32,64 @@ export const PlaceListResponseSchema = z.object({
   page: z.number().int(),
   pageSize: z.number().int(),
 });
+
 /**
  * Тип одного place DTO после валидации схемой.
  */
 export type PlaceSummaryHttpDto = z.output<typeof PlaceSummaryHttpDtoSchema>;
+
 /**
  * Тип ответа списка мест после валидации схемой.
  */
 export type PlaceListResponseDto = z.output<typeof PlaceListResponseSchema>;
+
+/**
+ * Схема допустимых платформ материала в HTTP DTO.
+ */
+export const PlatformSchema = z.enum(['dzen', 'telegram', 'instagram']);
+
+/**
+ * Схема допустимых типов материала в HTTP DTO.
+ */
+export const MaterialTypeSchema = z.enum(['post', 'reel', 'video']);
+
+/**
+ * Схема закрепленного материала внутри `GET /places/{placeId}`.
+ */
+export const MaterialPreviewHttpDtoSchema = z.object({
+  id: z.string(),
+  placeId: z.string(),
+  platform: PlatformSchema,
+  type: MaterialTypeSchema,
+  title: z.string(),
+  publishedAt: z.string(),
+  durationSec: z.number().int().nullable(),
+  url: z.string(),
+});
+
+/**
+ * Схема счетчиков материалов по платформам в detail-ответе места.
+ */
+export const PlaceCountersHttpDtoSchema = z.object({
+  dzen: z.number().int(),
+  telegram: z.number().int(),
+  instagram: z.number().int(),
+});
+
+/**
+ * Схема успешного payload детальной карточки места.
+ */
+export const PlaceDetailResponseSchema = PlaceSummaryHttpDtoSchema.extend({
+  pinnedMaterial: MaterialPreviewHttpDtoSchema.nullable(),
+  counters: PlaceCountersHttpDtoSchema,
+});
+
+/**
+ * Тип закрепленного материала места после валидации схемой.
+ */
+export type MaterialPreviewHttpDto = z.output<typeof MaterialPreviewHttpDtoSchema>;
+
+/**
+ * Тип detail-ответа места после валидации схемой.
+ */
+export type PlaceDetailResponseDto = z.output<typeof PlaceDetailResponseSchema>;

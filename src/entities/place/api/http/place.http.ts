@@ -3,6 +3,7 @@ import { ApiClient, components, HttpResult, toHttpResult } from '@/shared/api';
 
 type PlaceListResponse = components['schemas']['PlaceListResponse'];
 type ErrorResponse = components['schemas']['ErrorResponse'];
+type PlaceDetailResponse = components['schemas']['PlaceDetail'];
 /**
  * Низкоуровневый HTTP transport для сущности `place`.
  */
@@ -14,6 +15,13 @@ export interface PlaceHttp {
    * @returns Сырой HTTP-результат без нормализации в `RemoteFailure`.
    */
   list(params: ListPlacesParams): Promise<HttpResult<PlaceListResponse, ErrorResponse>>;
+  /**
+   * Выполняет `GET /places/{placeId}`.
+   *
+   * @param placeId - Идентификатор места.
+   * @returns Сырой HTTP-результат без нормализации в `RemoteFailure`.
+   */
+  getDetail(placeId: string): Promise<HttpResult<PlaceDetailResponse, ErrorResponse>>;
 }
 
 /**
@@ -28,6 +36,18 @@ export function createPlaceHttp(client: ApiClient): PlaceHttp {
       const response = await client.GET('/places', {
         params: {
           query: params,
+        },
+      });
+
+      return toHttpResult(response);
+    },
+
+    async getDetail(placeId) {
+      const response = await client.GET('/places/{placeId}', {
+        params: {
+          path: {
+            placeId,
+          },
         },
       });
 

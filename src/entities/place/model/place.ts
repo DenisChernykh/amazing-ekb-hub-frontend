@@ -58,3 +58,39 @@ export type ListPlacesParams = {
   search?: string;
   category?: PlaceCategory;
 };
+/**
+ * Поддерживаемые платформы публикации материалов.
+ */
+export type Platform = 'dzen' | 'telegram' | 'instagram';
+/**
+ * Поддерживаемые типы материалов.
+ */
+export type MaterialType = 'post' | 'reel' | 'video';
+/**
+ * Короткое представление материала внутри detail-карточки места.
+ */
+export type MaterialPreview = {
+  id: string;
+  placeId: string;
+  platform: Platform;
+  type: MaterialType;
+  title: string;
+  publishedAt: string;
+  durationSec: number | null;
+  url: string;
+};
+/**
+ * Счетчики материалов по платформам.
+ */
+export type PlaceCounters = {
+  dzen: number;
+  telegram: number;
+  instagram: number;
+};
+/**
+ * Доменная модель детальной карточки места.
+ */
+export type PlaceDetail = PlaceSummary & {
+  pinnedMaterial: MaterialPreview | null;
+  counters: PlaceCounters;
+};

@@ -1,13 +1,24 @@
 import type { PlaceApi } from '@/entities/place/api/contract/place.contract';
 import { createPlaceHttp } from '@/entities/place/api/http/place.http';
-import { PlaceListResponseSchema } from '@/entities/place/api/http/place.http.schema';
-import { mapPlaceListDtoToModel } from '@/entities/place/api/mappers/place.dto-to-model.mapper';
+import {
+  PlaceDetailResponseSchema,
+  PlaceListResponseSchema,
+} from '@/entities/place/api/http/place.http.schema';
+import {
+  mapPlaceDetailDtoToModel,
+  mapPlaceListDtoToModel,
+} from '@/entities/place/api/mappers/place.dto-to-model.mapper';
 import type { ApiClient } from '@/shared/api';
 import { FailureMeta, toRemoteResult } from '@/shared/failures';
 import { resultOk } from '@/shared/lib/result';
 
 const PLACES_LIST_META: Omit<FailureMeta, 'status'> = {
   endpoint: '/places',
+  method: 'GET',
+};
+
+const PLACE_DETAIL_META: Omit<FailureMeta, 'status'> = {
+  endpoint: '/places/{placeId}',
   method: 'GET',
 };
 
@@ -33,6 +44,20 @@ export function createPlaceApi(client: ApiClient): PlaceApi {
       }
 
       return resultOk(mapPlaceListDtoToModel(result.data), result.meta);
+    },
+
+    async getDetail(placeId) {
+      const result = await toRemoteResult(
+        http.getDetail(placeId),
+        PLACE_DETAIL_META,
+        PlaceDetailResponseSchema,
+      );
+
+      if (!result.ok) {
+        return result;
+      }
+
+      return resultOk(mapPlaceDetailDtoToModel(result.data), result.meta);
     },
   };
 }
