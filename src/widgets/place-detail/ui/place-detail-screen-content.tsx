@@ -1,5 +1,5 @@
-import type { PlaceDetailPageViewModel } from '@/features/place-detail-page/model/place-detail-page.view-model.types';
 import AppLink from '@/shared/ui/app-link';
+import type { PlaceDetailScreenViewModel } from '@/widgets/place-detail/model/place-detail-screen.view-model.types';
 import { Alert, Box, Button, Container, Stack, Typography } from '@mui/material';
 import { PlaceDetailCounters } from './place-detail-counters';
 import { PlaceDetailPinnedCard } from './place-detail-pinned-card';
@@ -7,19 +7,19 @@ import { PlaceDetailPlatformSection } from './place-detail-platform-section';
 import { PlaceDetailSummaryCard } from './place-detail-summary-card';
 
 /**
- * Параметры page-level presentation для detail-страницы места.
+ * Параметры screen-level presentation для detail-экрана места.
  */
-export interface PlaceDetailPageContentProps {
-  viewModel: PlaceDetailPageViewModel;
+export interface PlaceDetailScreenContentProps {
+  viewModel: PlaceDetailScreenViewModel;
 }
 
 /**
- * Рендерит detail-страницу места из готового page-level view model.
+ * Рендерит detail-экран места из готового screen-level view model.
  *
- * @param viewModel - Готовая presentation-модель detail-страницы.
- * @returns Page-level MUI-композицию detail-экрана.
+ * @param viewModel - Готовая presentation-модель detail-экрана.
+ * @returns Screen-level MUI-композицию detail-экрана.
  */
-export function PlaceDetailPageContent({ viewModel }: Readonly<PlaceDetailPageContentProps>) {
+export function PlaceDetailScreenContent({ viewModel }: Readonly<PlaceDetailScreenContentProps>) {
   if (viewModel.kind === 'error') {
     return (
       <Box component="main" sx={{ py: { xs: 4, md: 6 } }}>
@@ -59,7 +59,7 @@ export function PlaceDetailPageContent({ viewModel }: Readonly<PlaceDetailPageCo
 
           <PlaceDetailCounters counters={viewModel.counters} />
 
-          <PlaceDetailPinnedCard pinnedMaterial={viewModel.pinnedMaterial} />
+          <PlaceDetailPinnedCard pinned={viewModel.pinned} />
 
           <Stack spacing={2}>
             {viewModel.sections.map((section) => (

@@ -1,6 +1,6 @@
-import { PlaceDetailMaterialViewModel } from '@/features/place-detail-page/model/place-detail-page.view-model.types';
+import type { PlaceDetailMaterialViewModel } from '@/widgets/place-detail/model/place-detail-screen.view-model.types';
 import { Chip, Divider, List, ListItem, ListItemButton, Stack, Typography } from '@mui/material';
-import { Fragment } from 'react/jsx-runtime';
+import { Fragment } from 'react';
 
 /**
  * Параметры списка материалов платформы.
@@ -17,23 +17,23 @@ export interface PlaceDetailMaterialListProps {
  */
 export function PlaceDetailMaterialList({ items }: Readonly<PlaceDetailMaterialListProps>) {
   return (
-    <List>
+    <List disablePadding>
       {items.map((item, index) => (
         <Fragment key={item.id}>
-          {index > 0 && <Divider component="li" />}
+          {index > 0 ? <Divider component="li" /> : null}
 
-          <ListItem>
+          <ListItem disablePadding>
             <ListItemButton component="a" href={item.href} target="_blank" rel="noreferrer">
-              <Stack>
+              <Stack spacing={1} sx={{ width: '100%' }}>
                 <Typography variant="subtitle1">{item.title}</Typography>
 
-                {item.metaChips.length > 0 && (
-                  <Stack>
+                {item.metaChips.length > 0 ? (
+                  <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                     {item.metaChips.map((chip) => (
-                      <Chip key={chip} label={chip} variant="outlined" />
+                      <Chip key={chip} label={chip} size="small" variant="outlined" />
                     ))}
                   </Stack>
-                )}
+                ) : null}
               </Stack>
             </ListItemButton>
           </ListItem>

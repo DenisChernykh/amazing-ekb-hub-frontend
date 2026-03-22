@@ -1,5 +1,5 @@
-import { PlaceDetailSectionPaginationViewModel } from '@/features/place-detail-page/model/place-detail-page.view-model.types';
 import AppLink from '@/shared/ui/app-link';
+import type { PlaceDetailSectionPaginationViewModel } from '@/widgets/place-detail/model/place-detail-screen.view-model.types';
 import { Pagination, PaginationItem } from '@mui/material';
 
 /**

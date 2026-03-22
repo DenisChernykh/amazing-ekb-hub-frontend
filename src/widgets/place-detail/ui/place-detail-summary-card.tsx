@@ -1,4 +1,4 @@
-import { PlaceDetailSummaryViewModel } from '@/features/place-detail-page/model/place-detail-page.view-model.types';
+import type { PlaceDetailSummaryViewModel } from '@/widgets/place-detail/model/place-detail-screen.view-model.types';
 import { Card, CardContent, Chip, Stack, Typography } from '@mui/material';
 
 /**
@@ -29,13 +29,13 @@ export function PlaceDetailSummaryCard({ summary }: Readonly<PlaceDetailSummaryC
             {summary.summary}
           </Typography>
 
-          {summary.tags.length > 0 && (
+          {summary.tags.length > 0 ? (
             <Stack direction="row">
               {summary.tags.map((tag) => (
                 <Chip key={tag} label={tag} variant="outlined" />
               ))}
             </Stack>
-          )}
+          ) : null}
         </Stack>
       </CardContent>
     </Card>

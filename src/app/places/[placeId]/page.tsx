@@ -1,11 +1,10 @@
 import { loadPlaceDetailPageData } from '@/app/di/place-detail';
-import {
-  buildPlaceDetailPageViewModel,
-  PlaceDetailPageContent,
-  PlaceDetailPageSearchParams,
-  resolvePlaceDetailPlatformPages,
-} from '@/features/place-detail-page';
 import { isNotFoundFailure } from '@/shared/failures';
+import {
+  PlaceDetailScreen,
+  resolvePlaceDetailPlatformPages,
+  type PlaceDetailScreenSearchParams,
+} from '@/widgets/place-detail';
 import { notFound } from 'next/navigation';
 
 /**
@@ -13,14 +12,14 @@ import { notFound } from 'next/navigation';
  */
 interface PlaceDetailPageProps {
   params: Promise<{ placeId: string }>;
-  searchParams?: Promise<PlaceDetailPageSearchParams>;
+  searchParams?: Promise<PlaceDetailScreenSearchParams>;
 }
 
 /**
  * Route-level страница места.
  *
  * Остаётся тонким entrypoint: получает route/search params, делегирует загрузку
- * в `app/di`, а presentation и маппинг состояний — в feature-слой.
+ * в `app/di`, а screen composition — в widget-слой.
  *
  * @param params - Dynamic route params Next App Router.
  * @param searchParams - Query-параметры платформенной пагинации.
@@ -44,7 +43,5 @@ export default async function PlaceDetailPage({
     notFound();
   }
 
-  const viewModel = buildPlaceDetailPageViewModel(pageData);
-
-  return <PlaceDetailPageContent viewModel={viewModel} />;
+  return <PlaceDetailScreen data={pageData} />;
 }
