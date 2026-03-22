@@ -1,3 +1,7 @@
+import {
+  MaterialTypeSchema,
+  PlatformSchema,
+} from '@/entities/material/api/http/material.primitives.schema';
 import z from 'zod';
 
 /**
@@ -42,16 +46,6 @@ export type PlaceSummaryHttpDto = z.output<typeof PlaceSummaryHttpDtoSchema>;
  * Тип ответа списка мест после валидации схемой.
  */
 export type PlaceListResponseDto = z.output<typeof PlaceListResponseSchema>;
-
-/**
- * Схема допустимых платформ материала в HTTP DTO.
- */
-export const PlatformSchema = z.enum(['dzen', 'telegram', 'instagram']);
-
-/**
- * Схема допустимых типов материала в HTTP DTO.
- */
-export const MaterialTypeSchema = z.enum(['post', 'reel', 'video']);
 
 /**
  * Схема закрепленного материала внутри `GET /places/{placeId}`.

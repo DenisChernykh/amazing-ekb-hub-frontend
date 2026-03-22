@@ -1,9 +1,22 @@
-import { MaterialType, Platform } from '@/entities/place';
+/**
+ * Канонический порядок платформ материалов во frontend.
+ */
+export const MATERIAL_PLATFORMS = ['dzen', 'telegram', 'instagram'] as const;
 
 /**
- * Доменная модель материала места.
+ * Поддерживаемые платформы публикации материалов.
  */
-export type Material = {
+export type Platform = (typeof MATERIAL_PLATFORMS)[number];
+
+/**
+ * Поддерживаемые типы материалов.
+ */
+export type MaterialType = 'post' | 'reel' | 'video';
+
+/**
+ * Короткое представление материала внутри place detail.
+ */
+export type MaterialPreview = {
   id: string;
   placeId: string;
   platform: Platform;
@@ -13,6 +26,11 @@ export type Material = {
   durationSec: number | null;
   url: string;
 };
+
+/**
+ * Доменная модель материала места.
+ */
+export type Material = MaterialPreview;
 /**
  * Доменная модель пагинированного списка материалов места.
  */

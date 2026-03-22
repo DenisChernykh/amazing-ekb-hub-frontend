@@ -1,3 +1,4 @@
+import type { MaterialPreview } from '@/entities/material/model/material';
 import {
   MaterialPreviewHttpDto,
   PlaceDetailResponseDto,
@@ -5,7 +6,6 @@ import {
   PlaceSummaryHttpDto,
 } from '@/entities/place/api/http/place.http.schema';
 import {
-  MaterialPreview,
   PlaceCategory,
   PlaceDetail,
   PlaceList,

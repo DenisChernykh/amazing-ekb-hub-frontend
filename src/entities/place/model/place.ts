@@ -1,3 +1,5 @@
+import type { MaterialPreview } from '@/entities/material/model/material';
+
 /**
  * Канонический список категорий места во frontend-домене.
  */
@@ -7,6 +9,7 @@ export const PLACE_CATEGORIES = ['pools', 'spa', 'cafe', 'hotels', 'workshops'] 
  * Категория места в доменной модели frontend.
  */
 export type PlaceCategory = (typeof PLACE_CATEGORIES)[number];
+
 /**
  * Проверяет, что строка является допустимой категорией места.
  *
@@ -16,6 +19,7 @@ export type PlaceCategory = (typeof PLACE_CATEGORIES)[number];
 export function isPlaceCategory(value: string): value is PlaceCategory {
   return PLACE_CATEGORIES.includes(value as PlaceCategory);
 }
+
 /**
  * Статус места в доменной модели frontend.
  */
@@ -58,27 +62,7 @@ export type ListPlacesParams = {
   search?: string;
   category?: PlaceCategory;
 };
-/**
- * Поддерживаемые платформы публикации материалов.
- */
-export type Platform = 'dzen' | 'telegram' | 'instagram';
-/**
- * Поддерживаемые типы материалов.
- */
-export type MaterialType = 'post' | 'reel' | 'video';
-/**
- * Короткое представление материала внутри detail-карточки места.
- */
-export type MaterialPreview = {
-  id: string;
-  placeId: string;
-  platform: Platform;
-  type: MaterialType;
-  title: string;
-  publishedAt: string;
-  durationSec: number | null;
-  url: string;
-};
+
 /**
  * Счетчики материалов по платформам.
  */
@@ -87,6 +71,7 @@ export type PlaceCounters = {
   telegram: number;
   instagram: number;
 };
+
 /**
  * Доменная модель детальной карточки места.
  */

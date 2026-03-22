@@ -2,10 +2,8 @@ import 'server-only';
 
 import { listPlaceMaterials } from '@/app/di/material';
 import { getPlaceDetail } from '@/app/di/place';
-import type { MaterialListResult } from '@/entities/material';
-import type { PlaceDetailResult, Platform } from '@/entities/place';
-
-const PLATFORM_ORDER: readonly Platform[] = ['dzen', 'telegram', 'instagram'];
+import { MATERIAL_PLATFORMS, type MaterialListResult, type Platform } from '@/entities/material';
+import type { PlaceDetailResult } from '@/entities/place';
 
 /**
  * Локальный app-layer shape страниц по платформам.
@@ -45,7 +43,7 @@ async function loadMaterialResultsByPlatform(args: {
   const { placeId, platformPages, counters } = args;
 
   const results = await Promise.all(
-    PLATFORM_ORDER.map(async (platform) => {
+    MATERIAL_PLATFORMS.map(async (platform) => {
       if (counters[platform] === 0) {
         return null;
       }

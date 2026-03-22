@@ -1,14 +1,10 @@
+import {
+  MaterialTypeSchema,
+  PlatformSchema,
+} from '@/entities/material/api/http/material.primitives.schema';
 import z from 'zod';
 
-/**
- * Схема допустимых платформ материала в HTTP DTO.
- */
-export const PlatformSchema = z.enum(['dzen', 'telegram', 'instagram']);
-
-/**
- * Схема допустимых типов материала в HTTP DTO.
- */
-export const MaterialTypeSchema = z.enum(['post', 'reel', 'video']);
+export { MaterialTypeSchema, PlatformSchema };
 
 /**
  * Схема одного материала из `GET /places/{placeId}/materials`.
@@ -23,6 +19,7 @@ export const MaterialHttpDtoSchema = z.object({
   durationSec: z.number().nullable().optional(),
   url: z.string(),
 });
+
 /**
  * Схема успешного payload списка материалов места.
  */
