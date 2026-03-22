@@ -1,4 +1,4 @@
-import { PlaceCategory } from '@/entities/place';
+import type { PlaceCategory } from '@/entities/place';
 
 /**
  * View model одной карточки места.
@@ -12,8 +12,9 @@ export type PlaceCardViewModel = {
   categoryLabel: string;
   href: string;
 };
+
 /**
- * View model списка мест для главной страницы.
+ * View model списка мест для home-экрана.
  */
 export type PlaceFeedViewModel =
   | {

@@ -1,13 +1,5 @@
-import type { PlaceCategory, PlaceSummary } from '@/entities/place';
-import type { PlaceCardViewModel } from '@/features/place-feed/model/place-feed.view-model.types';
-
-const PLACE_CATEGORY_LABELS: Record<PlaceCategory, string> = {
-  pools: 'Бассейны',
-  spa: 'Спа',
-  cafe: 'Кафе',
-  hotels: 'Отели',
-  workshops: 'Мастер-классы',
-};
+import { getPlaceCategoryLabel, type PlaceSummary } from '@/entities/place';
+import type { PlaceCardViewModel } from './place-feed.view-model.types';
 
 /**
  * Преобразует доменную модель места в presentation-ready карточку.
@@ -22,7 +14,7 @@ export function mapPlaceSummaryToCardViewModel(place: PlaceSummary): PlaceCardVi
     summary: place.summary,
     tags: [...place.tags],
     category: place.category,
-    categoryLabel: PLACE_CATEGORY_LABELS[place.category],
+    categoryLabel: getPlaceCategoryLabel(place.category),
     href: buildPlaceHref(place.id),
   };
 }

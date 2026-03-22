@@ -1,13 +1,17 @@
 import { listHomePlaces } from '@/app/di/place';
-import { HomePageContent, HomePageSearchParams, resolveHomePageParams } from '@/features/home-page';
+import {
+  PlaceFeedScreen,
+  resolvePlaceFeedSearchParams,
+  type PlaceFeedScreenSearchParams,
+} from '@/widgets/place-feed';
 
 interface HomePageProps {
-  searchParams?: Promise<HomePageSearchParams>;
+  searchParams?: Promise<PlaceFeedScreenSearchParams>;
 }
 
 export default async function HomePage({ searchParams }: Readonly<HomePageProps>) {
-  const params = await resolveHomePageParams(searchParams);
+  const params = await resolvePlaceFeedSearchParams(searchParams);
   const result = await listHomePlaces(params);
 
-  return <HomePageContent result={result} />;
+  return <PlaceFeedScreen result={result} />;
 }

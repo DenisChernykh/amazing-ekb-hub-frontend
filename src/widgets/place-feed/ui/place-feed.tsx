@@ -1,6 +1,5 @@
-import type { PlaceFeedViewModel } from '@/features/place-feed/model/place-feed.view-model.types';
-
 import { Alert, Box, Grid, Paper, Stack, Typography } from '@mui/material';
+import type { PlaceFeedViewModel } from '../model/place-feed.view-model.types';
 import { PlaceCard } from './place-card';
 
 /**
@@ -9,6 +8,7 @@ import { PlaceCard } from './place-card';
 export interface PlaceFeedProps {
   viewModel: PlaceFeedViewModel;
 }
+
 /**
  * Рендерит состояния home-ленты мест: success, empty, error.
  *

@@ -1,19 +1,30 @@
 import type { ListPlacesParams, PlaceCategory } from '@/entities/place';
 import { isPlaceCategory } from '@/entities/place';
-import { getSingleSearchParam, parsePositivePage } from '@/shared/lib/search-params';
-
-type SearchParamValue = string | string[] | undefined;
+import {
+  getSingleSearchParam,
+  parsePositivePage,
+  type SearchParamValue,
+} from '@/shared/lib/search-params';
 
 /**
- * Контракт `searchParams` для главной страницы в Next App Router.
+ * Контракт `searchParams` для home/place-feed экрана.
  */
-export type HomePageSearchParams = {
+export type PlaceFeedScreenSearchParams = {
   page?: SearchParamValue;
   search?: SearchParamValue;
   category?: SearchParamValue;
 };
 
-const DEFAULT_HOME_PLACES_PARAMS: ListPlacesParams = {
+/**
+ * Query keys home/place-feed экрана.
+ */
+export const PLACE_FEED_QUERY_KEYS = {
+  page: 'page',
+  search: 'search',
+  category: 'category',
+} as const;
+
+const DEFAULT_PLACE_FEED_PARAMS: ListPlacesParams = {
   page: 1,
   pageSize: 20,
   sort: 'popular',
@@ -34,24 +45,24 @@ function parsePlaceCategory(value: string | undefined): PlaceCategory | undefine
 }
 
 /**
- * Нормализует route-level `searchParams` главной страницы в канонический `ListPlacesParams`.
+ * Нормализует route-level `searchParams` home-экрана в канонический `ListPlacesParams`.
  *
  * @param searchParamsPromise - Promise с query params из Next page.
  * @returns Параметры списка мест с default-значениями и отброшенными невалидными значениями.
  */
-export async function resolveHomePageParams(
-  searchParamsPromise?: Promise<HomePageSearchParams>,
+export async function resolvePlaceFeedSearchParams(
+  searchParamsPromise?: Promise<PlaceFeedScreenSearchParams>,
 ): Promise<ListPlacesParams> {
   const searchParams = (await searchParamsPromise) ?? {};
 
   const page = parsePositivePage(getSingleSearchParam(searchParams.page));
-  const search = getSingleSearchParam(searchParams.search);
   const category = parsePlaceCategory(getSingleSearchParam(searchParams.category));
+  const search = getSingleSearchParam(searchParams.search);
 
   return {
-    ...DEFAULT_HOME_PLACES_PARAMS,
+    ...DEFAULT_PLACE_FEED_PARAMS,
     ...(page ? { page } : {}),
-    ...(search ? { search } : {}),
     ...(category ? { category } : {}),
+    ...(search ? { search } : {}),
   };
 }

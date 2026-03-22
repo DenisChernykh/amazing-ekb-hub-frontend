@@ -1,7 +1,7 @@
-import { PlaceListResult } from '@/entities/place';
-import { mapPlaceSummaryToCardViewModel } from '@/features/place-feed/model/map-place-summary-to-card-view-model';
-import { PlaceFeedViewModel } from '@/features/place-feed/model/place-feed.view-model.types';
+import type { PlaceListResult } from '@/entities/place';
 import { getRemoteFailureMessage } from '@/shared/failures';
+import { mapPlaceSummaryToCardViewModel } from './map-place-summary-to-card-view-model';
+import type { PlaceFeedViewModel } from './place-feed.view-model.types';
 
 /**
  * Преобразует result-first ответ списка мест в presentation-friendly view model.

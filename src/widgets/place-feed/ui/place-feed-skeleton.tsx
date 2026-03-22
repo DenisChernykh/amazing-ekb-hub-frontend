@@ -1,5 +1,6 @@
-import type { PlaceCategory } from '@/entities/place';
 import { Box, Grid, Paper, Skeleton, Stack, Typography } from '@mui/material';
+import { PLACE_FEED_CATEGORY_BACKGROUND, PLACE_FEED_SKELETON_CATEGORIES } from '../lib';
+
 /**
  * Параметры skeleton-ленты мест.
  */
@@ -7,29 +8,15 @@ export interface PlaceFeedSkeletonProps {
   count?: number;
 }
 
-const SKELETON_CATEGORIES: readonly PlaceCategory[] = [
-  'spa',
-  'pools',
-  'cafe',
-  'hotels',
-  'workshops',
-];
-
-const categoryBackgroundByType: Record<PlaceCategory, string> = {
-  pools: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-  spa: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)',
-  cafe: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)',
-  hotels: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
-  workshops: 'linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)',
-};
-
 /**
  * Презентационный skeleton одной карточки места.
  *
  * @param category - Категория, используемая только для tonal media fallback.
  * @returns Skeleton карточки места.
  */
-function PlaceCardSkeleton({ category }: Readonly<{ category: PlaceCategory }>) {
+function PlaceCardSkeleton({
+  category,
+}: Readonly<{ category: (typeof PLACE_FEED_SKELETON_CATEGORIES)[number] }>) {
   return (
     <Paper variant="outlined" sx={{ height: '100%', overflow: 'hidden' }}>
       <Box
@@ -37,7 +24,7 @@ function PlaceCardSkeleton({ category }: Readonly<{ category: PlaceCategory }>) 
           minHeight: 168,
           px: 2.5,
           py: 2,
-          background: categoryBackgroundByType[category],
+          background: PLACE_FEED_CATEGORY_BACKGROUND[category],
         }}
       >
         <Typography variant="overline" color="text.secondary">
@@ -64,7 +51,7 @@ function PlaceCardSkeleton({ category }: Readonly<{ category: PlaceCategory }>) 
 export function PlaceFeedSkeleton({ count = 5 }: Readonly<PlaceFeedSkeletonProps>) {
   const items = Array.from({ length: count }, (_, index) => ({
     id: `skeleton-${index}`,
-    category: SKELETON_CATEGORIES[index % SKELETON_CATEGORIES.length],
+    category: PLACE_FEED_SKELETON_CATEGORIES[index % PLACE_FEED_SKELETON_CATEGORIES.length],
   }));
 
   return (
