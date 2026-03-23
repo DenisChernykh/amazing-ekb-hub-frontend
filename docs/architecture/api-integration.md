@@ -9,11 +9,13 @@
 
 1. Frontend не заводит свой source of truth для API.
 2. Любое изменение API сначала фиксируется в backend.
-3. UI ориентируется на `error.type`, `error.code`, `error.message`.
+3. UI ориентируется на `error.type`, `error.code`, `issues[*].code` и `requestId`, а не на raw backend `message`.
 4. Канонический frontend base path для backend API — `/v1`.
 5. Typed frontend client строится от `src/shared/api/schema.generated.ts`, сгенерированной из backend OpenAPI.
-6. Raw HTTP-ответы `openapi-fetch` сначала приводятся к `HttpResult`, затем нормализуются через `src/shared/failures/to-remote-result.ts`.
-7. UI и data-access слой ветвят поведение по `RemoteFailure`, `error.type` и `error.code`, а не по raw backend `message`.
+6. Текущий runtime data-access слой нормализует raw HTTP-ответы `openapi-fetch` через `src/shared/failures/to-remote-result.ts`.
+7. Для новой shared-библиотеки обработки `STD-001` в server components используется архитектура из `docs/architecture/std-001-rsc-error-library.md`.
+8. Первая версия `std-errors` библиотеки покрывает только server-side data loading в Next Server Components и не заменяет целиком текущий `src/shared/failures`.
+9. UI и data-access слой ветвят поведение по machine-readable failure shape, а не по raw backend `message`.
 
 ## Routing model
 
@@ -35,3 +37,16 @@
 - server-side код Next должен сначала восстановить absolute origin запроса, а затем строить URL вида `http://<host>/v1`.
 
 Это правило нужно соблюдать для всех server-side data-access сценариев, чтобы не получать runtime-ошибку вида `Failed to parse URL from /v1/...`.
+
+## STD-001 library note
+
+Новая библиотека `std-errors` вводится как отдельный shared module для server runtime и строится в два слоя:
+
+- `src/lib/std-errors` — framework-agnostic `core`
+- `src/server/std-errors` — `next-rsc` adapter
+
+Эта библиотека является целевой архитектурой для новых server-side сценариев обработки `STD-001`, но внедряется постепенно и не отменяет мгновенно текущий `Result + RemoteFailure` flow.
+
+Подробный контракт, scope v1 и roadmap следующих версий зафиксированы в:
+
+- `docs/architecture/std-001-rsc-error-library.md`
