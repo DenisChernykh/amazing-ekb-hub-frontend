@@ -1,9 +1,12 @@
-import { ListPlacesParams } from '@/entities/place/model/place';
-import { ApiClient, components, HttpResult, toHttpResult } from '@/shared/api';
+import type {
+  GetPlaceDetailHttpResult,
+  GetPlaceDetailPathParams,
+  GetPlaceListHttpResult,
+  GetPlaceListQueryDto,
+  PlaceHttpClient,
+} from '@/entities/place/api/http/place.http.types';
+import { apiClient, toHttpResult } from '@/shared/api';
 
-type PlaceListResponse = components['schemas']['PlaceListResponse'];
-type ErrorResponse = components['schemas']['ErrorResponse'];
-type PlaceDetailResponse = components['schemas']['PlaceDetail'];
 /**
  * Низкоуровневый HTTP transport для сущности `place`.
  */
@@ -11,17 +14,18 @@ export interface PlaceHttp {
   /**
    * Выполняет `GET /places`.
    *
-   * @param params - Query-параметры списка мест.
+   * @param query - Query DTO списка мест.
    * @returns Сырой HTTP-результат без нормализации в `RemoteFailure`.
    */
-  list(params: ListPlacesParams): Promise<HttpResult<PlaceListResponse, ErrorResponse>>;
+  list(query: GetPlaceListQueryDto): Promise<GetPlaceListHttpResult>;
+
   /**
    * Выполняет `GET /places/{placeId}`.
    *
-   * @param placeId - Идентификатор места.
+   * @param path - Path DTO detail-страницы места.
    * @returns Сырой HTTP-результат без нормализации в `RemoteFailure`.
    */
-  getDetail(placeId: string): Promise<HttpResult<PlaceDetailResponse, ErrorResponse>>;
+  getDetail(path: GetPlaceDetailPathParams): Promise<GetPlaceDetailHttpResult>;
 }
 
 /**
@@ -30,24 +34,22 @@ export interface PlaceHttp {
  * @param client - Typed API client.
  * @returns Набор raw HTTP-операций `place`.
  */
-export function createPlaceHttp(client: ApiClient): PlaceHttp {
+export function createPlaceHttp(client: PlaceHttpClient = apiClient): PlaceHttp {
   return {
-    async list(params) {
+    async list(query) {
       const response = await client.GET('/places', {
         params: {
-          query: params,
+          query,
         },
       });
 
       return toHttpResult(response);
     },
 
-    async getDetail(placeId) {
+    async getDetail(path) {
       const response = await client.GET('/places/{placeId}', {
         params: {
-          path: {
-            placeId,
-          },
+          path,
         },
       });
 

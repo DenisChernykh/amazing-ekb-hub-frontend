@@ -4,6 +4,10 @@ import {
   PlaceDetailResponseSchema,
   PlaceListResponseSchema,
 } from '@/entities/place/api/http/place.http.schema';
+import type {
+  GetPlaceDetailPathParams,
+  GetPlaceListQueryDto,
+} from '@/entities/place/api/http/place.http.types';
 import {
   mapPlaceDetailDtoToModel,
   mapPlaceListDtoToModel,
@@ -33,8 +37,16 @@ export function createPlaceApi(client: ApiClient): PlaceApi {
 
   return {
     async list(params) {
+      const query: GetPlaceListQueryDto = {
+        page: params.page,
+        pageSize: params.pageSize,
+        sort: params.sort,
+        ...(params.search ? { search: params.search } : {}),
+        ...(params.category ? { category: params.category } : {}),
+      };
+
       const result = await toRemoteResult(
-        http.list(params),
+        http.list(query),
         PLACES_LIST_META,
         PlaceListResponseSchema,
       );
@@ -47,8 +59,12 @@ export function createPlaceApi(client: ApiClient): PlaceApi {
     },
 
     async getDetail(placeId) {
+      const path: GetPlaceDetailPathParams = {
+        placeId,
+      };
+
       const result = await toRemoteResult(
-        http.getDetail(placeId),
+        http.getDetail(path),
         PLACE_DETAIL_META,
         PlaceDetailResponseSchema,
       );
