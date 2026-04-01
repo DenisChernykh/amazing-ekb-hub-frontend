@@ -1,100 +1,88 @@
 # STD-001 RSC Error Library
 
-## Назначение
+## Purpose
 
-Этот документ фиксирует архитектуру shared-библиотеки обработки backend-ошибок `STD-001` для frontend-приложения на Next.js App Router.
+Этот документ фиксирует новый server-side контур обработки backend-ошибок `STD-001` для Next.js App Router.
 
-Документ описывает:
+Библиотека нужна для того, чтобы:
 
-- переносимое `core`-ядро обработки `STD-001`;
-- `next-rsc` adapter для server components;
-- границы первой версии;
-- ожидаемое поведение для `validation`, `domain`, `auth`, `permission`, `not_found` и `server`;
-- roadmap следующих версий.
+1. единообразно отличать expected failures от fatal failures;
+2. не смешивать route logic и data-access error handling;
+3. дать повторяемый pattern для новых server-first страниц;
+4. поддерживать как page-level, так и section-level error handling.
 
-Этот документ не описывает текущую legacy-реализацию `src/shared/failures` как целевую архитектуру.
-Он задаёт целевую библиотеку, которую можно переносить между проектами.
+## Scope
 
-## Source of truth
-
-1. `../amazing-ekb-hub-backend/docs/api/error-response-standard.md`
-2. `../amazing-ekb-hub-backend/docs/api/specification.yaml`
-
-Frontend не определяет собственный формат backend-ошибок.
-Библиотека только валидирует, классифицирует и адаптирует `STD-001` под server runtime.
-
-## Цели библиотеки
-
-1. Единообразно отличать expected API failures от fatal runtime failures.
-2. Не смешивать `STD-001` ошибки с transport-level и contract-level сбоями.
-3. Дать переносимое `core`, не зависящее от `Next.js`, `React`, `openapi-fetch` и конкретного проекта.
-4. Вынести platform-specific поведение (`notFound()`, `redirect()`, `unauthorized()`, `forbidden()`) в отдельный adapter.
-5. Не использовать raw backend `error.message` как пользовательский UI-текст.
-6. Сохранять `requestId` для observability и support/debugging flow.
-
-## Scope v1
-
-Первая версия библиотеки покрывает только server-side data loading в Next.js:
+Версия v1 покрывает:
 
 - `page.tsx`
 - `layout.tsx`
-- shared server loaders
-- route-level orchestration для server components
+- route-private page loaders
+- server-side data loading в Next App Router
+- route-level inline failures
+- fatal route boundaries
+- non-critical section degradation
 
-В первую версию не входят:
+В scope v1 не входят:
 
 - Server Actions
 - Route Handlers
 - browser runtime
-- client components
-- global UI error rendering
-- полная миграция существующего `src/shared/failures`
+- client-side fetching adapters
+- полная миграция legacy `shared/failures`
 
-## Архитектура
+## Layered Architecture
 
-Библиотека состоит из двух слоёв.
+### 1. `src/lib/std-errors`
 
-### 1. `core`
+Framework-agnostic core.
 
-Папка: `src/lib/std-errors`
+Отвечает за:
 
-`core` не зависит от:
+- parsing и validation `STD-001`;
+- classification expected/fatal;
+- policy resolution;
+- extraction `requestId`;
+- normalized issues;
+- diagnostics.
 
-- `next/*`
-- `react`
-- конкретного HTTP-клиента
-- generated OpenAPI types
-- route path проекта
+### 2. `src/server/std-errors`
 
-`core` отвечает за:
+Next.js adapter и app-facing integration layer.
 
-- типы `StdErrorEnvelope`, `ExpectedFailure`, `FatalFailure`, `StdErrorPolicy`;
-- runtime-валидацию `STD-001`;
-- извлечение `requestId`;
-- нормализацию `issues`;
-- классификацию `expected` / `fatal`;
-- policy resolution по `error.code` и `error.type`.
+Отвечает за:
 
-### 2. `next-rsc` adapter
+- execution of server request flow;
+- app-level policy defaults;
+- Next interrupts;
+- page-level helper APIs;
+- non-critical request execution.
 
-Папка: `src/server/std-errors`
+### 3. `src/shared/api`
 
-`next-rsc` adapter зависит от `next/navigation` и отвечает за:
+Throw-based bridge между transport и `std-errors`.
 
-- выполнение server request flow;
-- безопасную работу с `notFound()`, `redirect()` и другими Next interrupts;
-- capability-aware policy для `auth` и `permission`;
-- преобразование expected failure в:
-  - inline failure model;
-  - `notFound()`;
-  - `redirect()`;
-  - `unauthorized()` / `forbidden()`, если включён `authInterrupts`.
+Отвечает за:
 
-## Expected и fatal failures
+- success unwrap;
+- runtime error mapping;
+- contract failure reporting input.
+
+### 4. `src/shared/errors`
+
+Reusable UI layer для нормализованных failures.
+
+Отвечает за:
+
+- generic inline expected failure UI;
+- generic route fatal error UI;
+- shared error catalog.
+
+## Failure Categories
 
 ### Expected failures
 
-Expected failures относятся к штатному бизнес-flow и могут быть обработаны без `error.tsx`.
+Expected failures принадлежат штатному бизнес-flow и могут быть показаны пользователю без `error.tsx`.
 
 К ним относятся:
 
@@ -104,19 +92,9 @@ Expected failures относятся к штатному бизнес-flow и м
 - `permission`
 - `not_found`
 
-Такие ошибки нормализуются в `ExpectedFailure` и получают:
-
-- `type`
-- `code`
-- `status`
-- `requestId`
-- `action`
-- `catalogKey`
-- `issues`
-
 ### Fatal failures
 
-Fatal failures не считаются штатной веткой UI/data flow и должны эскалироваться в boundary/logging.
+Fatal failures не считаются штатной веткой UI и должны эскалироваться в boundary/logging.
 
 К ним относятся:
 
@@ -125,26 +103,65 @@ Fatal failures не считаются штатной веткой UI/data flow 
 - contract failures
 - unexpected runtime failures
 
-Такие ошибки нормализуются в `FatalFailure` и получают:
+### Non-critical failures
 
-- `kind`
-- `status`
-- `code`, если он доступен
-- `requestId`, если он доступен
-- `diagnostics`
+Non-critical failures — это failures второстепенных section-level запросов, которые не должны ронять страницу целиком.
 
-## Policy model
+Они нужны для сценариев вида:
 
-Project-level policy определяет, что делать с expected failures.
+- route-critical primary request succeeds;
+- secondary section request fails;
+- route remains renderable;
+- specific section shows error state.
 
-### Приоритет правил
+## App-Facing APIs
 
-1. правило по `error.code`
-2. правило по `error.type`
+### `executeAppRscRequest`
 
-`error.message` не участвует в branching-логике.
+Основной helper для page-level server requests.
 
-### Возможные actions
+Используется там, где request является route-critical.
+
+Route outcome:
+
+- success render;
+- inline expected failure;
+- fatal boundary.
+
+### `createAppRscErrorPolicy`
+
+Project-facing helper для сборки app policy.
+
+Используется для настройки:
+
+- inline expected failure;
+- `notFound()`;
+- `redirect()`;
+- auth/permission interrupts;
+- catalog keys.
+
+### `executeNonCriticalRequest`
+
+Helper для section-level best-effort requests.
+
+Используется там, где failure допустим локально и не должен ломать весь экран.
+
+Route outcome:
+
+- success section data;
+- local section error model;
+- optional requestId for diagnostics.
+
+## Policy Model
+
+Policy применяется только к expected failures.
+
+### Priority
+
+1. rule by `error.code`
+2. rule by `error.type`
+
+### Supported actions
 
 - `inline`
 - `interrupt:notFound`
@@ -152,143 +169,96 @@ Project-level policy определяет, что делать с expected failu
 - `interrupt:forbidden`
 - `redirect`
 
-### Общие правила v1
+### Default expectations
 
-- `validation` -> по умолчанию `inline`
-- `domain` -> по умолчанию `inline`
-- `not_found` -> по умолчанию `interrupt:notFound`
-- `auth` -> по умолчанию `inline`, если проект явно не выбрал другой mode
-- `permission` -> по умолчанию `inline`, если проект явно не выбрал другой mode
-- `server` никогда не является expected failure
+1. `validation` -> usually `inline`
+2. `domain` -> usually `inline`
+3. `not_found` -> usually `interrupt:notFound`
+4. `auth` -> project-defined mode
+5. `permission` -> project-defined mode
+6. `server` is never expected
 
-## Message ownership
+## Route Usage Pattern
 
-Библиотека не владеет пользовательскими текстами ошибок.
+Новый route-level pattern:
+
+1. route normalizes input;
+2. route builds page-data request;
+3. route executes critical request через `executeAppRscRequest`;
+4. route renders:
+   - success screen;
+   - inline failure;
+   - or fatal boundary.
+
+Для non-critical sections:
+
+1. page-data loader executes secondary request через `executeNonCriticalRequest`;
+2. loader stores section result as `success | error`;
+3. module/ui renders section-specific success/error/empty state.
+
+## UI Ownership
+
+`std-errors` не владеет screen-specific copy.
 
 Библиотека возвращает:
 
-- `catalogKey`
 - `type`
 - `code`
+- `catalogKey`
 - `issues`
 - `requestId`
 
-Конкретный проект отвечает за:
+Проект владеет:
 
-- локализацию;
-- UI-тексты;
-- маппинг `catalogKey -> user-facing message`;
-- формат показа field/global issues.
+- user-facing texts;
+- localization;
+- screen-specific overrides;
+- section-specific error copy.
 
-Raw backend `error.message` допускается только в diagnostics и logging.
+### Shared UI Layer
+
+`src/shared/errors` содержит generic reusable UI:
+
+- inline expected failure state;
+- route fatal error state;
+- shared generic catalog.
+
+### Route And Screen Ownership
+
+Route-level или screen-level code может:
+
+- выбрать `catalogKey`;
+- переопределить generic title/description;
+- деградировать section в local error state.
 
 ## Observability
 
-`requestId` должен сохраняться во всех возможных ветках.
+`requestId` должен сохраняться в максимально возможном числе веток.
 
-Порядок приоритета:
+Приоритет источников:
 
 1. `meta.requestId` из валидного `STD-001`
-2. `body.meta.requestId` при best-effort extraction для contract failure
-3. `x-request-id` из headers
+2. best-effort extracted requestId
+3. transport/header request id
 
-Если `requestId` отсутствует, библиотека не подставляет пустую строку.
+Fatal failures должны сохранять diagnostics, достаточные для расследования contract и runtime ошибок.
 
-## Next.js adapter rules
+## Reference Patterns
 
-1. Если `notFound()` или `redirect()` уже были вызваны внутри request flow, adapter не должен их проглатывать.
-2. Если общий `try/catch` неизбежен, framework-controlled interrupts должны пробрасываться обратно через `unstable_rethrow()`.
-3. `unauthorized()` и `forbidden()` используются только если runtime-capability явно включена.
-4. Если capability недоступна, `auth` и `permission` должны деградировать в `inline` или `redirect`, в зависимости от project policy.
-5. Fatal failures не возвращаются как inline result и не маскируются под expected flow.
+Reference routes:
 
-## Public API
+- `src/app/draft/home`
+- `src/app/draft/places/[placeId]`
 
-### `src/lib/std-errors`
+Reference shared UI:
 
-Публичный API `core` включает:
+- `src/shared/errors`
 
-- типы `STD-001`
-- parser
-- helpers
-- policy helpers
-- `normalizeHttpFailure`
-- `createDefaultStdErrorPolicy`
+Reference app-facing helpers:
 
-### `src/server/std-errors`
+- `src/server/std-errors`
 
-Публичный API `next-rsc` включает:
+## Limits
 
-- `createNextRscErrorPolicy`
-- `createNextRscBridge`
-- `executeRscRequest`
-- `resolveRscFailure`
-- `RscFatalError`
-
-## TSDoc requirements
-
-Для всех экспортируемых сущностей библиотеки TSDoc обязателен.
-
-Минимальные требования:
-
-1. summary обязателен для каждого экспортируемого API;
-2. `@param` обязателен для нетривиальных параметров;
-3. `@returns` обязателен там, где важна контрактная ветка результата;
-4. `@remarks` обязателен для side effects, platform limits и runtime caveats;
-5. `@typeParam` обязателен для значимых generic API.
-
-Язык TSDoc: русский.
-
-## Ограничения первой версии
-
-1. Библиотека не заменяет весь legacy `src/shared/failures` за один шаг.
-2. Библиотека не решает сама, как должен выглядеть UI ошибок.
-3. Библиотека не навязывает конкретный redirect route.
-4. Библиотека не должна хардкодить route path проекта.
-5. Библиотека не должна зависеть от entity-layer типов конкретного приложения.
-
-## Future versions
-
-### v2 — Server Actions
-
-Следующая версия должна покрыть expected/fatal error flow для Server Actions:
-
-- отдельный adapter для action mutation flow;
-- согласованный контракт для form errors;
-- mapping `validation/domain` в action-friendly serializable shape.
-
-### v3 — Route Handlers
-
-Следующая версия должна покрыть server runtime вне RSC rendering flow:
-
-- Route Handlers;
-- backend-for-frontend сценарии;
-- повторное использование `core` без зависимости от `next/navigation`.
-
-### v4 — Browser / client runtime
-
-Если появится подтверждённый use case, библиотека может получить browser adapter:
-
-- client-side data loading;
-- query/mutation adapters;
-- integration с UI error boundaries и retry policy.
-
-### Инварианты для следующих версий
-
-Во всех следующих версиях должны оставаться стабильными:
-
-1. разделение `core` и platform adapter;
-2. distinction между expected и fatal failures;
-3. branching по `error.code` / `error.type`, а не по `error.message`;
-4. project ownership над user-facing messages;
-5. сохранение `requestId` для observability.
-
-## Migration note
-
-Текущий проект пока использует `src/shared/failures` и `RemoteFailure` как действующий runtime-контракт.
-
-Новая библиотека должна внедряться постепенно:
-
-- сначала как standalone shared module;
-- затем через адаптеры и переходные bridge-слои;
-- только после этого как канонический путь для новых server-side сценариев.
+Этот контур не заменяет мгновенно весь legacy error handling.
+Он является target pattern для новых server-first экранов и внедряется постепенно.
