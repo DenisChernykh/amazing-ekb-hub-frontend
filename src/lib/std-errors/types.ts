@@ -107,6 +107,30 @@ export type StdFailureSource = 'http' | 'network' | 'timeout' | 'abort' | 'unkno
 export type StdHeaders = Record<string, string | undefined>;
 
 /**
+ * Описывает одну developer-facing contract-диагностику.
+ *
+ * @remarks
+ * Используется для разбора success-payload schema violations и не относится
+ * к `STD-001` expected issues.
+ */
+export interface ContractDiagnosticIssue {
+  /**
+   * Машиночитаемый код contract issue.
+   */
+  code: string;
+
+  /**
+   * Человекочитаемое описание contract issue.
+   */
+  message: string;
+
+  /**
+   * Путь к проблемному полю в `dot notation`, если он известен.
+   */
+  path?: string;
+}
+
+/**
  * Описывает входные данные для нормализации remote failure.
  *
  * @typeParam TBody - Тип raw payload до runtime-валидации.
@@ -136,6 +160,14 @@ export interface HttpFailureInput<TBody = unknown> {
    * Исходная ошибка transport/runtime слоя.
    */
   cause?: unknown;
+
+  /**
+   * Дополнительные contract diagnostics для fatal contract failures.
+   *
+   * @remarks
+   * Используется для success-payload schema violations и developer-facing logging.
+   */
+  contractIssues?: ContractDiagnosticIssue[];
 }
 
 /**
@@ -260,6 +292,7 @@ export interface FatalFailure {
     message?: string;
     cause?: unknown;
     rawBody?: unknown;
+    contractIssues?: ContractDiagnosticIssue[];
   };
 }
 

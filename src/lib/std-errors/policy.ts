@@ -42,6 +42,10 @@ export function normalizeHttpFailure(
   input: HttpFailureInput,
   policy: StdErrorPolicy,
 ): NormalizedFailure {
+  if (input.contractIssues != null && input.contractIssues.length > 0) {
+    return createFatalFailure(input, 'contract', 'HTTP success payload does not match schema.');
+  }
+
   const parseResult = tryParseStdErrorEnvelope(input);
 
   if (!parseResult.ok) {

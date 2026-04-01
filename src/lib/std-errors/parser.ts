@@ -162,7 +162,13 @@ export function isFatalFailure(value: unknown): value is FatalFailure {
     isNonEmptyString(value.diagnostics.source)
   );
 }
-
+/**
+ * Разбирает `meta` секцию `STD-001` payload.
+ *
+ * @param rawMeta - Сырое значение `meta` из HTTP body.
+ * @param input - Нормализованный transport input для contract diagnostics.
+ * @returns Parsed `meta` или contract failure.
+ */
 function parseMeta(
   rawMeta: unknown,
   input: HttpFailureInput,
@@ -198,7 +204,13 @@ function parseMeta(
     },
   };
 }
-
+/**
+ * Разбирает обязательную `error` секцию `STD-001` payload.
+ *
+ * @param rawError - Сырое значение `error` из HTTP body.
+ * @param input - Нормализованный transport input для contract diagnostics.
+ * @returns Parsed `error` body или contract failure.
+ */
 function parseErrorBody(
   rawError: unknown,
   input: HttpFailureInput,
@@ -238,7 +250,14 @@ function parseErrorBody(
     },
   };
 }
-
+/**
+ * Разбирает `error.details` секцию `STD-001` payload.
+ *
+ * @param rawDetails - Сырое значение `error.details`.
+ * @param errorType - Уже провалидированный тип ошибки `STD-001`.
+ * @param input - Нормализованный transport input для contract diagnostics.
+ * @returns Parsed `details` или contract failure.
+ */
 function parseDetails(
   rawDetails: unknown,
   errorType: StdErrorType,
@@ -297,7 +316,13 @@ function parseDetails(
     },
   };
 }
-
+/**
+ * Разбирает один элемент `error.details.issues[]`.
+ *
+ * @param rawIssue - Сырой issue item из backend payload.
+ * @param input - Нормализованный transport input для contract diagnostics.
+ * @returns Parsed issue или contract failure.
+ */
 function parseIssue(rawIssue: unknown, input: HttpFailureInput): ParseValueResult<StdErrorIssue> {
   if (!isRecord(rawIssue)) {
     return failContract(input, 'Each `error.details.issues[]` item must be an object.');
@@ -340,29 +365,57 @@ function parseIssue(rawIssue: unknown, input: HttpFailureInput): ParseValueResul
     },
   };
 }
-
+/**
+ * Создает contract failure результата парсинга.
+ *
+ * @param input - Нормализованный transport input.
+ * @param message - Человекочитаемое описание нарушения контракта.
+ * @returns Parse result с fatal contract failure.
+ */
 function failContract(input: HttpFailureInput, message: string): ParseValueResult<never> {
   return {
     ok: false,
     failure: createFatalFailure(input, 'contract', message),
   };
 }
-
+/**
+ * Проверяет наличие собственного свойства у record-like значения.
+ *
+ * @typeParam TKey - Ожидаемый ключ.
+ * @param value - Проверяемый объект.
+ * @param key - Имя свойства.
+ * @returns `true`, если свойство существует как own property.
+ */
 function hasOwn<TKey extends string>(
   value: Record<string, unknown>,
   key: TKey,
 ): value is Record<TKey, unknown> & Record<string, unknown> {
   return Object.prototype.hasOwnProperty.call(value, key);
 }
-
+/**
+ * Проверяет, что значение является непустой строкой.
+ *
+ * @param value - Проверяемое значение.
+ * @returns `true`, если значение является строкой с непустым trimmed content.
+ */
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }
-
+/**
+ * Проверяет, что значение является поддерживаемым типом ошибки `STD-001`.
+ *
+ * @param value - Проверяемое значение.
+ * @returns `true`, если значение входит в зарегистрированный набор `STD_ERROR_TYPES`.
+ */
 function isStdErrorType(value: unknown): value is StdErrorType {
   return typeof value === 'string' && STD_ERROR_TYPES.has(value as StdErrorType);
 }
-
+/**
+ * Проверяет корректность пути issue в dot notation.
+ *
+ * @param path - Исходный путь issue.
+ * @returns `true`, если путь не пустой, не использует bracket notation и не содержит пустых сегментов.
+ */
 function isValidIssuePath(path: string): boolean {
   const normalizedPath = path.trim();
 

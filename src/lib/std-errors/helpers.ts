@@ -186,6 +186,7 @@ export function createFatalFailure(
       message,
       cause: input.cause,
       rawBody: input.body,
+      contractIssues: input.contractIssues,
     },
   };
 }
@@ -206,6 +207,12 @@ export function normalizeIssuePath(path?: string): string | undefined {
   return normalizedPath.length > 0 ? normalizedPath : undefined;
 }
 
+/**
+ * Проверяет, что значение похоже на plain object.
+ *
+ * @param value - Проверяемое значение.
+ * @returns `true`, если значение является объектом и не является массивом.
+ */
 function isRecordLike(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

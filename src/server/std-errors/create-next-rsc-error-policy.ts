@@ -145,7 +145,12 @@ export function createNextRscErrorPolicy(
     },
   });
 }
-
+/**
+ * Создает policy rule для access-related expected failures.
+ *
+ * @param input - Конфигурация failure type, interrupt behavior и catalog defaults.
+ * @returns Готовое правило `StdErrorPolicyRule` для `auth` или `permission`.
+ */
 function createAccessFailureRule(input: {
   authInterrupts: boolean;
   interruptAction: 'interrupt:unauthorized' | 'interrupt:forbidden';
@@ -190,7 +195,12 @@ function createAccessFailureRule(input: {
       };
   }
 }
-
+/**
+ * Создает policy rule для expected `not_found` failures.
+ *
+ * @param options - Настройки mode и catalog key для `not_found`.
+ * @returns Готовое правило `StdErrorPolicyRule` для `not_found`.
+ */
 function createNotFoundFailureRule(options?: NextRscNotFoundFailureOptions): StdErrorPolicyRule {
   const mode = options?.mode ?? 'interrupt';
   const catalogKey = options?.catalogKey ?? 'std.notFound.generic';
@@ -207,7 +217,12 @@ function createNotFoundFailureRule(options?: NextRscNotFoundFailureOptions): Std
     catalogKey,
   };
 }
-
+/**
+ * Проверяет, что значение является непустой строкой.
+ *
+ * @param value - Проверяемое значение.
+ * @returns `true`, если значение является строкой с непустым trimmed content.
+ */
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }

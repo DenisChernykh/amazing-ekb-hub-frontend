@@ -12,29 +12,8 @@ export {
   resolveRequestId,
 } from './helpers';
 
-export {
-  isFatalFailure as isParsedFatalFailure,
-  isRecord,
-  tryParseStdErrorEnvelope,
-} from './parser';
-
-export {
-  createDefaultStdErrorPolicy,
-  isExpectedFailure,
-  isExpectedStdErrorType,
-  isFatalFailure,
-  normalizeHttpFailure,
-  normalizeParsedEnvelope,
-  resolvePolicyRule,
-  toServerFatalFailure,
-  toUnexpectedFatalFailure,
-} from './policy';
-
-export type { ParseStdErrorFailure, ParseStdErrorResult, ParseStdErrorSuccess } from './parser';
-
-export type { CreateDefaultStdErrorPolicyOptions } from './policy';
-
 export type {
+  ContractDiagnosticIssue,
   ExpectedFailure,
   ExpectedFailureAction,
   ExpectedStdErrorType,

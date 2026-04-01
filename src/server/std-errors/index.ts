@@ -1,28 +1,21 @@
-export { createNextRscErrorPolicy } from './create-next-rsc-error-policy';
+export { createAppRscErrorPolicy } from './create-app-rsc-error-policy';
+export { executeAppRscRequest } from './execute-app-rsc-request';
+export { executeNonCriticalRequest } from './execute-non-critical-request';
 
-export {
-  RscFatalError,
-  createNextRscBridge,
-  executeRscRequest,
-  resolveRscFailure,
-  toRscInlineFailureModel,
-} from './next-rsc';
+export type { CreateAppRscErrorPolicyOptions } from './create-app-rsc-error-policy';
 
 export type {
-  CreateNextRscErrorPolicyOptions,
-  NextRscAccessFailureMode,
-  NextRscAccessFailureOptions,
-  NextRscInlineFailureOptions,
-  NextRscNotFoundFailureOptions,
-} from './create-next-rsc-error-policy';
+  AppRscRequestFailure,
+  AppRscRequestResult,
+  AppRscRequestSuccess,
+  ExecuteAppRscRequestOptions,
+} from './execute-app-rsc-request';
 
 export type {
-  ExecuteRscRequestOptions,
-  NextRscBridge,
-  NextRscBridgeCapabilities,
-  ResolveRscFailureOptions,
-  RscInlineFailureModel,
-  RscLoadFailure,
-  RscLoadResult,
-  RscLoadSuccess,
-} from './next-rsc';
+  ExecuteNonCriticalRequestOptions,
+  NonCriticalRequestError,
+  NonCriticalRequestResult,
+  NonCriticalRequestSuccess,
+} from './execute-non-critical-request';
+
+export type { RscInlineFailureModel } from './next-rsc';

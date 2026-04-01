@@ -328,7 +328,16 @@ export function toRscInlineFailureModel(failure: ExpectedFailure): RscInlineFail
     fieldIssues: toFieldIssuesRecord(failure.issues),
   };
 }
-
+/**
+ * Безопасно преобразует runtime-ошибку в `HttpFailureInput`.
+ *
+ * @param error - Исходная runtime-ошибка request слоя.
+ * @param mapError - Адаптер преобразования runtime-ошибки в transport input.
+ * @returns Нормализованный `HttpFailureInput`.
+ *
+ * @throws RscFatalError
+ * Бросает fatal error, если сам adapter `mapError` завершился с ошибкой.
+ */
 function safeMapError(
   error: unknown,
   mapError: (error: unknown) => HttpFailureInput,
@@ -345,7 +354,12 @@ function safeMapError(
     );
   }
 }
-
+/**
+ * Группирует field-level issues в record по `path`.
+ *
+ * @param issues - Нормализованный список issues expected failure.
+ * @returns Record вида `{ [path]: NormalizedIssue[] }`.
+ */
 function toFieldIssuesRecord(issues: NormalizedIssue[]): Record<string, NormalizedIssue[]> {
   const groupedIssues = groupIssuesByPath(getFieldIssues(issues));
   const fieldIssues: Record<string, NormalizedIssue[]> = {};
@@ -356,14 +370,26 @@ function toFieldIssuesRecord(issues: NormalizedIssue[]): Record<string, Normaliz
 
   return fieldIssues;
 }
-
+/**
+ * Собирает человекочитаемое сообщение для `RscFatalError`.
+ *
+ * @param failure - Fatal failure, эскалируемый в error boundary.
+ * @returns Короткое сообщение с kind, optional code и optional request id.
+ */
 function buildFatalErrorMessage(failure: FatalFailure): string {
   const requestIdPart = failure.requestId == null ? '' : ` requestId=${failure.requestId}`;
   const codePart = failure.code == null ? '' : ` code=${failure.code}`;
 
   return `RSC fatal failure (${failure.kind})${codePart}${requestIdPart}`;
 }
-
+/**
+ * Создает fatal failure для неожиданного сбоя adapter/runtime слоя.
+ *
+ * @param message - Человекочитаемое описание unexpected failure.
+ * @param cause - Исходная ошибка adapter-а.
+ * @param rawBody - Optional raw body или исходный payload для diagnostics.
+ * @returns Fatal failure c kind `unexpected`.
+ */
 function createUnexpectedAdapterFailure(
   message: string,
   cause?: unknown,
@@ -379,7 +405,12 @@ function createUnexpectedAdapterFailure(
     },
   };
 }
-
+/**
+ * Проверяет, что значение является непустой строкой.
+ *
+ * @param value - Проверяемое значение.
+ * @returns `true`, если значение является строкой с непустым trimmed content.
+ */
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }
