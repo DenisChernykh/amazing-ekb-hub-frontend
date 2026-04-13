@@ -1,10 +1,4 @@
-import { PlaceFeedScreenLoading } from '@/widgets/place-feed';
-
-/**
- * Route-level loading для главного дерева приложения.
- *
- * @returns Skeleton home/place-feed widget.
- */
 export default function Loading() {
-  return <PlaceFeedScreenLoading />;
+  // Or a custom loading skeleton component
+  return <p>Loading...</p>;
 }
