@@ -1,5 +1,0 @@
-export {
-  PLACE_FEED_CATEGORY_BACKGROUND,
-  PLACE_FEED_CATEGORY_CHIP_COLOR,
-  PLACE_FEED_SKELETON_CATEGORIES,
-} from './place-feed-visual-config';
