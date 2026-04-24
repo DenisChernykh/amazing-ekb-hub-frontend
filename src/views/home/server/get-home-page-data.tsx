@@ -37,11 +37,6 @@ export type HomePageModel =
       requestId?: string;
     }
   | {
-      kind: 'contract_error';
-      query: HomeQuery;
-      message: string;
-    }
-  | {
       kind: 'unexpected_error';
       query: HomeQuery;
       message: string;
@@ -83,13 +78,6 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
         title: result.data.error.message,
         issues: result.data.error.details?.issues ?? [],
         requestId: result.data.meta?.requestId,
-      };
-
-    case 'contract_error':
-      return {
-        kind: 'contract_error',
-        query,
-        message: result.message,
       };
 
     case 'unexpected_error':

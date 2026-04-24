@@ -21,10 +21,6 @@ export function HomePageView({ model }: HomePageViewProps) {
     );
   }
 
-  if (model.kind === 'contract_error') {
-    return <ErrorState title="Проблема контракта API" description={model.message} />;
-  }
-
   if (model.kind === 'unexpected_error') {
     return <ErrorState title="Не удалось загрузить данные" description={model.message} />;
   }
