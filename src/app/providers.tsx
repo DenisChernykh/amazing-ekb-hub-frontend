@@ -10,6 +10,9 @@ interface ProvidersProps {
 const theme = createTheme({
   palette: {
     mode: 'light',
+    background: {
+      default: '#f6f1ea',
+    },
   },
   typography: {
     fontFamily: 'var(--font-roboto)',
