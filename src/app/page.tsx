@@ -1,5 +1,5 @@
-import { getHomePageData } from '@/views/home/server/get-home-page-data';
-import { HomePageView } from '@/views/home/ui/home-page-view';
+import { HomePageContent } from '@/app/_components/home-page-content';
+import { getHomePageData } from '@/app/_lib/get-home-page-data';
 
 type RawSearchParams = Record<string, string | string[] | undefined>;
 
@@ -11,5 +11,5 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const model = await getHomePageData(resolvedSearchParams);
 
-  return <HomePageView model={model} />;
+  return <HomePageContent model={model} />;
 }
