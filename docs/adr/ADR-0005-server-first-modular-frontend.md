@@ -1,4 +1,4 @@
-# ADR-0005 Server-First Modular Frontend
+# ADR-0005 Server-First FSD Frontend
 
 ## Status
 
@@ -6,88 +6,95 @@ Accepted
 
 ## Context
 
-Текущий frontend исторически развивался через смесь `app`, `features`, `entities`, `app/di`, result-first data-access и route-specific branching. Эта схема позволила быстро собирать экраны, но со временем создала несколько проблем:
+Frontend исторически развивался через смесь `app`, `views`, `entities`, result-first data access и экспериментальные module-oriented документы.
 
-1. server-side загрузка данных, route-level orchestration и UI-композиция часто оказывались смешаны;
-2. reusable domain UI и route-private UI были слабо разделены;
-3. API integration и error handling не имели единого server-first паттерна;
-4. новые RSC-экраны было трудно собирать по повторяемому шаблону;
-5. существующая структура была частично совместима с FSD-мышлением, но не имела одной явной целевой модели.
+Практическая реализация каталога мест показала более подходящий для проекта формат:
 
-Параллельно проект перешел к новому `STD-001` error flow и throw-based API bridge, что сделало возможным более чистый server-first контур для новых страниц.
+1. Next App Router должен оставаться тонким framework layer.
+2. Доменные UI-блоки удобнее раскладываются по FSD-слоям.
+3. Material UI является основным UI toolkit, и проект должен учиться мыслить через его native components.
+4. Frontend иногда идет впереди backend, поэтому нужен явный mapper/adapters слой.
+5. Generated schema и UI feature изменения лучше коммитить отдельно.
 
 ## Decision
 
-Для новых server-side сценариев принимается следующая целевая архитектура:
+Для новых пользовательских экранов принимается целевой подход:
 
-1. `src/app` остается route-centric слоем Next App Router.
-2. `src/modules` становится основным слоем доменных вертикальных модулей.
-3. `src/shared` остается generic cross-cutting слоем.
-4. Новые серверные страницы строятся по server-first схеме:
-   - route нормализует input;
-   - route вызывает route-private page-data loader;
-   - module/server использует throw-based API layer;
-   - route обрабатывает результат через `std-errors`;
-   - route рендерит screen composition через route-private `_components`.
-5. В `app` допускаются только route-specific `_lib` и `_components`.
-6. В `modules` допускаются `api`, `model`, `server`, `ui`.
-7. `app` может импортировать `modules` и `shared`.
-8. `modules` не должны импортировать `app`.
-9. `std-errors` становится целевым error flow для новых RSC-страниц.
-10. Полный переход на чистый FSD на данном этапе не выполняется.
+1. `src/app` — route/framework layer.
+2. `src/entities` — доменные сущности, их model/mappers/display helpers/reusable UI.
+3. `src/features` — пользовательские действия и интерактивные controls.
+4. `src/widgets` — крупные композиции страницы.
+5. `src/shared` — generic API/UI/lib/config.
+6. Server-first loading остается default.
+7. Route-specific orchestration живет в `app/_lib`.
+8. Route-specific rendering switch живет в `app/_components`.
+9. UI строится через native Material UI components.
+10. Frontend-ahead mock/fallback живет в mapper, а не в JSX.
 
-Подробное описание layer model, route pattern и screen pattern вынесено в:
+## Why FSD Instead Of `src/modules`
 
-- `docs/architecture/frontend-architecture.md`
-- `docs/architecture/server-first-screen-pattern.md`
-- `docs/architecture/std-001-rsc-error-library.md`
+`src/modules` рассматривался как промежуточный target pattern, но для текущего проекта FSD лучше по нескольким причинам:
 
-## Why Not Full FSD
+1. Пользовательские задачи формулируются через сущности, фичи и виджеты.
+2. Каталог мест естественно делится на `entities/place`, `features/places-pagination`, `widgets/places-catalog`.
+3. FSD делает ownership UI очевиднее.
+4. Frontend-ahead mapper удобно держать в `entities/<entity>/model`.
+5. `app` остается совместимым с Next App Router и не превращается в доменный слой.
 
-Полный переход на FSD сейчас не выбран по следующим причинам:
+## Material UI Decision
 
-1. `app` в Next App Router уже является отдельным framework-driven слоем и плохо ложится на жесткую FSD-таксономию.
-2. Текущие доменные модули уже дают большую часть пользы FSD без дополнительного дробления.
-3. Основная проблема проекта была не в naming, а в смешивании server loading, route orchestration и UI.
-4. Переименование всего дерева в `entities/features/widgets` сейчас дало бы больше механического шума, чем пользы.
+Новый UI должен использовать MUI-native building blocks:
+
+- `Card`, `CardActionArea`, `CardContent`, `CardMedia`;
+- `Pagination`;
+- `Container`, `Grid`, `Stack`, `Box`;
+- `Chip`, `Avatar`;
+- `Alert`, `Paper`, `CircularProgress`, `Skeleton`;
+- `Typography`.
+
+`Box` и `Stack` допустимы как layout primitives, но не как замена готового MUI-компонента.
+
+Если MUI component требует `component={SomeFunctionComponent}`, такой leaf-компонент должен быть client component.
 
 ## Consequences
 
 ### Positive
 
-1. Новые RSC-экраны получают повторяемую структуру.
-2. Server-side data loading и UI rendering разделяются явно.
-3. Route-private логика не протекает в доменные модули.
-4. Error handling становится единым и предсказуемым.
-5. Модульные UI-блоки можно переиспользовать между разными экранами.
-6. Архитектура остается совместимой с постепенным движением в сторону FSD.
+1. Новые экраны имеют понятный FSD ownership.
+2. `page.tsx` остается тонким.
+3. UI учит работать через MUI, а не через самодельные компоненты.
+4. Frontend может идти впереди backend без загрязнения JSX mock-логикой.
+5. Mapper становится единственным местом смены временных данных на реальные.
 
 ### Negative
 
-1. В проекте временно сосуществуют legacy и новый контуры.
-2. Часть route-level компонентов может выглядеть более дробно, чем минимально необходимо.
-3. Требуется дисциплина вокруг public API модулей и route-private boundaries.
-4. Не все старые `features/entities/app/di` будут мигрированы сразу.
+1. Временно сосуществуют `views` и FSD-slices.
+2. Часть MUI-компонентов требует client boundary.
+3. Нужно следить, чтобы `use client` не расползался выше leaf-компонентов.
+4. Старые module-oriented документы и код требуют поэтапной актуализации.
 
 ## Alternatives Considered
 
-### 1. Оставить legacy architecture без нового target pattern
+### 1. Оставить `src/modules` как target
 
-Отклонено, потому что не решает проблему смешивания слоев.
+Отклонено. Для текущего проекта FSD дает более понятную учебную модель и лучше совпадает с задачами.
 
-### 2. Немедленно перевести проект на чистый FSD
+### 2. Полностью держать UI в `app`
 
-Отклонено, потому что это слишком большой structural rewrite без достаточной локальной пользы для текущего этапа.
+Отклонено. `app` быстро становится толстым и начинает смешивать route input, loading, domain UI и действия.
 
-### 3. Перейти на client-side fetching как default
+### 3. Делать mock прямо в компонентах
 
-Отклонено, потому что основной target для новых экранов — server-first Next App Router flow.
+Отклонено. Это загрязняет UI временной backend-ahead логикой.
 
 ## Migration Notes
 
-1. Новый паттерн применяется к новым маршрутам и новым модулям.
-2. Legacy `features/entities/app/di` могут продолжать существовать до поэтапной миграции.
-3. Reference implementations:
-   - `src/app/draft/home`
-   - `src/app/draft/places/[placeId]`
-4. При появлении устойчивого набора повторяемых feature-slices внутри `modules` допускается дальнейшее движение к FSD-style decomposition внутри модулей.
+1. Новые экраны строить через `entities/features/widgets`.
+2. Legacy `src/views` не расширять без необходимости.
+3. `src/modules` не использовать для новых frontend UI-slices.
+4. Existing code мигрировать постепенно, когда рядом появляется реальная задача.
+5. Reference implementation:
+   - `src/app/page.tsx`;
+   - `src/entities/place`;
+   - `src/features/places-pagination`;
+   - `src/widgets/places-catalog`.

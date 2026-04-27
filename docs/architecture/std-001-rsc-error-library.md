@@ -247,12 +247,13 @@ Fatal failures должны сохранять diagnostics, достаточны
 
 Reference routes:
 
-- `src/app/draft/home`
-- `src/app/draft/places/[placeId]`
+- `src/app/page.tsx`
+- `src/app/_components/home-page-content.tsx`
+- `src/app/_lib/get-home-page-data.ts`
 
 Reference shared UI:
 
-- `src/shared/errors`
+- `src/shared/ui/error-state.tsx`
 
 Reference app-facing helpers:
 

@@ -47,11 +47,43 @@ Frontend только генерирует client schema, валидирует r
 
 ```text
 route
-  -> module/server
-    -> module/api
-      -> shared/api
-        -> typed HTTP client
+  -> app/_lib page-data loader
+    -> entity/api or shared/generated client
+      -> entity mapper
+        -> widget model
 ```
+
+## Frontend Contract Models
+
+UI не должен напрямую зависеть от backend DTO, если DTO неудобен для отображения или backend contract еще догоняет frontend.
+
+Правила:
+
+1. DTO остается transport/API формой.
+2. Frontend contract type живет в `entities/<entity>/model`.
+3. Mapper переводит DTO в UI model.
+4. Mapper нормализует пустые строки, `null`, отсутствующие поля и временные mock-значения.
+5. UI-компоненты получают уже готовую UI model.
+
+Пример:
+
+```text
+PlaceSummary
+  -> mapPlaceSummaryToCardModel
+    -> PlaceCardModel
+      -> PlaceCard
+```
+
+## Frontend Ahead Of Backend
+
+Если frontend делает UI раньше backend:
+
+1. Сначала фиксируется желаемая frontend UI model.
+2. Недостающие backend-поля временно mock-аются в mapper.
+3. Mock должен быть детерминированным и явно помеченным как временный.
+4. Не делать N+1 detail-запросы только ради list-card полей.
+5. Когда backend добавляет поля, mapper переключается на реальные данные.
+6. Generated schema обновляется отдельным коммитом.
 
 ## Throw-Based API Bridge
 
@@ -74,16 +106,17 @@ route
 3. решать `notFound()` / `redirect()` / `error.tsx`;
 4. владеть пользовательскими текстами.
 
-## Module API Contract
+## Entity API Contract
 
-Новые модули используют throw-based module API.
+Новые entity/api integrations постепенно должны двигаться к throw-based API.
 
 Примерно:
 
-- `module/api` возвращает доменную модель на success;
-- `module/api` бросает typed runtime error на failure.
+- `entity/api` возвращает контролируемый результат или доменную модель;
+- route-level loader не должен знать transport details больше необходимого;
+- mapping DTO -> UI model не должен находиться в JSX.
 
-Это означает, что `module/server` и route-level loaders работают с обычным `async/await` success flow, а ветвление по ошибкам делегируется `std-errors`.
+Текущий result-first flow может временно сосуществовать, если он уже используется generated clients.
 
 ## Runtime Error Classes
 
@@ -111,18 +144,18 @@ route
 
 Подробный runtime contract `std-errors` описан в `docs/architecture/std-001-rsc-error-library.md`.
 
-## Rules For New Modules
+## Rules For New Entity Integrations
 
-1. Новый модуль должен иметь собственный `api` слой.
-2. Новый `api` слой должен возвращать доменные модели, а не transport DTO.
-3. Новый `api` слой должен использовать throw-based bridge.
-4. Новый `server` слой должен быть server-only entrypoint для route loaders.
-5. Route не должен обращаться к transport или DTO напрямую.
-6. Route не должен повторно валидировать API payload, уже провалидированный в `module/api`.
+1. Новый entity slice должен иметь `model` слой для contract types и mappers.
+2. API DTO не должен протекать в reusable UI.
+3. Route может обращаться к entity/api или shared generated client через route-private loader.
+4. Route не должен держать mapping logic внутри `page.tsx`.
+5. UI copy принадлежит UI layer, а не API integration.
 
 ## Legacy Pattern Status
 
-Исторический result-first flow и legacy failure normalization могут оставаться в существующем коде, но не считаются preferred pattern для новых RSC routes.
+Исторический result-first flow, `src/views` и старые module-oriented документы могут оставаться до миграции.
+Для новых пользовательских экранов целевой decomposition — `entities/features/widgets`.
 
 ## Message Ownership
 

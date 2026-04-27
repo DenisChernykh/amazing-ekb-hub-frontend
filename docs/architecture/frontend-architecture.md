@@ -2,86 +2,124 @@
 
 ## Architectural Style
 
-Frontend построен на Next.js App Router и Material UI.
+Frontend построен на Next.js App Router, FSD-слоях и Material UI.
 
-Целевая архитектура для новых экранов:
+Целевой стиль для новых экранов:
 
 - server-first data loading;
-- route-centric `app` слой;
-- vertical domain modules в `src/modules`;
-- generic reusable primitives в `src/shared`;
-- throw-based API bridge;
-- единый `std-errors` flow для server-side ошибок.
+- thin `app` routes;
+- FSD decomposition через `entities`, `features`, `widgets`, `shared`;
+- Material UI как основной UI toolkit;
+- mapper/adapters между backend DTO и frontend UI model;
+- route-private orchestration в `app/_lib`;
+- route-private rendering switch в `app/_components`.
 
 ## Layer Model
 
 ### `src/app`
 
-`app` — это framework integration layer.
+`app` — framework integration layer Next.js.
 
 Он отвечает за:
 
-- `page.tsx`
-- `loading.tsx`
-- `error.tsx`
-- route-private `_lib`
-- route-private `_components`
+- route entrypoints: `page.tsx`, `loading.tsx`, `error.tsx`;
+- `params` и `searchParams`;
+- route-private loaders в `_lib`;
+- route-private components в `_components`;
+- route-level composition and error branching.
 
-`app` знает про:
+`app` не должен содержать reusable domain UI, display helpers или entity mapping.
 
-- `params`
-- `searchParams`
-- route-specific href
-- page-level composition
-- Next interrupt behavior
+### `src/entities`
 
-`app` не должен содержать reusable domain logic.
+`entities` — слой доменных сущностей.
 
-### `src/modules`
+Типичная структура:
 
-`modules` — это доменные вертикальные срезы.
+```text
+src/entities/<entity>/
+  api/
+  model/
+  lib/
+  ui/
+  index.ts
+```
 
-Типичная структура модуля:
+Слой содержит:
 
-- `api`
-- `model`
-- `server`
-- `ui`
+- frontend contract types для сущности;
+- mapper/adapters из API DTO в UI model;
+- display helpers;
+- reusable entity UI, например карточки;
+- entity-specific API integration, если она уже существует в проекте.
 
-`modules` содержат:
+### `src/features`
 
-- доменные типы;
-- pure helpers;
-- throw-based data-access API;
-- server-side loaders/use cases;
-- reusable domain UI и view models.
+`features` — пользовательские действия и интерактивные сценарии.
+
+Типичная структура:
+
+```text
+src/features/<feature>/
+  model/
+  lib/
+  ui/
+  index.ts
+```
+
+Примеры:
+
+- pagination;
+- filters;
+- search;
+- favorite toggle;
+- sorting controls.
+
+Feature может знать про entity model, если действие работает с конкретной сущностью.
+
+### `src/widgets`
+
+`widgets` — крупные композиционные блоки страницы.
+
+Типичная структура:
+
+```text
+src/widgets/<widget>/
+  model/
+  ui/
+  index.ts
+```
+
+Widget собирает entities и features в законченный блок: catalog, feed, sidebar, dashboard section.
 
 ### `src/shared`
 
-`shared` — это generic cross-cutting layer.
+`shared` — generic cross-cutting layer.
 
 Содержит:
 
-- `api`
-- `errors`
-- `ui`
-- `lib`
-- `config`
+- generated API clients and schemas;
+- generic UI;
+- generic lib/helpers;
+- config;
+- reusable error/loading primitives.
 
-`shared` не должен знать ни о конкретных модулях, ни о route-specific бизнес-логике.
+`shared` не должен знать про `app`, `widgets`, `features`, `entities`.
 
 ## Import Rules
 
-1. `app` может импортировать `modules` и `shared`.
-2. `modules` могут импортировать `shared`.
-3. `modules` не должны импортировать `app`.
-4. `shared` не должен импортировать `modules` и `app`.
-5. Route должен предпочитать public API модуля, а не deep-import во внутренности.
-6. Внутри самого модуля допустимы private imports между подслоями модуля.
+1. `app` может импортировать `widgets`, `features`, `entities`, `shared`.
+2. `widgets` могут импортировать `features`, `entities`, `shared`.
+3. `features` могут импортировать `entities`, `shared`.
+4. `entities` могут импортировать `shared`.
+5. `shared` не импортирует вышележащие слои.
+6. Между sibling slices одного слоя не должно быть скрытой связности без явной причины.
+7. Наружу slice отдаёт public API через `index.ts`.
+8. Deep imports допустимы внутри одного slice.
 
 ## Route Pattern
 
-Новый route по умолчанию состоит из:
+Новый route по умолчанию:
 
 ```text
 src/app/<route>/
@@ -89,161 +127,139 @@ src/app/<route>/
   loading.tsx
   error.tsx
   _lib/
-    query/
-    page-data/
-    view-model/
+    get-<route>-page-data.ts
+    normalize-<route>-search-params.ts
   _components/
+    <route>-page-content.tsx
 ```
 
-Высокоуровневое правило:
+Правила:
 
-1. `page.tsx` остается тонким route entrypoint.
-2. Route-specific orchestration живет в `_lib`.
-3. Route-private композиция живет в `_components`.
-
-Подробный рецепт структуры route и обязанностей `_lib/*` описан в `docs/architecture/server-first-screen-pattern.md`.
-
-## Module Pattern
-
-Новый модуль по умолчанию строится так:
-
-```text
-src/modules/<domain>/
-  api/
-  model/
-  server/
-  ui/
-  index.ts
-```
-
-### `api`
-
-Отвечает за:
-
-- transport integration;
-- DTO validation;
-- DTO -> model mapping;
-- throw-based module API.
-
-### `model`
-
-Отвечает за:
-
-- entity types;
-- query params types/builders;
-- display helpers;
-- pure functions.
-
-### `server`
-
-Отвечает за:
-
-- server-only use cases;
-- bound module API for server runtime;
-- use-case specific loaders.
-
-### `ui`
-
-Отвечает за:
-
-- reusable domain components;
-- view-model builders;
-- stateful section components;
-- domain-level presentation.
+1. `page.tsx` остается thin entrypoint.
+2. Data loading и query normalization живут в `_lib`.
+3. Success/error switch живет в `_components`.
+4. Domain rendering уходит в `widgets`/`entities`, а не в `page.tsx`.
 
 ## UI Ownership
 
 ### UI in `app`
 
-UI в `app` — это route-level UI.
+Route-private UI:
 
-Он отвечает за:
+- page content switch;
+- route-only wrappers;
+- temporary route placeholders;
+- loading/error boundaries.
 
-- screen composition;
-- route-private states;
-- page-level layout;
-- binding between multiple modules.
+### UI in `entities`
 
-### UI in `modules`
+Reusable UI конкретной сущности:
 
-UI в `modules` — это reusable domain UI.
+- place card;
+- material badge;
+- entity display sections.
 
-Он отвечает за:
+### UI in `features`
 
-- представление доменных сущностей;
-- presentation sections;
-- domain-level state components;
-- reusable view models.
+UI пользовательского действия:
 
-## State Component Rules
+- pagination;
+- search input;
+- filter controls.
 
-1. Stateful section components используют thin switch и отдельные state components.
-2. Route-level `Content` может иметь `failure-state` и `success-state`.
-3. `success-state` оправдан, если содержит собственную screen composition.
-4. Thin proxy component без собственной композиции допустим только осознанно ради консистентности.
-5. Leaf-компоненты не должны искусственно получать `empty/error`, если у них нет реального state ownership.
+### UI in `widgets`
 
-Практические примеры и более подробные UI-правила вынесены в `docs/architecture/server-first-screen-pattern.md`.
+Page-level reusable composition:
+
+- places catalog;
+- list + controls + empty state;
+- domain page sections.
+
+## Material UI Rules
+
+Material UI — основной UI toolkit.
+
+Правила:
+
+1. Сначала искать подходящий MUI-компонент.
+2. `Box` и `Stack` использовать как layout primitives.
+3. Не заменять готовые MUI-компоненты ручной сборкой без причины.
+4. Для карточек использовать `Card`, `CardActionArea`, `CardContent`, `CardMedia`.
+5. Для пагинации использовать `Pagination`.
+6. Для списков использовать `List`, `ListItem`, `ListItemText`.
+7. Для ошибок использовать `Alert`.
+8. Для loading использовать `CircularProgress` или `Skeleton`.
+9. Для пустых состояний использовать `Paper`/`Card` + `Typography`.
+10. CSS Modules не использовать в новом UI, если нет конкретного ограничения.
+
+### Server/Client Boundary
+
+По умолчанию компоненты остаются Server Components.
+
+Client Component нужен, если:
+
+- используется hook (`useRouter`, `useState`, `useEffect`);
+- MUI-компоненту передается function component через `component={...}`;
+- есть интерактивное клиентское состояние.
+
+Client boundary должен быть минимальным leaf-компонентом.
+
+## Frontend Ahead Of Backend
+
+Если backend contract еще не готов, frontend может идти вперед при соблюдении правил:
+
+1. UI работает с frontend contract type, а не напрямую с неполным DTO.
+2. Mapper/adapters живут в `entities/<entity>/model`.
+3. Temporary mock/fallback не должен попадать в JSX.
+4. Mock должен быть детерминированным.
+5. UI-компоненты не должны знать, что backend чего-то пока не отдает.
+6. После появления backend-поля меняется mapper, а не вся UI-композиция.
+7. Не делать N+1 detail-запросы ради полей, которые должны быть в list endpoint.
 
 ## Data Loading Model
 
 Новые страницы используют server-first flow:
 
-1. route normalizes input;
-2. route/private page-data loader calls module/server;
-3. module/server calls module/api;
-4. module/api uses `shared/api` bridge;
-5. route receives success or normalized failure through `std-errors`.
+```text
+app/page.tsx
+  -> app/_lib/get-page-data
+    -> entity/api or shared/generated client
+      -> mapper in entity/model
+        -> widget model
+```
 
-## Error Handling Model
-
-Новый server-side error flow использует:
-
-- throw-based API bridge в `src/shared/api`;
-- `std-errors` core и app-facing helpers в `src/server/std-errors`;
-- shared reusable error UI в `src/shared/errors`.
-
-Route-level outcome:
-
-- success render;
-- inline expected failure;
-- section-level degradation for non-critical requests;
-- fatal route boundary via `error.tsx`.
-
-Подробности expected/fatal/non-critical flow и app-facing helpers описаны в `docs/architecture/std-001-rsc-error-library.md`.
-
-## Reference Routes
-
-Текущие reference implementations:
-
-- `src/app/draft/home`
-- `src/app/draft/places/[placeId]`
-
-Они демонстрируют:
-
-- route-private `_lib` split;
-- route-private `_components`;
-- `modules/place`;
-- `modules/material`;
-- `shared/errors`;
-- `std-errors` server flow.
+На текущем этапе result-first API integration допустим для существующих generated clients.
+Throw-based bridge и `std-errors` остаются target direction для новых сложных сценариев.
 
 ## Legacy Status
 
-Legacy `features`, `entities`, `app/di` и result-first flow могут продолжать существовать, но не являются preferred pattern для новых server-first экранов.
+`src/views` и старые result-first экраны считаются legacy.
 
-## Non-Goals
+Новые пользовательские экраны строятся через:
 
-На текущем этапе архитектура не ставит целью:
+- `app`;
+- `entities`;
+- `features`;
+- `widgets`;
+- `shared`.
 
-1. немедленный полный переход на FSD;
-2. полную миграцию legacy-кода за один шаг;
-3. отказ от всех существующих legacy abstraction layers;
-4. превращение `app` в FSD-style слой.
+`src/modules` не является целевым слоем для новых frontend-экранов. Если старые документы или код упоминают modules, это исторический след, а не новый стандарт.
+
+## Reference Implementation
+
+Актуальный reference:
+
+- `src/app/page.tsx`;
+- `src/app/_lib/get-home-page-data.ts`;
+- `src/app/_components/home-page-content.tsx`;
+- `src/entities/place`;
+- `src/features/places-pagination`;
+- `src/widgets/places-catalog`.
 
 ## Related Documents
 
-- `docs/adr/ADR-0005-server-first-modular-frontend.md`
+- `docs/architecture/server-first-screen-pattern.md`
 - `docs/architecture/api-integration.md`
 - `docs/architecture/std-001-rsc-error-library.md`
-- `docs/architecture/server-first-screen-pattern.md`
+- `docs/adr/ADR-0004-material-ui.md`
+- `docs/adr/ADR-0005-server-first-modular-frontend.md`
