@@ -1,3 +1,4 @@
+import type { MaterialType } from '@/shared/api/generated/model/materialType';
 import type { PlaceCategory } from '@/shared/api/generated/model/placeCategory';
 import type { Platform } from '@/shared/api/generated/model/platform';
 
@@ -15,6 +16,39 @@ export type PlaceCardModel = {
   category: PlaceCategory;
   coverImageUrl: string | null;
   platformCounters: PlatformCounters;
+};
+
+/**
+ * Frontend contract материала места.
+ */
+export type PlaceMaterialModel = {
+  id: string;
+  platform: Platform;
+  type: MaterialType;
+  title: string;
+  publishedAt: string;
+  durationSec: number | null;
+  url: string;
+};
+
+/**
+ * Материалы места, сгруппированные по платформам.
+ */
+export type PlaceMaterialsByPlatform = Record<Platform, PlaceMaterialModel[]>;
+
+/**
+ * Frontend contract детальной страницы места.
+ */
+export type PlaceDetailModel = {
+  id: string;
+  title: string;
+  summary: string;
+  tags: string[];
+  category: PlaceCategory;
+  coverImageUrl: string | null;
+  platformCounters: PlatformCounters;
+  pinnedMaterial: PlaceMaterialModel | null;
+  materialsByPlatform: PlaceMaterialsByPlatform;
 };
 
 /**

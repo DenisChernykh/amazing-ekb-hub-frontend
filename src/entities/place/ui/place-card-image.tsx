@@ -1,6 +1,6 @@
-import { Box, CardMedia, Chip } from '@mui/material';
-import { getPlaceCategoryDisplay } from '../model/place-display';
+import { Box, CardMedia } from '@mui/material';
 import type { PlaceCardModel } from '../model/types';
+import { PlaceCategoryBadge } from './place-category-badge';
 
 const PLACE_PLACEHOLDER_IMAGE_SRC = '/images/places/place-placeholder.webp';
 
@@ -17,7 +17,6 @@ interface PlaceCardImageProps {
  */
 export function PlaceCardImage({ category, src, title }: Readonly<PlaceCardImageProps>) {
   const imageSrc = src?.trim() ? src : PLACE_PLACEHOLDER_IMAGE_SRC;
-  const categoryDisplay = getPlaceCategoryDisplay(category);
 
   return (
     <Box
@@ -43,17 +42,13 @@ export function PlaceCardImage({ category, src, title }: Readonly<PlaceCardImage
         }}
       />
 
-      <Chip
-        label={categoryDisplay.label}
-        size="small"
+      <PlaceCategoryBadge
+        category={category}
         sx={{
           position: 'absolute',
           top: 12,
           left: 12,
           zIndex: 1,
-          bgcolor: categoryDisplay.backgroundColor,
-          color: categoryDisplay.color,
-          fontWeight: 700,
           boxShadow: '0 8px 20px rgba(15, 23, 42, 0.14)',
         }}
       />

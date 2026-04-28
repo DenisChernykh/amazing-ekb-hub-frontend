@@ -1,5 +1,6 @@
 import type { PlaceCategory } from '@/shared/api/generated/model/placeCategory';
 import type { PlaceSummary } from '@/shared/api/generated/model/placeSummary';
+import { normalizeCoverImageUrl } from './normalize-cover-image-url';
 import type { PlaceCardModel, PlatformCounters } from './types';
 
 type PlaceSummaryCardFields = PlaceSummary & {
@@ -69,18 +70,6 @@ function normalizePlatformCounters(
     telegram: counters?.telegram ?? fallbackCounters.telegram,
     instagram: counters?.instagram ?? fallbackCounters.instagram,
   };
-}
-
-/**
- * Это хелпер. Нормализует URL cover-фото из текущего или будущего backend-контракта.
- *
- * @param coverImageUrl - URL фото из API.
- * @returns Непустой URL или `null`, если фото нет.
- */
-function normalizeCoverImageUrl(coverImageUrl?: string | null): string | null {
-  const normalizedUrl = coverImageUrl?.trim();
-
-  return normalizedUrl ? normalizedUrl : null;
 }
 
 /**

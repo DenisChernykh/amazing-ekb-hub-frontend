@@ -1,4 +1,7 @@
-import { Container, Paper, Typography } from '@mui/material';
+import { ErrorState } from '@/shared/ui/error-state';
+import { PlaceDetail } from '@/widgets/place-detail';
+import { notFound } from 'next/navigation';
+import { getPlacePageData } from './_lib/get-place-page-data';
 
 interface PlacePageProps {
   params: Promise<{
@@ -6,21 +9,17 @@ interface PlacePageProps {
   }>;
 }
 
-/**
- * Временная страница детальной карточки места.
- *
- * @param props - Route params страницы места.
- */
 export default async function PlacePage({ params }: PlacePageProps) {
   const { placeId } = await params;
+  const model = await getPlacePageData(placeId);
 
-  return (
-    <Container component="main" maxWidth="md" sx={{ py: { xs: 4, sm: 6 } }}>
-      <Paper elevation={0} sx={{ borderRadius: 2, p: 3 }}>
-        <Typography component="h1" variant="h4">
-          hello {placeId}
-        </Typography>
-      </Paper>
-    </Container>
-  );
+  if (model.kind === 'not_found') {
+    notFound();
+  }
+
+  if (model.kind === 'unexpected_error') {
+    return <ErrorState title="Не удалось загрузить место" description={model.message} />;
+  }
+
+  return <PlaceDetail place={model.place} />;
 }
