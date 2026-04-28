@@ -1,9 +1,11 @@
 'use client';
 
+import { SessionProvider, type SessionState } from '@/entities/session';
 import { CssBaseline } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 interface ProvidersProps {
+  initialSession: SessionState;
   children: React.ReactNode;
 }
 
@@ -26,10 +28,12 @@ const theme = createTheme({
  * По мере роста приложения сюда могут добавляться и другие
  * app-level провайдеры, например query/auth/i18n.
  */
-export function Providers({ children }: Readonly<ProvidersProps>) {
+export function Providers({ children, initialSession }: Readonly<ProvidersProps>) {
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline>{children}</CssBaseline>
+      <CssBaseline>
+        <SessionProvider initialSession={initialSession}>{children}</SessionProvider>
+      </CssBaseline>
     </ThemeProvider>
   );
 }
