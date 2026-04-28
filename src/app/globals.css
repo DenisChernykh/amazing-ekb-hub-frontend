@@ -9,6 +9,10 @@ html {
   box-sizing: inherit;
 }
 
+.MuiInputBase-input {
+  box-sizing: content-box;
+}
+
 body {
   min-height: 100%;
   margin: 0;
