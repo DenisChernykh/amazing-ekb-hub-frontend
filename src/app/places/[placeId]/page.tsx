@@ -1,47 +1,25 @@
-import { loadPlaceDetailPageData } from '@/app/di/place-detail';
-import { isNotFoundFailure } from '@/shared/failures';
-import {
-  PlaceDetailScreen,
-  resolvePlaceDetailPlatformPages,
-  type PlaceDetailScreenSearchParams,
-} from '@/widgets/place-detail';
+import { ErrorState } from '@/shared/ui/error-state';
+import { PlaceDetail } from '@/widgets/place-detail';
 import { notFound } from 'next/navigation';
+import { getPlacePageData } from './_lib/get-place-page-data';
 
-/**
- * Пропсы route-level detail-страницы места.
- */
-interface PlaceDetailPageProps {
-  params: Promise<{ placeId: string }>;
-  searchParams?: Promise<PlaceDetailScreenSearchParams>;
+interface PlacePageProps {
+  params: Promise<{
+    placeId: string;
+  }>;
 }
 
-/**
- * Route-level страница места.
- *
- * Остаётся тонким entrypoint: получает route/search params, делегирует загрузку
- * в `app/di`, а screen composition — в widget-слой.
- *
- * @param params - Dynamic route params Next App Router.
- * @param searchParams - Query-параметры платформенной пагинации.
- * @returns Server-rendered detail-страницу места.
- */
-export default async function PlaceDetailPage({
-  params,
-  searchParams,
-}: Readonly<PlaceDetailPageProps>) {
-  const [{ placeId }, platformPages] = await Promise.all([
-    params,
-    resolvePlaceDetailPlatformPages(searchParams),
-  ]);
+export default async function PlacePage({ params }: PlacePageProps) {
+  const { placeId } = await params;
+  const model = await getPlacePageData(placeId);
 
-  const pageData = await loadPlaceDetailPageData({
-    placeId,
-    platformPages,
-  });
-
-  if (!pageData.placeDetailResult.ok && isNotFoundFailure(pageData.placeDetailResult.error)) {
+  if (model.kind === 'not_found') {
     notFound();
   }
 
-  return <PlaceDetailScreen data={pageData} />;
+  if (model.kind === 'unexpected_error') {
+    return <ErrorState title="Не удалось загрузить место" description={model.message} />;
+  }
+
+  return <PlaceDetail place={model.place} />;
 }

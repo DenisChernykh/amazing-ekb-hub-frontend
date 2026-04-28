@@ -16,3 +16,5 @@
 5. Пройдены `pnpm format:check`, `pnpm lint:strict`, `pnpm typecheck`, `pnpm build`.
 6. Если изменён публичный frontend API, обновлён TSDoc по `docs/architecture/tsdoc-guidelines.md`.
 7. Обновлены релевантные docs.
+8. Новый UI построен через native Material UI components, если нет явной причины отступить.
+9. Если frontend идёт впереди backend, временный mock/fallback изолирован в mapper/adapters.

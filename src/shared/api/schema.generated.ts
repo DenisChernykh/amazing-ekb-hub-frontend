@@ -4,6 +4,46 @@
  */
 
 export interface paths {
+  '/health/live': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Liveness probe
+     * @description Проверяет, что процесс приложения запущен и HTTP-слой отвечает на запросы.
+     */
+    get: operations['getLiveness'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/health/ready': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Readiness probe
+     * @description Проверяет готовность приложения обслуживать запросы, включая доступность базы данных.
+     */
+    get: operations['getReadiness'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/auth/login': {
     parameters: {
       query?: never;
@@ -13,49 +53,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Login */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['AuthLoginRequest'];
-        };
-      };
-      responses: {
-        /** @description Success */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['AuthTokensResponse'];
-          };
-        };
-        /** @description Validation error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * Login
+     * @description Аутентифицирует пользователя по email и паролю и возвращает пару access/refresh токенов.
+     */
+    post: operations['login'];
     delete?: never;
     options?: never;
     head?: never;
@@ -71,49 +73,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Refresh tokens */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['AuthRefreshRequest'];
-        };
-      };
-      responses: {
-        /** @description Success */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['AuthTokensResponse'];
-          };
-        };
-        /** @description Validation error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * Refresh tokens
+     * @description Обновляет access/refresh токены по валидному refresh token.
+     */
+    post: operations['refreshTokens'];
     delete?: never;
     options?: never;
     head?: never;
@@ -129,47 +93,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Logout */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['AuthLogoutRequest'];
-        };
-      };
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Validation error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * Logout
+     * @description Выполняет logout и отзывает переданный refresh token.
+     */
+    post: operations['logout'];
     delete?: never;
     options?: never;
     head?: never;
@@ -183,36 +111,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get current user */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Success */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['AuthMeResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * Get current user
+     * @description Возвращает публичный профиль текущего аутентифицированного пользователя.
+     */
+    get: operations['getCurrentUser'];
     put?: never;
     post?: never;
     delete?: never;
@@ -228,42 +131,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List places */
-    get: {
-      parameters: {
-        query?: {
-          page?: components['parameters']['Page'];
-          pageSize?: components['parameters']['PageSize'];
-          search?: string;
-          sort?: 'popular';
-          category?: components['schemas']['PlaceCategory'];
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Success */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['PlaceListResponse'];
-          };
-        };
-        /** @description Validation error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * List places
+     * @description Возвращает публичный список мест с пагинацией, поиском и фильтрацией по категории.
+     */
+    get: operations['listPlaces'];
     put?: never;
     post?: never;
     delete?: never;
@@ -279,38 +151,31 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get place details */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          placeId: components['parameters']['PlaceId'];
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Success */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['PlaceDetail'];
-          };
-        };
-        /** @description Not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
+    /**
+     * Get place details
+     * @description Возвращает детальную карточку публичного места по его идентификатору.
+     */
+    get: operations['getPlaceDetail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/places/{placeId}/photo': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    /**
+     * Get place cover photo
+     * @description Возвращает бинарное содержимое публичного cover-фото активного места.
+     */
+    get: operations['getPlaceCoverPhoto'];
     put?: never;
     post?: never;
     delete?: never;
@@ -326,51 +191,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List place materials */
-    get: {
-      parameters: {
-        query?: {
-          page?: components['parameters']['Page'];
-          pageSize?: components['parameters']['PageSize'];
-          platform?: components['schemas']['Platform'];
-        };
-        header?: never;
-        path: {
-          placeId: components['parameters']['PlaceId'];
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Success */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['MaterialListResponse'];
-          };
-        };
-        /** @description Validation error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * List place materials
+     * @description Возвращает материалы, связанные с указанным местом, с пагинацией и фильтром по платформе.
+     */
+    get: operations['listPlaceMaterials'];
     put?: never;
     post?: never;
     delete?: never;
@@ -386,36 +211,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List favorites */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Success */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['PlaceListResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * List favorites
+     * @description Возвращает список избранных мест текущего аутентифицированного пользователя.
+     */
+    get: operations['listFavorites'];
     put?: never;
     post?: never;
     delete?: never;
@@ -433,75 +233,16 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Add favorite */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          placeId: components['parameters']['PlaceId'];
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
-    /** Remove favorite */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          placeId: components['parameters']['PlaceId'];
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description No Content */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * Add favorite
+     * @description Добавляет место в избранное текущего пользователя.
+     */
+    post: operations['addFavorite'];
+    /**
+     * Remove favorite
+     * @description Удаляет место из избранного текущего пользователя.
+     */
+    delete: operations['removeFavorite'];
     options?: never;
     head?: never;
     patch?: never;
@@ -516,58 +257,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Create place */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreatePlaceRequest'];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['PlaceSummary'];
-          };
-        };
-        /** @description Validation error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Forbidden */
-        403: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * Create place
+     * @description Создаёт новое место в каталоге. Операция доступна только администратору.
+     */
+    post: operations['createPlace'];
     delete?: never;
     options?: never;
     head?: never;
@@ -587,69 +281,11 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /** Update place */
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          placeId: components['parameters']['PlaceId'];
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdatePlaceRequest'];
-        };
-      };
-      responses: {
-        /** @description Updated */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['PlaceSummary'];
-          };
-        };
-        /** @description Validation error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Forbidden */
-        403: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * Update place
+     * @description Частично обновляет место по идентификатору. Операция доступна только администратору.
+     */
+    patch: operations['updatePlace'];
     trace?: never;
   };
   '/admin/places/{placeId}/status': {
@@ -665,69 +301,31 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /** Update place status */
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          placeId: components['parameters']['PlaceId'];
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdatePlaceStatusRequest'];
-        };
-      };
-      responses: {
-        /** @description Updated */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['PlaceSummary'];
-          };
-        };
-        /** @description Validation error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Forbidden */
-        403: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
+    /**
+     * Update place status
+     * @description Меняет статус публикации места. Операция доступна только администратору.
+     */
+    patch: operations['updatePlaceStatus'];
+    trace?: never;
+  };
+  '/admin/places/{placeId}/photo': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    get?: never;
+    put?: never;
+    /**
+     * Upload place cover photo
+     * @description Загружает или заменяет cover-фото места. Операция доступна только администратору.
+     */
+    post: operations['uploadPlaceCoverPhoto'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/admin/places/{placeId}/materials': {
@@ -739,69 +337,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Create material for place */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          placeId: components['parameters']['PlaceId'];
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CreateMaterialRequest'];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['Material'];
-          };
-        };
-        /** @description Validation error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Forbidden */
-        403: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * Create material for place
+     * @description Создаёт новый материал для указанного места. Операция доступна только администратору.
+     */
+    post: operations['createPlaceMaterial'];
     delete?: never;
     options?: never;
     head?: never;
@@ -821,69 +361,11 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /** Update material */
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          materialId: components['parameters']['MaterialId'];
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['UpdateMaterialRequest'];
-        };
-      };
-      responses: {
-        /** @description Updated */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['Material'];
-          };
-        };
-        /** @description Validation error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Forbidden */
-        403: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * Update material
+     * @description Частично обновляет материал по идентификатору. Операция доступна только администратору.
+     */
+    patch: operations['updateMaterial'];
     trace?: never;
   };
   '/admin/places/{placeId}/pinned-material': {
@@ -899,218 +381,533 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /** Set pinned material for place */
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          placeId: components['parameters']['PlaceId'];
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['SetPinnedMaterialRequest'];
-        };
-      };
-      responses: {
-        /** @description Updated */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['PlaceDetail'];
-          };
-        };
-        /** @description Validation or domain error */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Forbidden */
-        403: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-        /** @description Not found */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['ErrorResponse'];
-          };
-        };
-      };
-    };
+    /**
+     * Set pinned material for place
+     * @description Назначает закреплённый материал для места. Операция доступна только администратору.
+     */
+    patch: operations['setPinnedMaterial'];
     trace?: never;
   };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /** @enum {string} */
+    /**
+     * @description Роль пользователя в системе.
+     * @example admin
+     * @enum {string}
+     */
     Role: 'admin' | 'user';
-    /** @enum {string} */
+    /**
+     * @description Категория места в каталоге.
+     * @example spa
+     * @enum {string}
+     */
     PlaceCategory: 'pools' | 'spa' | 'cafe' | 'hotels' | 'workshops';
-    /** @enum {string} */
+    /**
+     * @description Статус публикации места.
+     * @example active
+     * @enum {string}
+     */
     PlaceStatus: 'active' | 'hidden';
-    /** @enum {string} */
+    /**
+     * @description Платформа, на которой опубликован материал.
+     * @example telegram
+     * @enum {string}
+     */
     Platform: 'dzen' | 'telegram' | 'instagram';
-    /** @enum {string} */
+    /**
+     * @description Тип материала.
+     * @example post
+     * @enum {string}
+     */
     MaterialType: 'post' | 'reel' | 'video';
-    /** @enum {string} */
+    /**
+     * @description Категория прикладной ошибки по стандарту `STD-001`.
+     * @example validation
+     * @enum {string}
+     */
     ErrorType: 'validation' | 'domain' | 'auth' | 'permission' | 'not_found' | 'server';
+    /** @description Транспортные метаданные HTTP-ответа. */
     ErrorMeta: {
+      /**
+       * @description Идентификатор запроса для трассировки в логах.
+       * @example req_01HQXYZ123
+       */
       requestId: string;
     };
+    /** @description Одна конкретная проблема валидации или нарушения бизнес-правила. */
     ErrorIssue: {
+      /**
+       * @description Машиночитаемый код проблемы.
+       * @example min
+       */
       code: string;
+      /**
+       * @description Человекочитаемое описание проблемы.
+       * @example page must not be less than 1
+       */
       message: string;
+      /**
+       * @description Путь к полю запроса в `dot notation`.
+       * @example page
+       */
       path?: string;
     };
+    /** @description Дополнительные сведения для type-specific ошибок. */
     ErrorDetails: {
+      /** @description Список конкретных validation/domain issues. */
       issues?: components['schemas']['ErrorIssue'][];
     };
+    /** @description Канонический payload прикладной ошибки. */
     ErrorBody: {
       type: components['schemas']['ErrorType'];
+      /**
+       * @description Машиночитаемый код ошибки.
+       * @example VALIDATION_ERROR
+       */
       code: string;
+      /**
+       * @description Человекочитаемое summary-сообщение.
+       * @example Request validation failed
+       */
       message: string;
       details?: components['schemas']['ErrorDetails'];
     };
+    /** @description Единый HTTP error envelope по стандарту `STD-001`. */
     ErrorResponse: {
       meta?: components['schemas']['ErrorMeta'];
       error: components['schemas']['ErrorBody'];
     };
+    /** @description Данные для входа пользователя по email и паролю. */
     AuthLoginRequest: {
-      /** Format: email */
+      /**
+       * Format: email
+       * @description Email пользователя.
+       * @example admin@amazing-ekb.ru
+       */
       email: string;
+      /**
+       * @description Пароль пользователя.
+       * @example supersecret123
+       */
       password: string;
     };
+    /** @description Payload для перевыпуска access/refresh токенов. */
     AuthRefreshRequest: {
+      /**
+       * @description Refresh token, полученный при логине или предыдущем refresh.
+       * @example refresh.jwt.token
+       */
       refreshToken: string;
     };
+    /** @description Payload для logout и отзыва refresh token. */
     AuthLogoutRequest: {
+      /**
+       * @description Refresh token, который нужно отозвать.
+       * @example refresh.jwt.token
+       */
       refreshToken: string;
     };
+    /** @description Контракт успешной аутентификации. */
     AuthTokensResponse: {
+      /**
+       * @description JWT access token для авторизованных запросов.
+       * @example access.jwt.token
+       */
       accessToken: string;
+      /**
+       * @description Refresh token для получения новой пары токенов.
+       * @example refresh.jwt.token
+       */
       refreshToken: string;
-      /** @example Bearer */
+      /**
+       * @description Тип токена для заголовка `Authorization`.
+       * @example Bearer
+       */
       tokenType: string;
-      /** @example 15m */
+      /**
+       * @description TTL access token в человекочитаемом формате.
+       * @example 15m
+       */
       accessExpiresIn?: string;
     };
+    /** @description Публичный профиль текущего пользователя. */
     AuthMeResponse: {
+      /**
+       * @description Идентификатор пользователя.
+       * @example user_admin_001
+       */
       id: string;
-      /** Format: email */
+      /**
+       * Format: email
+       * @description Email пользователя.
+       * @example admin@amazing-ekb.ru
+       */
       email: string;
       role: components['schemas']['Role'];
     };
+    /** @description Краткая карточка места, используемая в списках. */
     PlaceSummary: {
+      /**
+       * @description Идентификатор места.
+       * @example place_ekb_001
+       */
       id: string;
+      /**
+       * @description Название места.
+       * @example Bаден-Баден Уктус
+       */
       title: string;
+      /**
+       * @description Короткое описание для каталога.
+       * @example Термальный комплекс с открытыми бассейнами и SPA-зоной.
+       */
       summary: string;
+      /**
+       * @description Набор тегов для поиска и фильтрации.
+       * @example [
+       *       "термы",
+       *       "spa",
+       *       "бассейн"
+       *     ]
+       */
       tags: string[];
       category: components['schemas']['PlaceCategory'];
       status: components['schemas']['PlaceStatus'];
+      /**
+       * @description Вес популярности для сортировки.
+       * @example 95
+       */
       popularityWeight: number;
+      /**
+       * @description Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.
+       * @example /v1/places/place_ekb_001/photo
+       */
+      coverImageUrl: string | null;
     };
+    /** @description Материал, связанный с местом. */
     Material: {
+      /**
+       * @description Идентификатор материала.
+       * @example material_telegram_001
+       */
       id: string;
+      /**
+       * @description Идентификатор места, к которому относится материал.
+       * @example place_ekb_001
+       */
       placeId: string;
       platform: components['schemas']['Platform'];
       type: components['schemas']['MaterialType'];
+      /**
+       * @description Заголовок материала.
+       * @example Обзор комплекса и советы по посещению
+       */
       title: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description Дата и время публикации материала.
+       * @example 2026-03-20T10:30:00.000Z
+       */
       publishedAt: string;
-      durationSec?: number | null;
+      /**
+       * @description Длительность в секундах для видеоформатов.
+       * @example 183
+       */
+      durationSec: number | null;
+      /**
+       * Format: uri
+       * @description Публичная ссылка на материал.
+       * @example https://t.me/amazing_ekb/321
+       */
       url: string;
     };
+    /** @description Детальная карточка места с pinned material и счетчиками по платформам. */
     PlaceDetail: components['schemas']['PlaceSummary'] & {
-      pinnedMaterial?: components['schemas']['Material'] | null;
-      counters?: {
+      /** @description Закреплённый материал места, если он назначен. */
+      pinnedMaterial: components['schemas']['Material'] | null;
+      /** @description Количество материалов по платформам. */
+      counters: {
+        /** @example 12 */
         dzen: number;
+        /** @example 7 */
         telegram: number;
+        /** @example 3 */
         instagram: number;
       };
     };
+    /** @description Пагинированный список мест. */
     PlaceListResponse: {
+      /** @description Элементы текущей страницы. */
       items: components['schemas']['PlaceSummary'][];
+      /**
+       * @description Общее количество доступных элементов.
+       * @example 2
+       */
       total: number;
+      /**
+       * @description Текущая страница.
+       * @example 1
+       */
       page: number;
+      /**
+       * @description Размер страницы.
+       * @example 20
+       */
       pageSize: number;
     };
+    /** @description Пагинированный список материалов. */
     MaterialListResponse: {
+      /** @description Элементы текущей страницы. */
       items: components['schemas']['Material'][];
+      /**
+       * @description Общее количество доступных элементов.
+       * @example 2
+       */
       total: number;
+      /**
+       * @description Текущая страница.
+       * @example 1
+       */
       page: number;
+      /**
+       * @description Размер страницы.
+       * @example 20
+       */
       pageSize: number;
     };
+    /** @description Payload создания нового места. */
     CreatePlaceRequest: {
+      /**
+       * @description Название места.
+       * @example Bаден-Баден Уктус
+       */
       title: string;
+      /**
+       * @description Короткое описание места.
+       * @example Термальный комплекс с открытыми бассейнами и SPA-зоной.
+       */
       summary: string;
+      /**
+       * @description Теги для поиска и фильтрации.
+       * @example [
+       *       "термы",
+       *       "spa",
+       *       "бассейн"
+       *     ]
+       */
       tags: string[];
       category: components['schemas']['PlaceCategory'];
-      /** @default 0 */
+      /**
+       * @description Начальный вес популярности.
+       * @default 0
+       * @example 95
+       */
       popularityWeight: number;
     };
+    /** @description Payload частичного обновления места. */
     UpdatePlaceRequest: {
+      /**
+       * @description Новое название места.
+       * @example Bаден-Баден Уктус Premium
+       */
       title?: string;
+      /**
+       * @description Обновлённое краткое описание.
+       * @example Обновлённое описание места для карточки.
+       */
       summary?: string;
+      /**
+       * @description Новый набор тегов.
+       * @example [
+       *       "термы",
+       *       "premium"
+       *     ]
+       */
       tags?: string[];
       category?: components['schemas']['PlaceCategory'];
+      /**
+       * @description Обновлённый вес популярности.
+       * @example 99
+       */
       popularityWeight?: number;
     };
+    /** @description Payload изменения статуса места. */
     UpdatePlaceStatusRequest: {
       status: components['schemas']['PlaceStatus'];
     };
+    /** @description Payload создания нового материала для места. */
     CreateMaterialRequest: {
       platform: components['schemas']['Platform'];
       type: components['schemas']['MaterialType'];
+      /**
+       * @description Заголовок материала.
+       * @example Обзор комплекса и советы по посещению
+       */
       title: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description Момент публикации материала.
+       * @example 2026-03-20T10:30:00.000Z
+       */
       publishedAt: string;
+      /**
+       * @description Длительность в секундах для видеоформатов.
+       * @example 183
+       */
       durationSec?: number | null;
+      /**
+       * Format: uri
+       * @description Публичная ссылка на материал.
+       * @example https://t.me/amazing_ekb/321
+       */
       url: string;
     };
+    /** @description Payload частичного обновления материала. */
     UpdateMaterialRequest: {
       platform?: components['schemas']['Platform'];
       type?: components['schemas']['MaterialType'];
+      /**
+       * @description Новый заголовок материала.
+       * @example Обновлённый обзор комплекса
+       */
       title?: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description Новая дата публикации.
+       * @example 2026-03-22T09:00:00.000Z
+       */
       publishedAt?: string;
+      /**
+       * @description Новая длительность в секундах.
+       * @example 240
+       */
       durationSec?: number | null;
+      /**
+       * Format: uri
+       * @description Новая публичная ссылка на материал.
+       * @example https://t.me/amazing_ekb/400
+       */
       url?: string;
     };
+    /** @description Payload назначения закреплённого материала для места. */
     SetPinnedMaterialRequest: {
+      /**
+       * @description Идентификатор материала, который нужно закрепить.
+       * @example material_telegram_001
+       */
       materialId: string;
     };
+    /** @description Multipart payload для загрузки cover-фото места. */
+    PlacePhotoUploadRequest: {
+      /**
+       * Format: binary
+       * @description Файл cover-фото в формате JPEG, PNG или WebP размеров до 5 MB.
+       */
+      photo: string;
+    };
+    /** @description Ответ liveness-пробы. Показывает, что процесс приложения запущен. */
+    HealthLiveResponse: {
+      /**
+       * @description Признак живости приложения.
+       * @example ok
+       */
+      status: string;
+    };
+    /** @description Ответ readiness-пробы. Показывает готовность приложения обслуживать запросы. */
+    HealthReadyResponse: {
+      /**
+       * @description Общий статус готовности.
+       * @example ok
+       */
+      status: string;
+      /** @description Результаты инфраструктурных проверок. */
+      checks: {
+        /**
+         * @description Статус подключения к базе данных.
+         * @example up
+         */
+        database: string;
+      };
+    };
   };
-  responses: never;
+  responses: {
+    /** @description Ошибка валидации входных параметров или тела запроса. */
+    ValidationError: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description Пользователь не аутентифицирован или access token отсутствует/некорректен. */
+    Unauthorized: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description У текущего пользователя недостаточно прав для выполнения операции. */
+    Forbidden: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description Указанное место не найдено. */
+    PlaceNotFound: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description Указанный материал не найден. */
+    MaterialNotFound: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+    /** @description Сервис временно не готов обрабатывать запросы. */
+    ServiceUnavailable: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
+  };
   parameters: {
+    /**
+     * @description Идентификатор места.
+     * @example place_ekb_001
+     */
     PlaceId: string;
+    /**
+     * @description Идентификатор материала.
+     * @example material_telegram_001
+     */
     MaterialId: string;
+    /**
+     * @description Номер страницы пагинации. Минимальное значение `1`.
+     * @example 1
+     */
     Page: number;
+    /**
+     * @description Размер страницы. Допустимый диапазон от `1` до `100`.
+     * @example 20
+     */
     PageSize: number;
   };
   requestBodies: never;
@@ -1118,4 +915,619 @@ export interface components {
   pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export interface operations {
+  getLiveness: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Приложение живо и принимает запросы. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HealthLiveResponse'];
+        };
+      };
+    };
+  };
+  getReadiness: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Приложение готово обслуживать запросы. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HealthReadyResponse'];
+        };
+      };
+      503: components['responses']['ServiceUnavailable'];
+    };
+  };
+  login: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Учетные данные пользователя. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AuthLoginRequest'];
+      };
+    };
+    responses: {
+      /** @description Успешная аутентификация. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AuthTokensResponse'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+    };
+  };
+  refreshTokens: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Refresh token для перевыпуска пары токенов. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AuthRefreshRequest'];
+      };
+    };
+    responses: {
+      /** @description Токены успешно перевыпущены. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AuthTokensResponse'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+    };
+  };
+  logout: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Refresh token, который нужно отозвать. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AuthLogoutRequest'];
+      };
+    };
+    responses: {
+      /** @description Refresh token успешно отозван. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+    };
+  };
+  getCurrentUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Профиль текущего пользователя. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AuthMeResponse'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+    };
+  };
+  listPlaces: {
+    parameters: {
+      query?: {
+        /**
+         * @description Номер страницы пагинации. Минимальное значение `1`.
+         * @example 1
+         */
+        page?: components['parameters']['Page'];
+        /**
+         * @description Размер страницы. Допустимый диапазон от `1` до `100`.
+         * @example 20
+         */
+        pageSize?: components['parameters']['PageSize'];
+        /**
+         * @description Полнотекстовый поиск по названию и описанию места.
+         * @example термы
+         */
+        search?: string;
+        /**
+         * @description Режим сортировки списка мест.
+         * @example popular
+         */
+        sort?: 'popular';
+        /**
+         * @description Фильтр по категории места.
+         * @example spa
+         */
+        category?: components['schemas']['PlaceCategory'];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Пагинированный список мест. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceListResponse'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+    };
+  };
+  getPlaceDetail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Детальная карточка места. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceDetail'];
+        };
+      };
+      404: components['responses']['PlaceNotFound'];
+    };
+  };
+  getPlaceCoverPhoto: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Бинарное содержимое публичного cover-фото. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/jpeg': string;
+          'image/png': string;
+          'image/webp': string;
+        };
+      };
+      404: components['responses']['PlaceNotFound'];
+    };
+  };
+  listPlaceMaterials: {
+    parameters: {
+      query?: {
+        /**
+         * @description Номер страницы пагинации. Минимальное значение `1`.
+         * @example 1
+         */
+        page?: components['parameters']['Page'];
+        /**
+         * @description Размер страницы. Допустимый диапазон от `1` до `100`.
+         * @example 20
+         */
+        pageSize?: components['parameters']['PageSize'];
+        /**
+         * @description Фильтр по платформе публикации материала.
+         * @example telegram
+         */
+        platform?: components['schemas']['Platform'];
+      };
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Пагинированный список материалов места. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MaterialListResponse'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      404: components['responses']['PlaceNotFound'];
+    };
+  };
+  listFavorites: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Список избранных мест. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceListResponse'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+    };
+  };
+  addFavorite: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Место добавлено в избранное. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['Unauthorized'];
+      404: components['responses']['PlaceNotFound'];
+    };
+  };
+  removeFavorite: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Место удалено из избранного. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['Unauthorized'];
+    };
+  };
+  createPlace: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Данные нового места. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreatePlaceRequest'];
+      };
+    };
+    responses: {
+      /** @description Место успешно создано. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceSummary'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
+  updatePlace: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    /** @description Набор полей для частичного обновления места. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePlaceRequest'];
+      };
+    };
+    responses: {
+      /** @description Место успешно обновлено. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceSummary'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['PlaceNotFound'];
+    };
+  };
+  updatePlaceStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    /** @description Новый статус места. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePlaceStatusRequest'];
+      };
+    };
+    responses: {
+      /** @description Статус места успешно обновлён. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceSummary'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['PlaceNotFound'];
+    };
+  };
+  uploadPlaceCoverPhoto: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    /** @description Multipart payload с одиночным файлом в поле `photo`. */
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['PlacePhotoUploadRequest'];
+      };
+    };
+    responses: {
+      /** @description Cover-фото места успешно загружено или заменено. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceSummary'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['PlaceNotFound'];
+    };
+  };
+  createPlaceMaterial: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    /** @description Данные нового материала. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateMaterialRequest'];
+      };
+    };
+    responses: {
+      /** @description Материал успешно создан. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Material'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['PlaceNotFound'];
+    };
+  };
+  updateMaterial: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор материала.
+         * @example material_telegram_001
+         */
+        materialId: components['parameters']['MaterialId'];
+      };
+      cookie?: never;
+    };
+    /** @description Набор полей для частичного обновления материала. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateMaterialRequest'];
+      };
+    };
+    responses: {
+      /** @description Материал успешно обновлён. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Material'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['MaterialNotFound'];
+    };
+  };
+  setPinnedMaterial: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    /** @description Идентификатор материала, который нужно закрепить за местом. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetPinnedMaterialRequest'];
+      };
+    };
+    responses: {
+      /** @description Закреплённый материал успешно обновлён. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceDetail'];
+        };
+      };
+      /** @description Ошибка валидации или нарушение бизнес-правила. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponse'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description Место или материал не найдены. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponse'];
+        };
+      };
+    };
+  };
+}

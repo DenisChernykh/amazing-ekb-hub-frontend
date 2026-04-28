@@ -6,6 +6,11 @@ import tsdoc from 'eslint-plugin-tsdoc';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 const generatedFiles = ['**/*.generated.ts', '**/*.generated.tsx', '**/*.d.ts'];
+
+const orvalGeneratedFiles = [
+  'src/shared/api/generated/**/*.{ts,tsx}',
+  'src/shared/api/generated-zod/**/*.{ts,tsx}',
+];
 const exportedApiContexts = [
   'ExportNamedDeclaration[declaration.type="FunctionDeclaration"]',
   'ExportNamedDeclaration[declaration.type="ClassDeclaration"]',
@@ -19,11 +24,18 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
 
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts', 'coverage/**']),
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'next-env.d.ts',
+    'coverage/**',
+    ...orvalGeneratedFiles,
+  ]),
 
   {
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/app/**/*.{ts,tsx}', ...generatedFiles],
+    ignores: ['src/app/**/*.{ts,tsx}', ...generatedFiles, ...orvalGeneratedFiles],
     plugins: {
       tsdoc,
       jsdoc,

@@ -2,13 +2,11 @@
 
 ## Goal
 
-Этот документ описывает практический шаблон построения нового server-first экрана в проекте.
-
-Он нужен не для архитектурного решения, а для ежедневной реализации следующего route.
+Этот документ описывает практический шаблон нового server-first экрана в текущей FSD-архитектуре проекта.
 
 ## Route Folder Shape
 
-Новый экран по умолчанию строится так:
+Новый route по умолчанию:
 
 ```text
 src/app/<route>/
@@ -16,214 +14,179 @@ src/app/<route>/
   loading.tsx
   error.tsx
   _lib/
-    query/
-    page-data/
-    view-model/
+    get-<route>-page-data.ts
+    normalize-<route>-search-params.ts
   _components/
+    <route>-page-content.tsx
+```
+
+## FSD Slices Around Route
+
+Если экран показывает доменную сущность или список сущностей, рядом создаются FSD-slices:
+
+```text
+src/entities/<entity>/
+  api/
+  model/
+  lib/
+  ui/
+  index.ts
+
+src/features/<feature>/
+  model/
+  lib/
+  ui/
+  index.ts
+
+src/widgets/<widget>/
+  model/
+  ui/
+  index.ts
+```
+
+Пример для каталога мест:
+
+```text
+src/entities/place
+src/features/places-pagination
+src/widgets/places-catalog
 ```
 
 ## Responsibilities By Layer
 
 ### `page.tsx`
 
-Должен быть thin entrypoint.
+Должен быть thin entrypoint:
 
-Он делает только следующее:
+1. получает `params`/`searchParams`;
+2. вызывает route-private loader;
+3. передает модель в route-private content component.
 
-1. получает route input;
-2. вызывает route-private loaders;
-3. применяет app-facing error flow;
-4. рендерит route-level screen.
+`page.tsx` не должен содержать разметку каталога, карточек, фильтров или error UI.
 
-### `loading.tsx`
+### `_lib`
 
-Содержит route-level loading UI.
+Содержит route-only orchestration:
 
-Он не должен повторять `page.tsx` и не должен выполнять data loading.
-
-### `error.tsx`
-
-Содержит route-level fatal boundary UI.
-
-Он не должен дублировать expected failure handling.
-
-### `_lib/query`
-
-Содержит:
-
-- `searchParams` types;
 - query normalization;
-- href builders;
-- route-specific URL rules.
-
-### `_lib/page-data`
-
-Содержит:
-
-- page-level data loaders;
-- orchestration critical/non-critical requests;
-- route-private page data shape.
-
-### `_lib/view-model`
-
-Содержит:
-
-- screen-level view model types;
-- screen-level view model builders;
-- composition of multiple modules into one screen.
+- page-data loading;
+- route-level model assembly;
+- binding между API результатом и widget model.
 
 ### `_components`
 
-Содержит:
+Содержит route-only rendering:
 
-- route-private screen;
-- route-private content;
-- route-private actions and layout helpers.
+- success/error switch;
+- route-specific placeholders;
+- composition, которая нужна только этому route.
 
-## Module Interaction Pattern
+### `entities`
 
-Route использует только:
+Содержит reusable domain UI и model:
 
-- `modules/<domain>/server` для данных;
-- `modules/<domain>/ui` или root module API для reusable domain UI;
-- `shared/errors` для generic error UI.
+- frontend contract type;
+- mapper/adapters;
+- display helpers;
+- entity card/section components.
 
-Route не должен:
+### `features`
 
-- обращаться к transport напрямую;
-- импортировать DTO;
-- импортировать internal files из module `api/http`;
-- держать доменный rendering внутри `page.tsx`.
+Содержит пользовательские действия:
 
-## Recommended Runtime Flow
+- pagination;
+- filtering;
+- sorting;
+- search controls.
 
-1. Normalize route input.
-2. Execute critical page request.
-3. Render success or failure content.
-4. Let fatal failures go to `error.tsx`.
-5. For secondary sections, use non-critical request execution and local degradation.
+### `widgets`
 
-## View Model Pattern
+Содержит крупную композицию:
 
-### Route-level view model
+- catalog;
+- feed;
+- grid/list + controls + empty state.
 
-Используется, когда экран собирает несколько модулей.
+## Runtime Flow
 
-Признаки:
+```text
+page.tsx
+  -> get-page-data
+    -> entity/api or shared/generated API
+    -> entity mapper
+    -> widget model
+  -> page-content
+    -> widget
+      -> features
+      -> entities
+```
 
-- multiple domain sections;
-- route-specific href;
-- route-specific actions;
-- route-private layout decisions.
+## Query Normalization
 
-### Module-level view model
+Route normalization должна быть простой.
 
-Используется внутри доменного модуля.
+Правила:
 
-Признаки:
+1. Не валидировать query-параметры без необходимости.
+2. Приводить типы и fallback-значения.
+3. Не усложнять URL раньше, чем появился реальный UX.
+4. Если pagination на первом этапе работает только с `page`, не сохранять все query-параметры “на будущее”.
 
-- reusable section state;
-- domain-specific presentation;
-- no route-specific knowledge.
+## Frontend Ahead Of Backend
 
-## UI Composition Pattern
+Если backend не отдает все поля для UI:
 
-### In `app`
+1. Создать frontend contract type в `entities/<entity>/model`.
+2. Сделать mapper из API summary/detail в этот type.
+3. Временный mock держать только в mapper.
+4. Mock должен быть детерминированным.
+5. UI-компоненты не должны знать, что данные временные.
+6. После обновления backend менять mapper, а не UI.
 
-`app` UI отвечает за screen composition.
+Пример:
 
-Примеры:
+```text
+PlaceSummary DTO
+  -> mapPlaceSummaryToCardModel
+    -> PlaceCardModel
+      -> PlaceCard
+```
 
-- screen
-- content
-- actions
-- intro cards
-- route-private wrappers
+## Material UI Pattern
 
-### In `modules`
+User-facing UI строится через MUI.
 
-`modules` UI отвечает за reusable domain sections.
+Preferred components:
 
-Примеры:
+- `Container` для page width;
+- `Grid` для сеток;
+- `Card`, `CardActionArea`, `CardContent`, `CardMedia` для карточек;
+- `Chip`, `Avatar`, `Badge` для metadata;
+- `Pagination` для пагинации;
+- `Alert` для ошибок;
+- `CircularProgress`/`Skeleton` для loading;
+- `Paper`/`Card` для empty state;
+- `Typography` для текста;
+- `Stack`/`Box` только как layout primitives.
 
-- feed
-- card
-- summary section
-- counters section
-- platform section
+Если MUI-компонент требует function component через `component={...}`, компонент должен быть client boundary.
 
 ## State Component Rules
 
-1. Stateful section components используют thin root component и отдельные state files.
-2. Route-level `Content` может иметь `failure-state` и `success-state`.
-3. `success-state` нужен, если он содержит собственную композицию.
-4. Если success-state является чистым прокси в один child component, его можно не выносить, если консистентность не важнее.
-5. Optional fragment лучше оформлять через:
-   - `if (...) return null`
-   - `condition && <Block />`
-6. Большие inline ternary blocks не рекомендуются.
-7. Private subparts можно держать рядом с основным компонентом, если они не являются public API.
-
-## Practical Heuristics
-
-### Component belongs in `app` if
-
-1. Он знает конкретный route.
-2. Он знает `backHref`, `params`, `searchParams`.
-3. Он собирает несколько модулей в один screen.
-4. Он нужен только одному маршруту.
-
-### Component belongs in `modules` if
-
-1. Он представляет доменную сущность или секцию.
-2. Он не знает route path.
-3. Он может быть переиспользован на другом экране.
-4. Он получает уже готовый view model.
-
-## Error Handling Pattern
-
-### Critical request
-
-Использовать `executeAppRscRequest`.
-
-### Non-critical section request
-
-Использовать `executeNonCriticalRequest`.
-
-### Generic UI
-
-Использовать `src/shared/errors`.
-
-## Reference Screens
-
-### `src/app/draft/home`
-
-Показывает:
-
-- простой list route;
-- route-private content;
-- page-data loader;
-- screen-level view model;
-- domain feed UI.
-
-### `src/app/draft/places/[placeId]`
-
-Показывает:
-
-- route-critical primary request;
-- non-critical section requests;
-- route-private query/page-data/view-model split;
-- domain UI from multiple modules.
+1. Route-level content component может делать thin switch по `model.kind`.
+2. Empty state принадлежит widget, если это состояние конкретной секции.
+3. Error state принадлежит route/shared, если это route-level failure.
+4. Leaf-компоненты не получают artificial `empty/error`, если они не владеют состоянием.
+5. Optional fragments лучше оформлять через early return или отдельный state component.
 
 ## Checklist For New Screen
 
-1. Создан thin `page.tsx`.
-2. Созданы `loading.tsx` и `error.tsx`.
-3. Есть `_lib/query`, если у route есть input normalization или href building.
-4. Есть `_lib/page-data`, если route orchestration нетривиален.
-5. Есть `_lib/view-model`, если экран собирает несколько модулей.
-6. Route imports only public module APIs.
-7. Domain UI lives in `modules`, not in `app`.
-8. Expected, fatal и non-critical failures разделены.
-9. Screen composition не утекла в `page.tsx`.
-10. `pnpm typecheck` и `pnpm lint:strict` зелёные.
+1. `page.tsx` тонкий.
+2. Route input normalization живет в `_lib`.
+3. Page-data loader живет в `_lib`.
+4. Route switch живет в `_components`.
+5. Domain UI живет в `entities`/`widgets`.
+6. User action UI живет в `features`.
+7. UI построен через MUI native components.
+8. Frontend-ahead mock спрятан в mapper.
+9. `pnpm lint:strict`, `pnpm typecheck`, `pnpm build` зелёные.
