@@ -1,17 +1,22 @@
 'use server';
 
 import { setSessionCookies } from '@/entities/session/server';
-import { LoginBody } from '@/shared/api/generated-zod/auth/auth.zod';
 import { login } from '@/shared/api/generated/auth/auth';
 import { getAuthAccessFailureKind } from '@/shared/lib/api/auth-access-policy';
 import { isGeneratedApiError } from '@/shared/lib/api/is-generated-api-error';
 import { redirect } from 'next/navigation';
+import * as zod from 'zod';
 import { normalizeLoginRedirect } from '../lib/normalize-login-redirect';
 import type {
   LoginByCredentialsState,
   LoginFieldErrors,
   LoginFieldName,
 } from '../model/login-action-state';
+
+const LoginCredentialsInput = zod.strictObject({
+  email: zod.email(),
+  password: zod.string().min(1),
+});
 
 /**
  * Это хелпер для безопасного чтения строкового поля из `FormData`.
@@ -54,7 +59,7 @@ function buildValidationState(
 /**
  * Это хелпер для перевода Zod issues в локальные field errors.
  *
- * @param issues - Ошибки generated Zod-схемы.
+ * @param issues - Ошибки локальной схемы формы логина.
  * @returns Ошибки полей с UI-текстами frontend слоя.
  */
 function mapValidationIssues(
@@ -70,7 +75,7 @@ function mapValidationIssues(
     }
 
     if (fieldName === 'password') {
-      fieldErrors.password = 'Пароль должен быть не короче 8 символов.';
+      fieldErrors.password = 'Введите пароль.';
     }
   }
 
@@ -98,7 +103,7 @@ export async function loginByCredentialsAction(
   const redirectTo = normalizeLoginRedirect(
     typeof redirectToValue === 'string' ? redirectToValue : undefined,
   );
-  const validation = LoginBody.safeParse({ email, password });
+  const validation = LoginCredentialsInput.safeParse({ email, password });
 
   if (!validation.success) {
     return buildValidationState(email, mapValidationIssues(validation.error.issues));
