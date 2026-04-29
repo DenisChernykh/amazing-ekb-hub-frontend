@@ -4,6 +4,7 @@ import { setSessionCookies } from '@/entities/session/server';
 import { login } from '@/shared/api/generated/auth/auth';
 import { getAuthAccessFailureKind } from '@/shared/lib/api/auth-access-policy';
 import { isGeneratedApiError } from '@/shared/lib/api/is-generated-api-error';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import * as zod from 'zod';
 import { normalizeLoginRedirect } from '../lib/normalize-login-redirect';
@@ -146,5 +147,6 @@ export async function loginByCredentialsAction(
   }
 
   await setSessionCookies(tokenResponse.data);
+  revalidatePath('/', 'layout');
   redirect(redirectTo);
 }
