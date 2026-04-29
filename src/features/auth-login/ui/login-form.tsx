@@ -75,11 +75,6 @@ export function LoginForm({ redirectTo }: Readonly<LoginFormProps>) {
           label="Пароль"
           name="password"
           required
-          slotProps={{
-            htmlInput: {
-              minLength: 8,
-            },
-          }}
           type="password"
         />
 

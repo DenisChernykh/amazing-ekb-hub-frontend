@@ -1,11 +1,9 @@
 'use client';
 
-import { SessionProvider, type SessionState } from '@/entities/session';
 import { CssBaseline } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 interface ProvidersProps {
-  initialSession: SessionState;
   children: React.ReactNode;
 }
 
@@ -24,16 +22,13 @@ const theme = createTheme({
  * Подключает корневые runtime providers приложения.
  *
  * @remarks
- * Сейчас здесь инициализируется Material UI theme runtime.
- * По мере роста приложения сюда могут добавляться и другие
- * app-level провайдеры, например query/auth/i18n.
+ * Сейчас здесь инициализируется Material UI theme runtime. Session provider
+ * живёт в `app/template.tsx`, чтобы обновляться после auth-навигаций.
  */
-export function Providers({ children, initialSession }: Readonly<ProvidersProps>) {
+export function Providers({ children }: Readonly<ProvidersProps>) {
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline>
-        <SessionProvider initialSession={initialSession}>{children}</SessionProvider>
-      </CssBaseline>
+      <CssBaseline>{children}</CssBaseline>
     </ThemeProvider>
   );
 }
