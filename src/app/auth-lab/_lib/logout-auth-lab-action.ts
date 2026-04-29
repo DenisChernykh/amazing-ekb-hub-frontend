@@ -1,6 +1,7 @@
 'use server';
 
 import { logoutCurrentSession } from '@/entities/session/server';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 /**
@@ -8,5 +9,6 @@ import { redirect } from 'next/navigation';
  */
 export async function logoutAuthLabAction(): Promise<void> {
   await logoutCurrentSession();
+  revalidatePath('/', 'layout');
   redirect('/auth-lab');
 }
