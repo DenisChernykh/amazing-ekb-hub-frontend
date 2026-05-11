@@ -28,8 +28,6 @@ export async function fetchPublicPlaceMaterials(
   platform: Platform,
 ): Promise<FetchPublicPlaceMaterialsResult> {
   const query: ListPlaceMaterialsParams = {
-    page: 1,
-    pageSize: 100,
     platform,
   };
 

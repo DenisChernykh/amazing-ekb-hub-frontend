@@ -5,12 +5,11 @@
  * MVP backend API (OpenAPI-first)
  * OpenAPI spec version: 1.0.0
  */
-import type { ListPlacesSort } from '../model/listPlacesSort';
-import type { PlaceCategory } from '../model/placeCategory';
+import type { PlaceStatus } from '../model/placeStatus';
 import type { PageParameter } from './pageParameter';
 import type { PageSizeParameter } from './pageSizeParameter';
 
-export type ListPlacesParams = {
+export type ListAdminPlacesParams = {
   /**
    * Номер страницы пагинации. Минимальное значение `1`.
    * @minimum 1
@@ -23,15 +22,7 @@ export type ListPlacesParams = {
    */
   pageSize?: PageSizeParameter;
   /**
-   * Полнотекстовый поиск по названию и описанию места.
+   * Фильтр по статусу места. Если параметр отсутствует, возвращаются все статусы.
    */
-  search?: string;
-  /**
-   * Режим сортировки списка мест.
-   */
-  sort?: ListPlacesSort;
-  /**
-   * Фильтр по категории места.
-   */
-  category?: PlaceCategory;
+  status?: PlaceStatus;
 };

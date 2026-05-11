@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * Категория места в каталоге.
- */
-export type PlaceCategory = 'pools' | 'spa' | 'cafe' | 'hotels' | 'workshops';
+export type ListAdminPlaceMaterialsPathParameters = {
+  placeId: string;
+};

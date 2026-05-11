@@ -55,7 +55,7 @@ export interface paths {
     put?: never;
     /**
      * Login
-     * @description Аутентифицирует пользователя по email и паролю и возвращает пару access/refresh токенов.
+     * @description Аутентифицирует пользователя по email и паролю, ставит access/refresh HttpOnly cookies и возвращает публичный профиль.
      */
     post: operations['login'];
     delete?: never;
@@ -75,7 +75,7 @@ export interface paths {
     put?: never;
     /**
      * Refresh tokens
-     * @description Обновляет access/refresh токены по валидному refresh token.
+     * @description Обновляет access/refresh HttpOnly cookies по валидной refresh cookie.
      */
     post: operations['refreshTokens'];
     delete?: never;
@@ -95,7 +95,7 @@ export interface paths {
     put?: never;
     /**
      * Logout
-     * @description Выполняет logout и отзывает переданный refresh token.
+     * @description Выполняет logout, отзывает refresh token из cookie и очищает auth cookies.
      */
     post: operations['logout'];
     delete?: never;
@@ -193,7 +193,7 @@ export interface paths {
     };
     /**
      * List place materials
-     * @description Возвращает материалы, связанные с указанным местом, с пагинацией и фильтром по платформе.
+     * @description Возвращает до 100 материалов, связанных с указанным активным местом, с опциональным фильтром по платформе.
      */
     get: operations['listPlaceMaterials'];
     put?: never;
@@ -255,7 +255,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /**
+     * List admin places
+     * @description Возвращает административный список мест с пагинацией и опциональной фильтрацией по статусу. Если `status` не указан, возвращаются и активные, и скрытые места.
+     */
+    get: operations['listAdminPlaces'];
     put?: never;
     /**
      * Create place
@@ -275,7 +279,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /**
+     * Get admin place details
+     * @description Возвращает детальную карточку места для администратора независимо от публичного статуса места.
+     */
+    get: operations['getAdminPlaceDetail'];
     put?: never;
     post?: never;
     delete?: never;
@@ -335,7 +343,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /**
+     * List admin place materials
+     * @description Возвращает до 100 материалов указанного места для администратора, включая скрытые места.
+     */
+    get: operations['listAdminPlaceMaterials'];
     put?: never;
     /**
      * Create material for place
@@ -422,62 +434,23 @@ export interface components {
      * @enum {string}
      */
     MaterialType: 'post' | 'reel' | 'video';
-    /**
-     * @description Категория прикладной ошибки по стандарту `STD-001`.
-     * @example validation
-     * @enum {string}
-     */
-    ErrorType: 'validation' | 'domain' | 'auth' | 'permission' | 'not_found' | 'server';
-    /** @description Транспортные метаданные HTTP-ответа. */
-    ErrorMeta: {
+    /** @description Стандартный JSON body, который NestJS возвращает для `HttpException`. */
+    NestErrorResponse: {
       /**
-       * @description Идентификатор запроса для трассировки в логах.
-       * @example req_01HQXYZ123
+       * @description HTTP status code ответа.
+       * @example 400
        */
-      requestId: string;
-    };
-    /** @description Одна конкретная проблема валидации или нарушения бизнес-правила. */
-    ErrorIssue: {
+      statusCode: number;
       /**
-       * @description Машиночитаемый код проблемы.
-       * @example min
+       * @description Сообщение ошибки. Для DTO validation NestJS обычно возвращает массив строк.
+       * @example Bad Request
        */
-      code: string;
+      message: string | string[];
       /**
-       * @description Человекочитаемое описание проблемы.
-       * @example page must not be less than 1
+       * @description Стандартное HTTP reason summary от NestJS.
+       * @example Bad Request
        */
-      message: string;
-      /**
-       * @description Путь к полю запроса в `dot notation`.
-       * @example page
-       */
-      path?: string;
-    };
-    /** @description Дополнительные сведения для type-specific ошибок. */
-    ErrorDetails: {
-      /** @description Список конкретных validation/domain issues. */
-      issues?: components['schemas']['ErrorIssue'][];
-    };
-    /** @description Канонический payload прикладной ошибки. */
-    ErrorBody: {
-      type: components['schemas']['ErrorType'];
-      /**
-       * @description Машиночитаемый код ошибки.
-       * @example VALIDATION_ERROR
-       */
-      code: string;
-      /**
-       * @description Человекочитаемое summary-сообщение.
-       * @example Request validation failed
-       */
-      message: string;
-      details?: components['schemas']['ErrorDetails'];
-    };
-    /** @description Единый HTTP error envelope по стандарту `STD-001`. */
-    ErrorResponse: {
-      meta?: components['schemas']['ErrorMeta'];
-      error: components['schemas']['ErrorBody'];
+      error?: string;
     };
     /** @description Данные для входа пользователя по email и паролю. */
     AuthLoginRequest: {
@@ -492,45 +465,6 @@ export interface components {
        * @example supersecret123
        */
       password: string;
-    };
-    /** @description Payload для перевыпуска access/refresh токенов. */
-    AuthRefreshRequest: {
-      /**
-       * @description Refresh token, полученный при логине или предыдущем refresh.
-       * @example refresh.jwt.token
-       */
-      refreshToken: string;
-    };
-    /** @description Payload для logout и отзыва refresh token. */
-    AuthLogoutRequest: {
-      /**
-       * @description Refresh token, который нужно отозвать.
-       * @example refresh.jwt.token
-       */
-      refreshToken: string;
-    };
-    /** @description Контракт успешной аутентификации. */
-    AuthTokensResponse: {
-      /**
-       * @description JWT access token для авторизованных запросов.
-       * @example access.jwt.token
-       */
-      accessToken: string;
-      /**
-       * @description Refresh token для получения новой пары токенов.
-       * @example refresh.jwt.token
-       */
-      refreshToken: string;
-      /**
-       * @description Тип токена для заголовка `Authorization`.
-       * @example Bearer
-       */
-      tokenType: string;
-      /**
-       * @description TTL access token в человекочитаемом формате.
-       * @example 15m
-       */
-      accessExpiresIn?: string;
     };
     /** @description Публичный профиль текущего пользователя. */
     AuthMeResponse: {
@@ -657,25 +591,10 @@ export interface components {
        */
       pageSize: number;
     };
-    /** @description Пагинированный список материалов. */
+    /** @description Ограниченный список материалов места. */
     MaterialListResponse: {
-      /** @description Элементы текущей страницы. */
+      /** @description Материалы места в стабильном порядке отображения. */
       items: components['schemas']['Material'][];
-      /**
-       * @description Общее количество доступных элементов.
-       * @example 2
-       */
-      total: number;
-      /**
-       * @description Текущая страница.
-       * @example 1
-       */
-      page: number;
-      /**
-       * @description Размер страницы.
-       * @example 20
-       */
-      pageSize: number;
     };
     /** @description Payload создания нового места. */
     CreatePlaceRequest: {
@@ -685,26 +604,25 @@ export interface components {
        */
       title: string;
       /**
-       * @description Короткое описание места.
+       * @description Короткое описание места. Если поле не передано, backend сохранит пустую строку.
        * @example Термальный комплекс с открытыми бассейнами и SPA-зоной.
        */
-      summary: string;
+      summary?: string;
       /**
-       * @description Теги для поиска и фильтрации.
+       * @description Теги для поиска и фильтрации. Если поле не передано, backend сохранит пустой массив.
        * @example [
        *       "термы",
        *       "spa",
        *       "бассейн"
        *     ]
        */
-      tags: string[];
+      tags?: string[];
       category: components['schemas']['PlaceCategory'];
       /**
-       * @description Начальный вес популярности.
-       * @default 0
+       * @description Начальный вес популярности. Если поле не передано, backend сохранит 0.
        * @example 95
        */
-      popularityWeight: number;
+      popularityWeight?: number;
     };
     /** @description Payload частичного обновления места. */
     UpdatePlaceRequest: {
@@ -839,16 +757,16 @@ export interface components {
         [name: string]: unknown;
       };
       content: {
-        'application/json': components['schemas']['ErrorResponse'];
+        'application/json': components['schemas']['NestErrorResponse'];
       };
     };
-    /** @description Пользователь не аутентифицирован или access token отсутствует/некорректен. */
+    /** @description Пользователь не аутентифицирован или auth cookie отсутствует/некорректна. */
     Unauthorized: {
       headers: {
         [name: string]: unknown;
       };
       content: {
-        'application/json': components['schemas']['ErrorResponse'];
+        'application/json': components['schemas']['NestErrorResponse'];
       };
     };
     /** @description У текущего пользователя недостаточно прав для выполнения операции. */
@@ -857,7 +775,7 @@ export interface components {
         [name: string]: unknown;
       };
       content: {
-        'application/json': components['schemas']['ErrorResponse'];
+        'application/json': components['schemas']['NestErrorResponse'];
       };
     };
     /** @description Указанное место не найдено. */
@@ -866,7 +784,7 @@ export interface components {
         [name: string]: unknown;
       };
       content: {
-        'application/json': components['schemas']['ErrorResponse'];
+        'application/json': components['schemas']['NestErrorResponse'];
       };
     };
     /** @description Указанный материал не найден. */
@@ -875,7 +793,7 @@ export interface components {
         [name: string]: unknown;
       };
       content: {
-        'application/json': components['schemas']['ErrorResponse'];
+        'application/json': components['schemas']['NestErrorResponse'];
       };
     };
     /** @description Сервис временно не готов обрабатывать запросы. */
@@ -884,7 +802,7 @@ export interface components {
         [name: string]: unknown;
       };
       content: {
-        'application/json': components['schemas']['ErrorResponse'];
+        'application/json': components['schemas']['NestErrorResponse'];
       };
     };
   };
@@ -971,13 +889,15 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Успешная аутентификация. */
+      /** @description Успешная аутентификация. Ответ устанавливает `aeh_access_token` и `aeh_refresh_token`. */
       200: {
         headers: {
+          /** @description HttpOnly auth cookies для access и refresh токенов. */
+          'Set-Cookie'?: string;
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AuthTokensResponse'];
+          'application/json': components['schemas']['AuthMeResponse'];
         };
       };
       400: components['responses']['ValidationError'];
@@ -991,23 +911,17 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    /** @description Refresh token для перевыпуска пары токенов. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['AuthRefreshRequest'];
-      };
-    };
+    requestBody?: never;
     responses: {
-      /** @description Токены успешно перевыпущены. */
-      200: {
+      /** @description Cookies успешно перевыпущены. */
+      204: {
         headers: {
+          /** @description Новые HttpOnly auth cookies для access и refresh токенов. */
+          'Set-Cookie'?: string;
           [name: string]: unknown;
         };
-        content: {
-          'application/json': components['schemas']['AuthTokensResponse'];
-        };
+        content?: never;
       };
-      400: components['responses']['ValidationError'];
       401: components['responses']['Unauthorized'];
     };
   };
@@ -1018,22 +932,17 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    /** @description Refresh token, который нужно отозвать. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['AuthLogoutRequest'];
-      };
-    };
+    requestBody?: never;
     responses: {
-      /** @description Refresh token успешно отозван. */
+      /** @description Refresh token отозван, auth cookies очищены. */
       204: {
         headers: {
+          /** @description Очистка `aeh_access_token` и `aeh_refresh_token`. */
+          'Set-Cookie'?: string;
           [name: string]: unknown;
         };
         content?: never;
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
     };
   };
   getCurrentUser: {
@@ -1164,16 +1073,6 @@ export interface operations {
     parameters: {
       query?: {
         /**
-         * @description Номер страницы пагинации. Минимальное значение `1`.
-         * @example 1
-         */
-        page?: components['parameters']['Page'];
-        /**
-         * @description Размер страницы. Допустимый диапазон от `1` до `100`.
-         * @example 20
-         */
-        pageSize?: components['parameters']['PageSize'];
-        /**
          * @description Фильтр по платформе публикации материала.
          * @example telegram
          */
@@ -1191,7 +1090,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Пагинированный список материалов места. */
+      /** @description Список материалов места. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -1276,6 +1175,45 @@ export interface operations {
       401: components['responses']['Unauthorized'];
     };
   };
+  listAdminPlaces: {
+    parameters: {
+      query?: {
+        /**
+         * @description Номер страницы пагинации. Минимальное значение `1`.
+         * @example 1
+         */
+        page?: components['parameters']['Page'];
+        /**
+         * @description Размер страницы. Допустимый диапазон от `1` до `100`.
+         * @example 20
+         */
+        pageSize?: components['parameters']['PageSize'];
+        /**
+         * @description Фильтр по статусу места. Если параметр отсутствует, возвращаются все статусы.
+         * @example hidden
+         */
+        status?: components['schemas']['PlaceStatus'];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Пагинированный административный список мест. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceListResponse'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
   createPlace: {
     parameters: {
       query?: never;
@@ -1302,6 +1240,35 @@ export interface operations {
       400: components['responses']['ValidationError'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
+    };
+  };
+  getAdminPlaceDetail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Детальная карточка места для администратора. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceDetail'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['PlaceNotFound'];
     };
   };
   updatePlace: {
@@ -1401,6 +1368,42 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['PlaceSummary'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['PlaceNotFound'];
+    };
+  };
+  listAdminPlaceMaterials: {
+    parameters: {
+      query?: {
+        /**
+         * @description Фильтр по платформе публикации материала.
+         * @example telegram
+         */
+        platform?: components['schemas']['Platform'];
+      };
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Список материалов места для администратора. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MaterialListResponse'];
         };
       };
       400: components['responses']['ValidationError'];
@@ -1514,7 +1517,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ErrorResponse'];
+          'application/json': components['schemas']['NestErrorResponse'];
         };
       };
       401: components['responses']['Unauthorized'];
@@ -1525,7 +1528,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ErrorResponse'];
+          'application/json': components['schemas']['NestErrorResponse'];
         };
       };
     };

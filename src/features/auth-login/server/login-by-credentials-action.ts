@@ -1,6 +1,6 @@
 'use server';
 
-import { setSessionCookies } from '@/entities/session/server';
+import { applyBackendSessionCookies } from '@/entities/session/server';
 import { login } from '@/shared/api/generated/auth/auth';
 import { getAuthAccessFailureKind } from '@/shared/lib/api/auth-access-policy';
 import { isGeneratedApiError } from '@/shared/lib/api/is-generated-api-error';
@@ -87,7 +87,7 @@ function mapValidationIssues(
  * Выполняет login по email и паролю через backend auth API.
  *
  * @remarks
- * Action ставит HttpOnly cookies и завершает успешный flow серверным redirect.
+ * Action применяет backend-owned HttpOnly cookies и завершает успешный flow серверным redirect.
  * Raw backend messages не используются для UI.
  *
  * @param _previousState - Предыдущее состояние `useActionState`.
@@ -146,7 +146,7 @@ export async function loginByCredentialsAction(
     };
   }
 
-  await setSessionCookies(tokenResponse.data);
+  await applyBackendSessionCookies(tokenResponse.headers);
   revalidatePath('/', 'layout');
   redirect(redirectTo);
 }

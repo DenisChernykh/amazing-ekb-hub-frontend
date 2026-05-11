@@ -14,7 +14,9 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "git:check-branch-name": "bash ./scripts/git/check-branch-name.sh",
-    "api:generate": "openapi-typescript ../amazing-ekb-hub-backend/docs/api/specification.yaml -o src/shared/api/schema.generated.ts && prettier --write src/shared/api/schema.generated.ts"
+    "api:sync": "node ./scripts/api/sync-openapi.mjs",
+    "api:generate": "openapi-typescript ./openapi.yaml -o src/shared/api/schema.generated.ts && orval --config orval.config.ts && prettier --write src/shared/api/schema.generated.ts src/shared/api/generated src/shared/api/generated-zod",
+    "api:update": "pnpm run api:sync && prettier --write openapi.yaml && pnpm run api:generate"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,css,md,json,yaml,yml}": "prettier --write"
