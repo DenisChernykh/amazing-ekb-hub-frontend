@@ -64,6 +64,9 @@ jobs:
       - name: Run lint
         run: pnpm run lint:strict
 
+      - name: Run unit tests
+        run: pnpm run test:unit
+
       - name: Run typecheck
         run: pnpm run typecheck
 

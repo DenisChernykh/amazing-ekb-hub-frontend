@@ -1,6 +1,7 @@
 import { mapPlaceDetailToModel, PLACE_PLATFORMS, type PlaceDetailModel } from '@/entities/place';
 import { fetchPublicPlaceDetail } from '@/entities/place/api/fetch-public-place-detail';
 import { fetchPublicPlaceMaterials } from '@/entities/place/api/fetch-public-place-materials';
+import { normalizePlaceIdForBackendPath } from '@/entities/place/model/normalize-place-id';
 import type { Material } from '@/shared/api/generated/model/material';
 import type { Platform } from '@/shared/api/generated/model/platform';
 
@@ -27,7 +28,13 @@ export type PlacePageModel =
  * @returns Готовую модель страницы для success-, not-found- или error-состояния.
  */
 export async function getPlacePageData(placeId: string): Promise<PlacePageModel> {
-  const placeResult = await fetchPublicPlaceDetail(placeId);
+  const normalizedPlaceId = normalizePlaceIdForBackendPath(placeId);
+
+  if (!normalizedPlaceId) {
+    return { kind: 'not_found' };
+  }
+
+  const placeResult = await fetchPublicPlaceDetail(normalizedPlaceId);
 
   if (placeResult.kind === 'not_found') {
     return { kind: 'not_found' };
@@ -43,7 +50,7 @@ export async function getPlacePageData(placeId: string): Promise<PlacePageModel>
   const materialResults = await Promise.all(
     PLACE_PLATFORMS.map(async (platform) => ({
       platform,
-      result: await fetchPublicPlaceMaterials(placeId, platform),
+      result: await fetchPublicPlaceMaterials(normalizedPlaceId, platform),
     })),
   );
 

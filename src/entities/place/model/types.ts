@@ -28,7 +28,7 @@ export type PlaceMaterialModel = {
   title: string;
   publishedAt: string;
   durationSec: number | null;
-  url: string;
+  url: string | null;
 };
 
 /**
