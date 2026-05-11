@@ -248,7 +248,7 @@ export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
                 )}
               </Stack>
 
-              {place.pinnedMaterial ? (
+              {place.pinnedMaterial?.url ? (
                 <Button
                   component="a"
                   href={place.pinnedMaterial.url}
@@ -335,16 +335,22 @@ export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
                                 primaryTypographyProps={{ component: 'div' }}
                                 sx={{ my: 0 }}
                               />
-                              <Button
-                                component="a"
-                                href={material.url}
-                                rel="noreferrer"
-                                target="_blank"
-                                variant="text"
-                                sx={{ flexShrink: 0 }}
-                              >
-                                Открыть
-                              </Button>
+                              {material.url ? (
+                                <Button
+                                  component="a"
+                                  href={material.url}
+                                  rel="noreferrer"
+                                  target="_blank"
+                                  variant="text"
+                                  sx={{ flexShrink: 0 }}
+                                >
+                                  Открыть
+                                </Button>
+                              ) : (
+                                <Button disabled variant="text" sx={{ flexShrink: 0 }}>
+                                  Недоступно
+                                </Button>
+                              )}
                             </Stack>
                           </ListItem>
                         </Box>

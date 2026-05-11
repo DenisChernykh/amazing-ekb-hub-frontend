@@ -39,6 +39,7 @@ Frontend для MVP "Гид по местам".
 - `pnpm typecheck`
 - `pnpm format`
 - `pnpm format:check`
+- `pnpm test:unit`
 - `pnpm build`
 - `pnpm start`
 
@@ -47,23 +48,21 @@ Frontend для MVP "Гид по местам".
 - Текущий обязательный frontend-набор перед push / PR:
   - `pnpm format:check`
   - `pnpm lint:strict`
+  - `pnpm test:unit`
   - `pnpm typecheck`
   - `pnpm build`
 - `typecheck` и `build` нужно запускать последовательно, а не параллельно, потому что обе команды используют артефакты `.next`.
 - `pre-commit` запускает `lint-staged` и форматирует только staged-файлы.
 - `commit-msg` проверяет Conventional Commits.
-- `pre-push` проверяет имя ветки, `format:check`, `lint:strict`, `typecheck` и `build`.
+- `pre-push` проверяет имя ветки, `format:check`, `lint:strict`, `test:unit`, `typecheck` и `build`.
 - CI в GitHub Actions воспроизводит обязательные проверки для PR в `stage` и `main`.
 
 ## Тестирование
 
-- Сейчас отдельный frontend test tooling ещё не внедрён.
-- Целевой объём автоматизации зафиксирован в `docs/testing/test-strategy.md`.
-- Планируемые команды после внедрения test tooling:
-  - `pnpm test:unit`
-  - `pnpm test:e2e`
-  - `pnpm test:coverage`
-- До появления этих команд hooks и CI не должны считать их уже внедрёнными.
+- Unit test tooling внедрён через Vitest.
+- Текущая команда: `pnpm test:unit`.
+- Целевой объём дальнейшей автоматизации зафиксирован в `docs/testing/test-strategy.md`.
+- `test:e2e` и `test:coverage` остаются целевыми командами до отдельного внедрения.
 
 ## Источники истины
 

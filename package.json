@@ -10,7 +10,8 @@
     "lint:strict": "eslint . --max-warnings=0",
     "typecheck": "pnpm run typegen && tsc --noEmit",
     "prepare": "husky",
-    "typegen": "next typegen",
+    "typegen": "node ./scripts/next/clean-dev-typegen-cache.mjs && next typegen",
+    "test:unit": "vitest run",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "git:check-branch-name": "bash ./scripts/git/check-branch-name.sh",
@@ -21,6 +22,12 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx,css,md,json,yaml,yml}": "prettier --write"
   },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.10",
+      "yaml@1": "1.10.3"
+    }
+  },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
@@ -28,7 +35,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@mui/material": "^7.3.9",
     "@mui/material-nextjs": "^7.3.9",
-    "next": "16.1.6",
+    "next": "16.2.6",
     "openapi-fetch": "^0.17.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -43,7 +50,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "16.2.6",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^62.8.0",
     "eslint-plugin-tsdoc": "^0.5.2",
@@ -53,6 +60,7 @@
     "orval": "^8.8.1",
     "prettier": "^3.8.1",
     "prettier-plugin-organize-imports": "^4.3.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.6"
   }
 }
