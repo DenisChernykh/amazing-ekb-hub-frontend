@@ -8,23 +8,22 @@ import {
 } from '@/entities/session/model';
 import { getCurrentUser } from '@/shared/api/generated/auth/auth';
 import { isGeneratedApiError } from '@/shared/lib/api/is-generated-api-error';
-import { buildAuthorizationHeader } from './authorization-header';
-import { getAccessTokenCookie } from './session-cookies';
+import { buildBackendCookieHeader } from './session-cookies';
 
 /**
  * Возвращает текущую безопасную session model для server-side рендера.
  *
  * @remarks
- * При отсутствующем или невалидном access token возвращается anonymous session.
+ * При отсутствующей или невалидной auth cookie возвращается anonymous session.
  * Cookies здесь не очищаются, потому что Server Components не должны менять
  * response cookies.
  *
  * @returns Нормализованное состояние текущей сессии.
  */
 export async function getCurrentSession(): Promise<SessionState> {
-  const accessToken = await getAccessTokenCookie();
+  const cookieHeader = await buildBackendCookieHeader();
 
-  if (!accessToken) {
+  if (!cookieHeader) {
     return createAnonymousSession();
   }
 
@@ -32,7 +31,7 @@ export async function getCurrentSession(): Promise<SessionState> {
     const response = await getCurrentUser({
       cache: 'no-store',
       headers: {
-        Authorization: buildAuthorizationHeader(accessToken),
+        Cookie: cookieHeader,
       },
     });
 

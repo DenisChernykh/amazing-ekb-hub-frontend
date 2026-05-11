@@ -67,10 +67,11 @@ Frontend для MVP "Гид по местам".
 
 ## Источники истины
 
-- Product spec: `../amazing-ekb-hub-backend/docs/MVP_SPEC.md`
-- API contract: `../amazing-ekb-hub-backend/docs/api/specification.yaml`
-- Error standard: `../amazing-ekb-hub-backend/docs/api/error-response-standard.md`
-- Design artifacts: `../amazing-ekb-hub-backend/docs/design/README.md`
+- Product spec: backend product documentation
+- API contract snapshot: `openapi.yaml`
+- API contract update command: `pnpm run api:update`
+- Error standard: backend API documentation
+- Design artifacts: backend design documentation
 
 ## Документация
 

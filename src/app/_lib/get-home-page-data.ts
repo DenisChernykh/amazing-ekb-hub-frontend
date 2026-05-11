@@ -4,6 +4,7 @@ import type { PlacesCatalogModel } from '@/widgets/places-catalog';
 import { normalizeHomeSearchParams, type HomeQuery } from './normalize-home-search-params';
 
 type RawSearchParams = Record<string, string | string[] | undefined>;
+type HomePageIssue = { path?: string; message: string };
 
 export type HomePageModel =
   | {
@@ -14,7 +15,7 @@ export type HomePageModel =
       kind: 'bad_request';
       query: HomeQuery;
       title: string;
-      issues: Array<{ path?: string; message: string }>;
+      issues: HomePageIssue[];
       requestId?: string;
     }
   | {
@@ -54,9 +55,8 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
       return {
         kind: 'bad_request',
         query,
-        title: result.data.error.message,
-        issues: result.data.error.details?.issues ?? [],
-        requestId: result.data.meta?.requestId,
+        title: getValidationErrorTitle(result.data.message),
+        issues: mapValidationMessagesToIssues(result.data.message),
       };
 
     case 'unexpected_error':
@@ -66,4 +66,26 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
         message: result.message,
       };
   }
+}
+
+/**
+ * Это хелпер для заголовка bad request state из NestJS error response.
+ *
+ * @param message - Backend error message.
+ * @returns Текст заголовка.
+ */
+function getValidationErrorTitle(message: string | string[]): string {
+  return Array.isArray(message) ? 'Некорректные параметры запроса.' : message;
+}
+
+/**
+ * Это хелпер для адаптации NestJS validation messages в UI issues.
+ *
+ * @param message - Backend error message.
+ * @returns Список сообщений для error state.
+ */
+function mapValidationMessagesToIssues(message: string | string[]): HomePageIssue[] {
+  return (Array.isArray(message) ? message : [message]).map((issueMessage) => ({
+    message: issueMessage,
+  }));
 }
