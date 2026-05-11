@@ -34,8 +34,8 @@
 ## API-testing policy
 
 1. Source of truth для frontend API-поведения:
-   - `../amazing-ekb-hub-backend/docs/api/specification.yaml`
-   - `../amazing-ekb-hub-backend/docs/api/error-response-standard.md`
+   - `openapi.yaml`
+   - backend API error standard
 2. Frontend не заводит собственный API-контракт, расходящийся с backend.
 3. Unit и component/integration тесты используют MSW и fixtures, совместимые с backend OpenAPI и error format.
 4. Ключевые e2e-сценарии должны прогоняться против реального backend с seed-данными.

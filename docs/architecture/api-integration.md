@@ -2,11 +2,15 @@
 
 ## Source of Truth
 
-1. `../amazing-ekb-hub-backend/docs/api/specification.yaml`
-2. `../amazing-ekb-hub-backend/docs/api/error-response-standard.md`
+1. Backend OpenAPI document served from `/docs/openapi.yaml`.
+2. Local frontend snapshot: `openapi.yaml`.
 
 Frontend не определяет собственный backend contract.
 Frontend только генерирует client schema, валидирует runtime payload и адаптирует backend responses под свой runtime flow.
+
+Локальный snapshot обновляется командой `pnpm run api:update`. По умолчанию она читает
+`http://localhost:3000/docs/openapi.yaml`; для ручной синхронизации можно передать
+`OPENAPI_SPEC_SOURCE=/path/to/openapi.yaml pnpm run api:update`.
 
 ## Core Rules
 
