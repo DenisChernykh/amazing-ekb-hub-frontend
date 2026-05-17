@@ -3,28 +3,64 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "next dev --webpack --port 3001",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "lint:strict": "eslint . --max-warnings=0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "pnpm run typegen && tsc --noEmit",
+    "prepare": "husky",
+    "typegen": "node ./scripts/next/clean-dev-typegen-cache.mjs && next typegen",
+    "test:unit": "vitest run",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "git:check-branch-name": "bash ./scripts/git/check-branch-name.sh",
+    "api:sync": "node ./scripts/api/sync-openapi.mjs",
+    "api:generate": "openapi-typescript ./openapi.yaml -o src/shared/api/schema.generated.ts && orval --config orval.config.ts && prettier --write src/shared/api/schema.generated.ts src/shared/api/generated src/shared/api/generated-zod",
+    "api:update": "pnpm run api:sync && prettier --write openapi.yaml && pnpm run api:generate"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,css,md,json,yaml,yml}": "prettier --write"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.10",
+      "yaml@1": "1.10.3"
+    }
   },
   "dependencies": {
-    "@chakra-ui/react": "^3.34.0",
+    "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
-    "next": "16.1.6",
-    "next-themes": "^0.4.6",
+    "@emotion/styled": "^11.14.1",
+    "@hookform/resolvers": "^5.2.2",
+    "@mui/material": "^7.3.9",
+    "@mui/material-nextjs": "^7.3.9",
+    "next": "16.2.6",
+    "openapi-fetch": "^0.17.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-icons": "^5.6.0"
+    "react-hook-form": "^7.71.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.4.3",
+    "@commitlint/config-conventional": "^20.4.3",
+    "@microsoft/tsdoc": "^0.16.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "typescript": "^5"
+    "eslint-config-next": "16.2.6",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsdoc": "^62.8.0",
+    "eslint-plugin-tsdoc": "^0.5.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.3",
+    "openapi-typescript": "^7.13.0",
+    "orval": "^8.8.1",
+    "prettier": "^3.8.1",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "typescript": "^5",
+    "vitest": "^4.1.6"
   }
 }

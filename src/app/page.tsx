@@ -1,21 +1,15 @@
-import { Box, Button, Heading, Stack, Text } from '@chakra-ui/react';
+import { HomePageContent } from '@/app/_components/home-page-content';
+import { getHomePageData } from '@/app/_lib/get-home-page-data';
 
-export default function HomePage() {
-  return (
-    <Box px="6" py="10">
-      <Stack gap="4" maxW="xl">
-        <Text fontSize="sm" color="gray.fg">
-          Стрельчук в Екатеринбурге
-        </Text>
-        <Heading size="2xl">
-          Добро пожаловать в мой гид по Екатеринбургу
-        </Heading>
-        <Text color="gray.solid">Автор: Стрельчук Татьяна</Text>
+type RawSearchParams = Record<string, string | string[] | undefined>;
 
-        <Button width="fit-content" colorPalette="teal">
-          Начать путешествие
-        </Button>
-      </Stack>
-    </Box>
-  );
+interface HomePageProps {
+  searchParams?: Promise<RawSearchParams>;
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const model = await getHomePageData(resolvedSearchParams);
+
+  return <HomePageContent model={model} />;
 }

@@ -1,12 +1,28 @@
-html,
-body {
+html {
   min-height: 100%;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+.MuiInputBase-input {
+  box-sizing: content-box;
 }
 
 body {
+  min-height: 100%;
   margin: 0;
 }
 
-* {
-  box-sizing: border-box;
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
 }

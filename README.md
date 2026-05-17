@@ -1,34 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Amazing EKB Hub Frontend
 
-## Getting Started
+Frontend для MVP "Гид по местам".
 
-First, run the development server:
+## Стек
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 16
+- React 19
+- TypeScript
+- Material UI 7
+- Emotion 11
+- ESLint 9
+- Prettier 3
+- Husky 9
+- GitHub Actions
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Быстрый старт
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. `pnpm install`
+2. `cp .env.example .env.local`
+3. Убедиться, что локальный backend из соседнего репозитория запущен на `http://127.0.0.1:3000`
+4. `pnpm dev`
+5. Открыть `http://localhost:3001`
 
-## Learn More
+## Локальная API-связка
 
-To learn more about Next.js, take a look at the following resources:
+1. Frontend в dev-режиме по умолчанию запускается на `http://localhost:3001`.
+2. Backend локально остаётся на `http://127.0.0.1:3000`.
+3. Browser и frontend-клиент обращаются к backend через same-origin путь `/v1`.
+4. В локальной разработке Next rewrites проксируют `/v1/:path*` на `API_PROXY_TARGET`.
+5. `API_PROXY_TARGET` — server-only переменная; backend origin не должен публиковаться через `NEXT_PUBLIC_*`.
+6. В production со схемой “frontend и backend на одном домене” маршрут `/v1/:path*` должен проксироваться на backend внешней инфраструктурой.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Основные команды
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `pnpm lint`
+- `pnpm lint:strict`
+- `pnpm typegen`
+- `pnpm typecheck`
+- `pnpm format`
+- `pnpm format:check`
+- `pnpm test:unit`
+- `pnpm build`
+- `pnpm start`
 
-## Deploy on Vercel
+## Проверки качества
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Текущий обязательный frontend-набор перед push / PR:
+  - `pnpm format:check`
+  - `pnpm lint:strict`
+  - `pnpm test:unit`
+  - `pnpm typecheck`
+  - `pnpm build`
+- `typecheck` и `build` нужно запускать последовательно, а не параллельно, потому что обе команды используют артефакты `.next`.
+- `pre-commit` запускает `lint-staged` и форматирует только staged-файлы.
+- `commit-msg` проверяет Conventional Commits.
+- `pre-push` проверяет имя ветки, `format:check`, `lint:strict`, `test:unit`, `typecheck` и `build`.
+- CI в GitHub Actions воспроизводит обязательные проверки для PR в `stage` и `main`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Тестирование
+
+- Unit test tooling внедрён через Vitest.
+- Текущая команда: `pnpm test:unit`.
+- Целевой объём дальнейшей автоматизации зафиксирован в `docs/testing/test-strategy.md`.
+- `test:e2e` и `test:coverage` остаются целевыми командами до отдельного внедрения.
+
+## Источники истины
+
+- Product spec: backend product documentation
+- API contract snapshot: `openapi.yaml`
+- API contract update command: `pnpm run api:update`
+- Error standard: backend API documentation
+- Design artifacts: backend design documentation
+
+## Документация
+
+- `docs/GIT_WORKFLOW.md`
+- `docs/architecture/frontend-architecture.md`
+- `docs/architecture/api-integration.md`
+- `docs/runbooks/local-setup.md`
+- `docs/testing/test-strategy.md`
+- `docs/process/definition-of-ready-done.md`
+- `docs/security/security-baseline.md`
+- `docs/adr/ADR-0001-next-app-router.md`
+- `docs/adr/ADR-0002-chakra-ui-v3.md`
+- `docs/adr/ADR-0003-ant-design.md`
+- `docs/adr/ADR-0004-material-ui.md`
+- `docs/architecture/tsdoc-guidelines.md`
