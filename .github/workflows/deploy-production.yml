@@ -11,8 +11,48 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  quality:
+    name: Verify frontend before production deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: HUSKY=0 pnpm install --frozen-lockfile
+
+      - name: Run format check
+        run: pnpm run format:check
+
+      - name: Run lint
+        run: pnpm run lint:strict
+
+      - name: Run typecheck
+        run: pnpm run typecheck
+
+      - name: Run unit tests
+        run: pnpm run test:unit
+
+      - name: Run build
+        run: pnpm run build
+
   deploy:
     name: Deploy frontend to production
+    needs: quality
     runs-on:
       - self-hosted
       - Linux
@@ -31,23 +71,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: HUSKY=0 pnpm install --frozen-lockfile
 
       - name: Validate production environment
         run: |
@@ -55,18 +81,6 @@ jobs:
 
           test -n "${API_BASE_URL}"
           test -n "${PUBLIC_BASE_URL}"
-
-      - name: Run format check
-        run: pnpm run format:check
-
-      - name: Run lint
-        run: pnpm run lint:strict
-
-      - name: Run typecheck
-        run: pnpm run typecheck
-
-      - name: Run unit tests
-        run: pnpm run test:unit
 
       - name: Build runtime image
         run: |
