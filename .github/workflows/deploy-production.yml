@@ -26,8 +26,8 @@ jobs:
     env:
       APP_DIR: /opt/amazing-ekb-hub
       IMAGE_NAME: amazing-ekb-hub-frontend
-      API_BASE_URL: ${{ vars.API_BASE_URL }}
-      PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL }}
+      API_BASE_URL: ${{ vars.API_BASE_URL || 'https://api.strelchukgo.ru/v1' }}
+      PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL || 'https://www.strelchukgo.ru' }}
 
     steps:
       - name: Checkout
