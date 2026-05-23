@@ -26,7 +26,8 @@ jobs:
     env:
       APP_DIR: /opt/amazing-ekb-hub
       IMAGE_NAME: amazing-ekb-hub-frontend
-      PUBLIC_BASE_URL: https://www.strelchukgo.ru
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL }}
 
     steps:
       - name: Checkout
@@ -48,6 +49,13 @@ jobs:
       - name: Install dependencies
         run: HUSKY=0 pnpm install --frozen-lockfile
 
+      - name: Validate production environment
+        run: |
+          set -euo pipefail
+
+          test -n "${API_BASE_URL}"
+          test -n "${PUBLIC_BASE_URL}"
+
       - name: Run format check
         run: pnpm run format:check
 
@@ -64,7 +72,12 @@ jobs:
         run: pnpm run build
 
       - name: Build runtime image
-        run: docker build -t "${IMAGE_NAME}:${GITHUB_SHA}" -t "${IMAGE_NAME}:prod" .
+        run: |
+          docker build \
+            --build-arg API_BASE_URL="${API_BASE_URL}" \
+            -t "${IMAGE_NAME}:${GITHUB_SHA}" \
+            -t "${IMAGE_NAME}:prod" \
+            .
 
       - name: Deploy frontend
         run: |

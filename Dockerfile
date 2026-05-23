@@ -16,6 +16,8 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS builder
+ARG API_BASE_URL
+ENV API_BASE_URL=${API_BASE_URL}
 COPY . .
 RUN pnpm run build
 
