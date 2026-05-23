@@ -68,9 +68,6 @@ jobs:
       - name: Run unit tests
         run: pnpm run test:unit
 
-      - name: Build application
-        run: pnpm run build
-
       - name: Build runtime image
         run: |
           docker build \
