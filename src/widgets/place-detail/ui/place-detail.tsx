@@ -21,6 +21,7 @@ import {
   Grid,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Paper,
   Stack,
@@ -324,36 +325,67 @@ export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
                       {materials.map((material, index) => (
                         <Box key={material.id}>
                           {index > 0 ? <Divider component="li" /> : null}
-                          <ListItem sx={{ py: 1.75 }}>
-                            <Stack
-                              direction={{ xs: 'column', sm: 'row' }}
-                              justifyContent="space-between"
-                              alignItems={{ xs: 'flex-start', sm: 'center' }}
-                              gap={1.5}
-                              width="100%"
-                            >
-                              <ListItemText
-                                primary={<MaterialSummary material={material} />}
-                                primaryTypographyProps={{ component: 'div' }}
-                                sx={{ my: 0 }}
-                              />
-                              {material.url ? (
-                                <Button
-                                  component="a"
-                                  href={material.url}
-                                  rel="noreferrer"
-                                  target="_blank"
-                                  variant="text"
-                                  sx={{ flexShrink: 0 }}
+                          <ListItem disablePadding sx={{ display: 'block' }}>
+                            {material.url ? (
+                              <ListItemButton
+                                component="a"
+                                href={material.url}
+                                rel="noreferrer"
+                                target="_blank"
+                                sx={{
+                                  px: 2,
+                                  py: 1.75,
+                                  alignItems: 'stretch',
+                                  '&:hover': {
+                                    bgcolor: 'rgba(35, 122, 118, 0.06)',
+                                  },
+                                  '&:focus-visible': {
+                                    outline: '3px solid rgba(35, 122, 118, 0.22)',
+                                    outlineOffset: -3,
+                                  },
+                                }}
+                              >
+                                <Stack
+                                  direction={{ xs: 'column', sm: 'row' }}
+                                  justifyContent="space-between"
+                                  alignItems={{ xs: 'flex-start', sm: 'center' }}
+                                  gap={1.5}
+                                  width="100%"
                                 >
-                                  Открыть
-                                </Button>
-                              ) : (
+                                  <ListItemText
+                                    primary={<MaterialSummary material={material} />}
+                                    primaryTypographyProps={{ component: 'div' }}
+                                    sx={{ my: 0 }}
+                                  />
+                                  <Typography
+                                    color="primary"
+                                    component="span"
+                                    fontWeight={800}
+                                    sx={{ flexShrink: 0 }}
+                                  >
+                                    Открыть
+                                  </Typography>
+                                </Stack>
+                              </ListItemButton>
+                            ) : (
+                              <Stack
+                                direction={{ xs: 'column', sm: 'row' }}
+                                justifyContent="space-between"
+                                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                                gap={1.5}
+                                width="100%"
+                                sx={{ px: 2, py: 1.75 }}
+                              >
+                                <ListItemText
+                                  primary={<MaterialSummary material={material} />}
+                                  primaryTypographyProps={{ component: 'div' }}
+                                  sx={{ my: 0 }}
+                                />
                                 <Button disabled variant="text" sx={{ flexShrink: 0 }}>
                                   Недоступно
                                 </Button>
-                              )}
-                            </Stack>
+                              </Stack>
+                            )}
                           </ListItem>
                         </Box>
                       ))}

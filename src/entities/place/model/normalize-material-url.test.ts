@@ -4,6 +4,7 @@ import { normalizeMaterialUrl } from './normalize-material-url';
 describe('normalizeMaterialUrl', () => {
   it.each([
     ['dzen', 'https://dzen.ru/video/aquacity-start'],
+    ['dzen', 'https://dzen.ru/shorts/place-guide?utm=card'],
     ['telegram', 'https://t.me/amazing_ekb/321'],
     ['instagram', 'https://www.instagram.com/reel/spa-evening'],
   ] as const)('keeps safe %s URLs', (platform, url) => {
