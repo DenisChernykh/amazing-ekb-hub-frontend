@@ -58,7 +58,7 @@ jobs:
 
     env:
       IMAGE_NAME: amazing-ekb-hub-frontend
-      IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.sha }}
+      IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
       IMAGE_ARTIFACT_PATH: frontend-runtime-image.tar.gz
       API_BASE_URL: ${{ vars.API_BASE_URL }}
 
@@ -95,7 +95,7 @@ jobs:
           name: ${{ env.IMAGE_ARTIFACT_NAME }}
           path: ${{ env.IMAGE_ARTIFACT_PATH }}
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
 
   deploy:
     name: Deploy frontend to production
@@ -113,7 +113,7 @@ jobs:
     env:
       APP_DIR: /opt/amazing-ekb-hub
       IMAGE_NAME: amazing-ekb-hub-frontend
-      IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.sha }}
+      IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
       IMAGE_ARTIFACT_DIR: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}
       IMAGE_ARTIFACT_PATH: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}/frontend-runtime-image.tar.gz
       PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL || 'https://www.strelchukgo.ru' }}
