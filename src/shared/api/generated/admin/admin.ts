@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  ClearPinnedMaterialPathParameters,
   CreateMaterialRequest,
   CreatePlaceMaterialPathParameters,
   CreatePlaceRequest,
@@ -752,4 +753,67 @@ export const setPinnedMaterial = async (
   }
   const data: setPinnedMaterialResponseSuccess['data'] = body ? JSON.parse(body) : {};
   return { data, status: res.status, headers: res.headers } as setPinnedMaterialResponseSuccess;
+};
+
+/**
+ * Снимает закреплённый материал с места. Операция доступна только администратору.
+ * @summary Clear pinned material for place
+ */
+export type clearPinnedMaterialResponse200 = {
+  data: PlaceDetail;
+  status: 200;
+};
+
+export type clearPinnedMaterialResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type clearPinnedMaterialResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type clearPinnedMaterialResponse404 = {
+  data: NestErrorResponse;
+  status: 404;
+};
+
+export type clearPinnedMaterialResponseSuccess = clearPinnedMaterialResponse200 & {
+  headers: Headers;
+};
+export type clearPinnedMaterialResponseError = (
+  | clearPinnedMaterialResponse401
+  | clearPinnedMaterialResponse403
+  | clearPinnedMaterialResponse404
+) & {
+  headers: Headers;
+};
+
+export const getClearPinnedMaterialUrl = ({ placeId }: ClearPinnedMaterialPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/places/${placeId}/pinned-material`;
+};
+
+export const clearPinnedMaterial = async (
+  { placeId }: ClearPinnedMaterialPathParameters,
+  options?: RequestInit,
+): Promise<clearPinnedMaterialResponseSuccess> => {
+  const res = await fetch(getClearPinnedMaterialUrl({ placeId }), {
+    ...options,
+    method: 'DELETE',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: clearPinnedMaterialResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: clearPinnedMaterialResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: clearPinnedMaterialResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as clearPinnedMaterialResponseSuccess;
 };

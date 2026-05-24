@@ -8,6 +8,7 @@
 import type {
   AuthLoginRequest,
   AuthMeResponse,
+  TooManyRequestsResponse,
   UnauthorizedResponse,
   ValidationErrorResponse,
 } from '../model';
@@ -31,10 +32,15 @@ export type loginResponse401 = {
   status: 401;
 };
 
+export type loginResponse429 = {
+  data: TooManyRequestsResponse;
+  status: 429;
+};
+
 export type loginResponseSuccess = loginResponse200 & {
   headers: Headers;
 };
-export type loginResponseError = (loginResponse400 | loginResponse401) & {
+export type loginResponseError = (loginResponse400 | loginResponse401 | loginResponse429) & {
   headers: Headers;
 };
 
@@ -80,10 +86,15 @@ export type refreshTokensResponse401 = {
   status: 401;
 };
 
+export type refreshTokensResponse429 = {
+  data: TooManyRequestsResponse;
+  status: 429;
+};
+
 export type refreshTokensResponseSuccess = refreshTokensResponse204 & {
   headers: Headers;
 };
-export type refreshTokensResponseError = refreshTokensResponse401 & {
+export type refreshTokensResponseError = (refreshTokensResponse401 | refreshTokensResponse429) & {
   headers: Headers;
 };
 

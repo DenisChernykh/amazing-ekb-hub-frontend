@@ -56,10 +56,11 @@ components:
       name: page
       in: query
       required: false
-      description: Номер страницы пагинации. Минимальное значение `1`.
+      description: Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.
       schema:
         type: integer
         minimum: 1
+        maximum: 1000
         default: 1
       example: 1
 
@@ -103,6 +104,25 @@ components:
         status: active
         popularityWeight: 95
         coverImageUrl: /v1/places/place_ekb_001/photo
+
+    PublicPlaceSummary:
+      summary: Краткая публичная карточка места
+      value:
+        id: place_ekb_001
+        title: Bаден-Баден Уктус
+        summary: Термальный комплекс с открытыми бассейнами и SPA-зоной.
+        tags:
+          - термы
+          - spa
+          - бассейн
+        category: spa
+        status: active
+        popularityWeight: 95
+        coverImageUrl: /v1/places/place_ekb_001/photo
+        counters:
+          dzen: 12
+          telegram: 7
+          instagram: 3
 
     PlaceDetail:
       summary: Детальная карточка места
@@ -156,6 +176,42 @@ components:
             status: active
             popularityWeight: 74
             coverImageUrl: null
+        total: 2
+        page: 1
+        pageSize: 20
+
+    PublicPlaceListResponse:
+      summary: Публичный пагинированный список мест
+      value:
+        items:
+          - id: place_ekb_001
+            title: Bаден-Баден Уктус
+            summary: Термальный комплекс с открытыми бассейнами и SPA-зоной.
+            tags:
+              - термы
+              - spa
+            category: spa
+            status: active
+            popularityWeight: 95
+            coverImageUrl: /v1/places/place_ekb_001/photo
+            counters:
+              dzen: 12
+              telegram: 7
+              instagram: 3
+          - id: place_ekb_002
+            title: The Pool
+            summary: Современный бассейн с дорожками и семейной зоной.
+            tags:
+              - бассейн
+              - family
+            category: pools
+            status: active
+            popularityWeight: 74
+            coverImageUrl: null
+            counters:
+              dzen: 0
+              telegram: 2
+              instagram: 1
         total: 2
         page: 1
         pageSize: 20
@@ -214,6 +270,12 @@ components:
         statusCode: 403
         message: Insufficient role
         error: Forbidden
+
+    TooManyRequestsError:
+      summary: Слишком много auth-запросов
+      value:
+        statusCode: 429
+        message: Too many auth attempts, please retry later
 
     PlaceNotFoundError:
       summary: Место не найдено
@@ -285,6 +347,16 @@ components:
           examples:
             default:
               $ref: '#/components/examples/ForbiddenError'
+
+    TooManyRequests:
+      description: Слишком много auth-запросов за короткий промежуток времени.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NestErrorResponse'
+          examples:
+            default:
+              $ref: '#/components/examples/TooManyRequestsError'
 
     PlaceNotFound:
       description: Указанное место не найдено.
@@ -442,6 +514,29 @@ components:
           description: Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.
           example: /v1/places/place_ekb_001/photo
 
+    PublicPlaceSummary:
+      description: Краткая публичная карточка места со счетчиками материалов по платформам.
+      allOf:
+        - $ref: '#/components/schemas/PlaceSummary'
+        - type: object
+          required:
+            - counters
+          properties:
+            counters:
+              type: object
+              description: Количество материалов по платформам.
+              required: [dzen, telegram, instagram]
+              properties:
+                dzen:
+                  type: integer
+                  example: 12
+                telegram:
+                  type: integer
+                  example: 7
+                instagram:
+                  type: integer
+                  example: 3
+
     Material:
       type: object
       description: Материал, связанный с местом.
@@ -476,37 +571,22 @@ components:
         url:
           type: string
           format: uri
-          description: Публичная ссылка на материал.
+          description: Публичная ссылка на материал. Допускаются только абсолютные http/https URL.
           example: https://t.me/amazing_ekb/321
 
     PlaceDetail:
       description: Детальная карточка места с pinned material и счетчиками по платформам.
       allOf:
-        - $ref: '#/components/schemas/PlaceSummary'
+        - $ref: '#/components/schemas/PublicPlaceSummary'
         - type: object
           required:
             - pinnedMaterial
-            - counters
           properties:
             pinnedMaterial:
               nullable: true
               description: Закреплённый материал места, если он назначен.
               oneOf:
                 - $ref: '#/components/schemas/Material'
-            counters:
-              type: object
-              description: Количество материалов по платформам.
-              required: [dzen, telegram, instagram]
-              properties:
-                dzen:
-                  type: integer
-                  example: 12
-                telegram:
-                  type: integer
-                  example: 7
-                instagram:
-                  type: integer
-                  example: 3
 
     PlaceListResponse:
       type: object
@@ -518,6 +598,29 @@ components:
           description: Элементы текущей страницы.
           items:
             $ref: '#/components/schemas/PlaceSummary'
+        total:
+          type: integer
+          description: Общее количество доступных элементов.
+          example: 2
+        page:
+          type: integer
+          description: Текущая страница.
+          example: 1
+        pageSize:
+          type: integer
+          description: Размер страницы.
+          example: 20
+
+    PublicPlaceListResponse:
+      type: object
+      description: Публичный пагинированный список мест со счетчиками материалов.
+      required: [items, total, page, pageSize]
+      properties:
+        items:
+          type: array
+          description: Элементы текущей страницы.
+          items:
+            $ref: '#/components/schemas/PublicPlaceSummary'
         total:
           type: integer
           description: Общее количество доступных элементов.
@@ -632,7 +735,7 @@ components:
         url:
           type: string
           format: uri
-          description: Публичная ссылка на материал.
+          description: Публичная ссылка на материал. Допускаются только абсолютные http/https URL.
           example: https://t.me/amazing_ekb/321
 
     UpdateMaterialRequest:
@@ -660,7 +763,7 @@ components:
         url:
           type: string
           format: uri
-          description: Новая публичная ссылка на материал.
+          description: Новая публичная ссылка на материал. Допускаются только абсолютные http/https URL.
           example: https://t.me/amazing_ekb/400
 
     SetPinnedMaterialRequest:
@@ -784,6 +887,8 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /auth/refresh:
     post:
@@ -803,6 +908,8 @@ paths:
                 type: string
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /auth/logout:
     post:
@@ -854,9 +961,10 @@ paths:
         - name: search
           in: query
           required: false
-          description: Полнотекстовый поиск по названию и описанию места.
+          description: Полнотекстовый поиск по названию и описанию места. Максимум 100 символов.
           schema:
             type: string
+            maxLength: 100
           example: термы
         - name: sort
           in: query
@@ -880,10 +988,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PlaceListResponse'
+                $ref: '#/components/schemas/PublicPlaceListResponse'
               examples:
                 default:
-                  $ref: '#/components/examples/PlaceListResponse'
+                  $ref: '#/components/examples/PublicPlaceListResponse'
         '400':
           $ref: '#/components/responses/ValidationError'
 
@@ -1436,3 +1544,36 @@ paths:
                   $ref: '#/components/examples/PlaceNotFoundError'
                 materialNotFound:
                   $ref: '#/components/examples/MaterialNotFoundError'
+    delete:
+      tags: [Admin]
+      summary: Clear pinned material for place
+      description: Снимает закреплённый материал с места. Операция доступна только администратору.
+      operationId: clearPinnedMaterial
+      security:
+        - AccessCookieAuth: []
+      x-required-role: admin
+      parameters:
+        - $ref: '#/components/parameters/PlaceId'
+      responses:
+        '200':
+          description: Закреплённый материал успешно очищен.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaceDetail'
+              examples:
+                default:
+                  $ref: '#/components/examples/PlaceDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Место не найдено.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NestErrorResponse'
+              examples:
+                placeNotFound:
+                  $ref: '#/components/examples/PlaceNotFoundError'
