@@ -54,12 +54,13 @@ jobs:
     name: Build frontend runtime image
     needs: quality
     runs-on: ubuntu-latest
+    environment: production
 
     env:
       IMAGE_NAME: amazing-ekb-hub-frontend
       IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.sha }}
       IMAGE_ARTIFACT_PATH: frontend-runtime-image.tar.gz
-      API_BASE_URL: ${{ vars.API_BASE_URL || 'https://api.strelchukgo.ru/v1' }}
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
 
     steps:
       - name: Checkout
@@ -159,6 +160,22 @@ jobs:
 
           for attempt in {1..30}; do
             if curl -fsS "${PUBLIC_BASE_URL}/" >/dev/null; then
+              exit 0
+            fi
+
+            if [ "${attempt}" -eq 30 ]; then
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+      - name: Smoke test frontend API proxy
+        run: |
+          set -euo pipefail
+
+          for attempt in {1..30}; do
+            if curl -fsS "${PUBLIC_BASE_URL}/v1/health/live" >/dev/null; then
               exit 0
             fi
 

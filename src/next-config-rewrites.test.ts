@@ -15,4 +15,29 @@ describe('nextConfig rewrites', () => {
       },
     ]);
   });
+
+  it('normalizes trailing slashes from API_BASE_URL', async () => {
+    vi.stubEnv('API_BASE_URL', 'http://127.0.0.1:3000/v1///');
+    vi.resetModules();
+
+    const { default: nextConfig } = await import('../next.config');
+    const rewrites = await nextConfig.rewrites?.();
+
+    expect(rewrites).toEqual([
+      {
+        source: '/v1/:path*',
+        destination: 'http://127.0.0.1:3000/v1/:path*',
+      },
+    ]);
+  });
+
+  it('does not install /v1 rewrites without API_BASE_URL', async () => {
+    vi.stubEnv('API_BASE_URL', '');
+    vi.resetModules();
+
+    const { default: nextConfig } = await import('../next.config');
+    const rewrites = await nextConfig.rewrites?.();
+
+    expect(rewrites).toEqual([]);
+  });
 });
