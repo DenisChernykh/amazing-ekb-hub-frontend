@@ -84,6 +84,15 @@
 9. Не передавать функции в Client Components из Server Components.
 10. CSS Modules не использовать для нового UI без отдельной причины.
 
+## Component structure
+
+1. Для написанных вручную UI-компонентов целиться в 100-120 строк на файл.
+2. Если компонент или UI-файл превысил 150 строк, его нужно разбить, кроме generated, non-UI или явно обоснованных исключений.
+3. Диапазон 100-150 строк — зона ревью: проверить, не смешаны ли layout, data mapping, actions и повторяемые UI-фрагменты.
+4. Разбивать компоненты внутри текущего FSD slice; не расширять public API (`index.ts`) без необходимости.
+5. Для JSX с пустой false-веткой использовать `{condition && <Component />}` вместо `{condition ? <Component /> : null}`.
+6. Для числовых условий писать явное сравнение: `{items.length > 0 && <Component />}`, а не `{items.length && <Component />}`.
+
 ## Frontend ahead of backend
 
 Если frontend идёт впереди backend:

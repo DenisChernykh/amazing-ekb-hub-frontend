@@ -89,13 +89,13 @@ export function AuthLabPageContent({ session }: Readonly<AuthLabPageContentProps
               <Button href="/auth-lab/admin" variant="outlined">
                 Admin route
               </Button>
-              {user ? (
+              {user && (
                 <Box component="form" action={logoutAuthLabAction}>
                   <Button color="inherit" type="submit" variant="outlined">
                     Logout
                   </Button>
                 </Box>
-              ) : null}
+              )}
             </Stack>
           </Stack>
         </Paper>
