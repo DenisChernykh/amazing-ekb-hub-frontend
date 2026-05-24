@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardActionArea, CardContent, Typography } from '@mui/material';
+import { Card, CardActionArea, CardContent, Link as MuiLink, Typography } from '@mui/material';
 import Link from 'next/link';
 import { buildPlaceHref } from '../lib/build-place-href';
 import type { PlaceCardModel } from '../model/types';
@@ -39,7 +39,7 @@ export function PlaceCard({ place }: Readonly<PlaceCardProps>) {
         '&:focus-visible': {
           boxShadow: '0 0 0 3px rgba(35, 122, 118, 0.2), 0 20px 44px rgba(20, 29, 45, 0.13)',
         },
-        '&:hover .place-card-image, &:focus-visible .place-card-image': {
+        '&:hover .place-card-image, &:focus-within .place-card-image': {
           transform: 'scale(1.035)',
         },
         '@media (prefers-reduced-motion: reduce)': {
@@ -54,44 +54,55 @@ export function PlaceCard({ place }: Readonly<PlaceCardProps>) {
         component={Link}
         href={buildPlaceHref(place.id)}
         sx={{
-          display: 'flex',
-          height: '100%',
-          alignItems: 'stretch',
-          flexDirection: 'column',
+          display: 'block',
         }}
       >
         <PlaceCardImage category={place.category} src={place.coverImageUrl} title={place.title} />
+      </CardActionArea>
 
-        <CardContent
+      <CardContent
+        sx={{
+          display: 'flex',
+          width: '100%',
+          minHeight: 112,
+          p: 1.75,
+          gap: 1.25,
+          flexDirection: 'column',
+          '&:last-child': {
+            pb: 1.75,
+          },
+        }}
+      >
+        <Typography
+          color="#121826"
+          fontSize="clamp(1.05rem, 0.9rem + 0.45vw, 1.28rem)"
+          fontWeight={700}
+          lineHeight={1.18}
           sx={{
-            display: 'flex',
-            width: '100%',
-            minHeight: 112,
-            p: 1.75,
-            gap: 1.25,
-            flexDirection: 'column',
-            '&:last-child': {
-              pb: 1.75,
-            },
+            display: '-webkit-box',
+            overflow: 'hidden',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: 2,
           }}
         >
-          <Typography
-            color="#121826"
-            fontSize="clamp(1.05rem, 0.9rem + 0.45vw, 1.28rem)"
-            fontWeight={700}
-            lineHeight={1.18}
+          <MuiLink
+            component={Link}
+            href={buildPlaceHref(place.id)}
+            underline="none"
             sx={{
-              display: '-webkit-box',
-              overflow: 'hidden',
-              WebkitBoxOrient: 'vertical',
-              WebkitLineClamp: 2,
+              color: 'inherit',
+              '&:focus-visible': {
+                borderRadius: 0.5,
+                outline: '3px solid rgba(35, 122, 118, 0.28)',
+                outlineOffset: 2,
+              },
             }}
           >
             {place.title}
-          </Typography>
-          <PlaceCardBadges place={place} />
-        </CardContent>
-      </CardActionArea>
+          </MuiLink>
+        </Typography>
+        <PlaceCardBadges place={place} />
+      </CardContent>
     </Card>
   );
 }
