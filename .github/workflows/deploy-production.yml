@@ -50,9 +50,55 @@ jobs:
       - name: Run build
         run: pnpm run build
 
+  build-image:
+    name: Build frontend runtime image
+    needs: quality
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: amazing-ekb-hub-frontend
+      IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.sha }}
+      IMAGE_ARTIFACT_PATH: frontend-runtime-image.tar.gz
+      API_BASE_URL: ${{ vars.API_BASE_URL || 'https://api.strelchukgo.ru/v1' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate production build environment
+        run: |
+          set -euo pipefail
+
+          test -n "${API_BASE_URL}"
+
+      - name: Build runtime image
+        run: |
+          docker build \
+            --build-arg API_BASE_URL="${API_BASE_URL}" \
+            -t "${IMAGE_NAME}:${GITHUB_SHA}" \
+            -t "${IMAGE_NAME}:prod" \
+            .
+
+      - name: Export runtime image
+        run: |
+          set -euo pipefail
+
+          docker save "${IMAGE_NAME}:${GITHUB_SHA}" "${IMAGE_NAME}:prod" \
+            | gzip -1 > "${IMAGE_ARTIFACT_PATH}"
+
+      - name: Upload runtime image
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.IMAGE_ARTIFACT_NAME }}
+          path: ${{ env.IMAGE_ARTIFACT_PATH }}
+          if-no-files-found: error
+          retention-days: 1
+
   deploy:
     name: Deploy frontend to production
-    needs: quality
+    needs: build-image
     runs-on:
       - self-hosted
       - Linux
@@ -66,29 +112,30 @@ jobs:
     env:
       APP_DIR: /opt/amazing-ekb-hub
       IMAGE_NAME: amazing-ekb-hub-frontend
-      API_BASE_URL: ${{ vars.API_BASE_URL || 'https://api.strelchukgo.ru/v1' }}
+      IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.sha }}
+      IMAGE_ARTIFACT_DIR: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}
+      IMAGE_ARTIFACT_PATH: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}/frontend-runtime-image.tar.gz
       PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL || 'https://www.strelchukgo.ru' }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - name: Download runtime image
+        uses: actions/download-artifact@v4
         with:
-          fetch-depth: 0
+          name: ${{ env.IMAGE_ARTIFACT_NAME }}
+          path: ${{ env.IMAGE_ARTIFACT_DIR }}
 
       - name: Validate production environment
         run: |
           set -euo pipefail
 
-          test -n "${API_BASE_URL}"
+          test -f "${IMAGE_ARTIFACT_PATH}"
           test -n "${PUBLIC_BASE_URL}"
 
-      - name: Build runtime image
+      - name: Load runtime image
         run: |
-          docker build \
-            --build-arg API_BASE_URL="${API_BASE_URL}" \
-            -t "${IMAGE_NAME}:${GITHUB_SHA}" \
-            -t "${IMAGE_NAME}:prod" \
-            .
+          set -euo pipefail
+
+          gzip -dc "${IMAGE_ARTIFACT_PATH}" | docker load
 
       - name: Deploy frontend
         run: |
@@ -101,6 +148,10 @@ jobs:
           docker compose --env-file .env -f compose.yml --profile apps up -d frontend
           docker compose --env-file .env -f compose.yml ps frontend
           DEPLOY
+
+      - name: Cleanup runtime image artifact
+        if: always()
+        run: rm -rf "${IMAGE_ARTIFACT_DIR}"
 
       - name: Smoke test frontend
         run: |
