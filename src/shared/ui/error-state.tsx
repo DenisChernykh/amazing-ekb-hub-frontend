@@ -28,9 +28,9 @@ export function ErrorState({
       <Alert severity="error" variant="outlined">
         <AlertTitle>{title}</AlertTitle>
 
-        {description ? <Typography>{description}</Typography> : null}
+        {description && <Typography>{description}</Typography>}
 
-        {issues.length > 0 ? (
+        {issues.length > 0 && (
           <List dense disablePadding sx={{ mt: 1 }}>
             {issues.map((issue, index) => (
               <ListItem disableGutters key={`${issue.path ?? 'root'}-${index}`}>
@@ -40,13 +40,13 @@ export function ErrorState({
               </ListItem>
             ))}
           </List>
-        ) : null}
+        )}
 
-        {requestId ? (
+        {requestId && (
           <Typography color="text.secondary" mt={1.5} variant="caption">
             Request ID: {requestId}
           </Typography>
-        ) : null}
+        )}
       </Alert>
     </Container>
   );

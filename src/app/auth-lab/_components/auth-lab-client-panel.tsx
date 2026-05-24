@@ -51,7 +51,7 @@ export function AuthLabClientPanel() {
           Client status: {session.status}
         </Alert>
 
-        {user ? (
+        {user && (
           <Stack spacing={1.25}>
             <Typography>
               <strong>Email:</strong> {user.email}
@@ -60,7 +60,7 @@ export function AuthLabClientPanel() {
               <strong>Role:</strong> {user.role}
             </Typography>
           </Stack>
-        ) : null}
+        )}
 
         <Divider />
 
@@ -100,29 +100,29 @@ export function AuthLabClientPanel() {
         <Stack spacing={1}>
           <Typography fontWeight={700}>UI gating examples</Typography>
           <Stack direction="row" flexWrap="wrap" gap={1}>
-            {isAuthenticated ? (
+            {isAuthenticated && (
               <Button size="small" variant="contained">
                 Видно всем авторизованным
               </Button>
-            ) : null}
+            )}
 
-            {checkRole('admin') ? (
+            {checkRole('admin') && (
               <Button color="success" size="small" variant="contained">
                 Видно только admin
               </Button>
-            ) : null}
+            )}
 
-            {checkRole('user') ? (
+            {checkRole('user') && (
               <Button color="secondary" size="small" variant="contained">
                 Видно только user
               </Button>
-            ) : null}
+            )}
 
-            {!isAuthenticated ? (
+            {!isAuthenticated && (
               <Button size="small" variant="outlined">
                 Видно только anonymous
               </Button>
-            ) : null}
+            )}
           </Stack>
         </Stack>
       </Stack>
