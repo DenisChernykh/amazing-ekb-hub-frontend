@@ -390,7 +390,11 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    delete?: never;
+    /**
+     * Clear pinned material for place
+     * @description Снимает закреплённый материал с места. Операция доступна только администратору.
+     */
+    delete: operations['clearPinnedMaterial'];
     options?: never;
     head?: never;
     /**
@@ -520,6 +524,18 @@ export interface components {
        */
       coverImageUrl: string | null;
     };
+    /** @description Краткая публичная карточка места со счетчиками материалов по платформам. */
+    PublicPlaceSummary: components['schemas']['PlaceSummary'] & {
+      /** @description Количество материалов по платформам. */
+      counters: {
+        /** @example 12 */
+        dzen: number;
+        /** @example 7 */
+        telegram: number;
+        /** @example 3 */
+        instagram: number;
+      };
+    };
     /** @description Материал, связанный с местом. */
     Material: {
       /**
@@ -552,29 +568,40 @@ export interface components {
       durationSec: number | null;
       /**
        * Format: uri
-       * @description Публичная ссылка на материал.
+       * @description Публичная ссылка на материал. Допускаются только абсолютные http/https URL.
        * @example https://t.me/amazing_ekb/321
        */
       url: string;
     };
     /** @description Детальная карточка места с pinned material и счетчиками по платформам. */
-    PlaceDetail: components['schemas']['PlaceSummary'] & {
+    PlaceDetail: components['schemas']['PublicPlaceSummary'] & {
       /** @description Закреплённый материал места, если он назначен. */
       pinnedMaterial: components['schemas']['Material'] | null;
-      /** @description Количество материалов по платформам. */
-      counters: {
-        /** @example 12 */
-        dzen: number;
-        /** @example 7 */
-        telegram: number;
-        /** @example 3 */
-        instagram: number;
-      };
     };
     /** @description Пагинированный список мест. */
     PlaceListResponse: {
       /** @description Элементы текущей страницы. */
       items: components['schemas']['PlaceSummary'][];
+      /**
+       * @description Общее количество доступных элементов.
+       * @example 2
+       */
+      total: number;
+      /**
+       * @description Текущая страница.
+       * @example 1
+       */
+      page: number;
+      /**
+       * @description Размер страницы.
+       * @example 20
+       */
+      pageSize: number;
+    };
+    /** @description Публичный пагинированный список мест со счетчиками материалов. */
+    PublicPlaceListResponse: {
+      /** @description Элементы текущей страницы. */
+      items: components['schemas']['PublicPlaceSummary'][];
       /**
        * @description Общее количество доступных элементов.
        * @example 2
@@ -677,7 +704,7 @@ export interface components {
       durationSec?: number | null;
       /**
        * Format: uri
-       * @description Публичная ссылка на материал.
+       * @description Публичная ссылка на материал. Допускаются только абсолютные http/https URL.
        * @example https://t.me/amazing_ekb/321
        */
       url: string;
@@ -704,7 +731,7 @@ export interface components {
       durationSec?: number | null;
       /**
        * Format: uri
-       * @description Новая публичная ссылка на материал.
+       * @description Новая публичная ссылка на материал. Допускаются только абсолютные http/https URL.
        * @example https://t.me/amazing_ekb/400
        */
       url?: string;
@@ -778,6 +805,15 @@ export interface components {
         'application/json': components['schemas']['NestErrorResponse'];
       };
     };
+    /** @description Слишком много auth-запросов за короткий промежуток времени. */
+    TooManyRequests: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['NestErrorResponse'];
+      };
+    };
     /** @description Указанное место не найдено. */
     PlaceNotFound: {
       headers: {
@@ -818,7 +854,7 @@ export interface components {
      */
     MaterialId: string;
     /**
-     * @description Номер страницы пагинации. Минимальное значение `1`.
+     * @description Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.
      * @example 1
      */
     Page: number;
@@ -902,6 +938,7 @@ export interface operations {
       };
       400: components['responses']['ValidationError'];
       401: components['responses']['Unauthorized'];
+      429: components['responses']['TooManyRequests'];
     };
   };
   refreshTokens: {
@@ -923,6 +960,7 @@ export interface operations {
         content?: never;
       };
       401: components['responses']['Unauthorized'];
+      429: components['responses']['TooManyRequests'];
     };
   };
   logout: {
@@ -970,7 +1008,7 @@ export interface operations {
     parameters: {
       query?: {
         /**
-         * @description Номер страницы пагинации. Минимальное значение `1`.
+         * @description Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.
          * @example 1
          */
         page?: components['parameters']['Page'];
@@ -980,7 +1018,7 @@ export interface operations {
          */
         pageSize?: components['parameters']['PageSize'];
         /**
-         * @description Полнотекстовый поиск по названию и описанию места.
+         * @description Полнотекстовый поиск по названию и описанию места. Максимум 100 символов.
          * @example термы
          */
         search?: string;
@@ -1007,7 +1045,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceListResponse'];
+          'application/json': components['schemas']['PublicPlaceListResponse'];
         };
       };
       400: components['responses']['ValidationError'];
@@ -1179,7 +1217,7 @@ export interface operations {
     parameters: {
       query?: {
         /**
-         * @description Номер страницы пагинации. Минимальное значение `1`.
+         * @description Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.
          * @example 1
          */
         page?: components['parameters']['Page'];
@@ -1480,6 +1518,43 @@ export interface operations {
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
       404: components['responses']['MaterialNotFound'];
+    };
+  };
+  clearPinnedMaterial: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Закреплённый материал успешно очищен. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceDetail'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description Место не найдено. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NestErrorResponse'];
+        };
+      };
     };
   };
   setPinnedMaterial: {

@@ -13,8 +13,8 @@ import type {
   ListPlacesParams,
   MaterialListResponse,
   PlaceDetail,
-  PlaceListResponse,
   PlaceNotFoundResponse,
+  PublicPlaceListResponse,
   ValidationErrorResponse,
 } from '../model';
 
@@ -23,7 +23,7 @@ import type {
  * @summary List places
  */
 export type listPlacesResponse200 = {
-  data: PlaceListResponse;
+  data: PublicPlaceListResponse;
   status: 200;
 };
 
