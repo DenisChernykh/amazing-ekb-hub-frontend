@@ -49,11 +49,11 @@ export function LoginForm({ redirectTo }: Readonly<LoginFormProps>) {
       <Stack spacing={2.25}>
         <input name="redirectTo" type="hidden" value={redirectTo} />
 
-        {hasMessage ? (
+        {hasMessage && (
           <Alert severity="error" variant="outlined">
             {state.message}
           </Alert>
-        ) : null}
+        )}
 
         <TextField
           autoComplete="username"
