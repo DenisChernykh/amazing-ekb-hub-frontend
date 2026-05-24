@@ -1,4 +1,5 @@
 import {
+  buildPlaceMaterialsAnchor,
   formatMaterialDuration,
   formatMaterialPublishedDate,
   formatMaterialsCount,
@@ -286,6 +287,7 @@ export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
                 <Paper
                   component="section"
                   elevation={0}
+                  id={buildPlaceMaterialsAnchor(platform)}
                   key={platform}
                   sx={{
                     overflow: 'hidden',
