@@ -9,8 +9,8 @@ Frontend не определяет собственный backend contract.
 Frontend только генерирует client schema, валидирует runtime payload и адаптирует backend responses под свой runtime flow.
 
 Локальный snapshot обновляется командой `pnpm run api:update`. По умолчанию она читает
-`http://localhost:3000/docs/openapi.yaml`; для ручной синхронизации можно передать
-`OPENAPI_SPEC_SOURCE=/path/to/openapi.yaml pnpm run api:update`.
+удаленный backend `https://api.strelchukgo.ru/docs/openapi.yaml`; для ручной синхронизации
+можно передать `OPENAPI_SPEC_SOURCE=/path/to/openapi.yaml pnpm run api:update`.
 
 ## Core Rules
 

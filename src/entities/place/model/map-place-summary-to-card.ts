@@ -1,9 +1,8 @@
-import type { PlaceCategory } from '@/shared/api/generated/model/placeCategory';
-import type { PlaceSummary } from '@/shared/api/generated/model/placeSummary';
+import type { PublicPlaceSummary } from '@/shared/api/generated/model/publicPlaceSummary';
 import { normalizeCoverImageUrl } from './normalize-cover-image-url';
 import type { PlaceCardModel, PlatformCounters } from './types';
 
-type PlaceSummaryCardFields = PlaceSummary & {
+type PlaceSummaryCardFields = Omit<PublicPlaceSummary, 'counters' | 'coverImageUrl'> & {
   coverImageUrl?: string | null;
   counters?: Partial<PlatformCounters> | null;
 };
@@ -14,61 +13,19 @@ const EMPTY_PLATFORM_COUNTERS: PlatformCounters = {
   instagram: 0,
 };
 
-const MOCK_PLATFORM_COUNTERS_BY_CATEGORY: Record<PlaceCategory, PlatformCounters> = {
-  pools: {
-    dzen: 1,
-    telegram: 3,
-    instagram: 0,
-  },
-  spa: {
-    dzen: 2,
-    telegram: 4,
-    instagram: 1,
-  },
-  cafe: {
-    dzen: 1,
-    telegram: 2,
-    instagram: 3,
-  },
-  hotels: {
-    dzen: 2,
-    telegram: 1,
-    instagram: 0,
-  },
-  workshops: {
-    dzen: 1,
-    telegram: 2,
-    instagram: 1,
-  },
-};
-
-/**
- * Это хелпер. Возвращает временные mock-счетчики платформ до расширения backend-контракта.
- *
- * @param category - Категория места.
- * @returns Детерминированные счетчики материалов для визуального отображения платформ.
- */
-function getMockPlatformCounters(category: PlaceCategory): PlatformCounters {
-  return MOCK_PLATFORM_COUNTERS_BY_CATEGORY[category];
-}
-
 /**
  * Это хелпер. Нормализует частично доступные счетчики материалов.
  *
- * @param counters - Счетчики из будущего backend-контракта или `undefined`.
- * @param category - Категория места для временного mock fallback.
+ * @param counters - Счетчики из backend-контракта или `undefined`.
  * @returns Полный объект счетчиков с безопасными нулями.
  */
 function normalizePlatformCounters(
   counters: Partial<PlatformCounters> | null | undefined,
-  category: PlaceCategory,
 ): PlatformCounters {
-  const fallbackCounters = counters ? EMPTY_PLATFORM_COUNTERS : getMockPlatformCounters(category);
-
   return {
-    dzen: counters?.dzen ?? fallbackCounters.dzen,
-    telegram: counters?.telegram ?? fallbackCounters.telegram,
-    instagram: counters?.instagram ?? fallbackCounters.instagram,
+    dzen: counters?.dzen ?? EMPTY_PLATFORM_COUNTERS.dzen,
+    telegram: counters?.telegram ?? EMPTY_PLATFORM_COUNTERS.telegram,
+    instagram: counters?.instagram ?? EMPTY_PLATFORM_COUNTERS.instagram,
   };
 }
 
@@ -84,6 +41,6 @@ export function mapPlaceSummaryToCardModel(place: PlaceSummaryCardFields): Place
     title: place.title,
     category: place.category,
     coverImageUrl: normalizeCoverImageUrl(place.coverImageUrl),
-    platformCounters: normalizePlatformCounters(place.counters, place.category),
+    platformCounters: normalizePlatformCounters(place.counters),
   };
 }

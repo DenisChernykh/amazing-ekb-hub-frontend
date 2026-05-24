@@ -1,4 +1,8 @@
+'use client';
+
 import { Avatar, Chip, Stack } from '@mui/material';
+import Link from 'next/link';
+import { buildPlaceMaterialsHref } from '../lib/build-place-materials-href';
 import { getPlatformDisplay, getVisiblePlatformCounters } from '../model/place-display';
 import type { PlaceCardModel } from '../model/types';
 
@@ -40,6 +44,9 @@ export function PlaceCardBadges({ place }: Readonly<PlaceCardBadgesProps>) {
                 {count}
               </Avatar>
             }
+            clickable
+            component={Link}
+            href={buildPlaceMaterialsHref(place.id, platform)}
             key={platform}
             label={platformDisplay.label}
             size="small"

@@ -18,14 +18,14 @@ Frontend для MVP "Гид по местам".
 
 1. `pnpm install`
 2. `cp .env.example .env.local`
-3. Убедиться, что локальный backend из соседнего репозитория запущен на `http://127.0.0.1:3000`
+3. Убедиться, что в `.env.local` указан нужный backend origin; по умолчанию используется удаленный `https://api.strelchukgo.ru/v1`
 4. `pnpm dev`
 5. Открыть `http://localhost:3001`
 
 ## Локальная API-связка
 
 1. Frontend в dev-режиме по умолчанию запускается на `http://localhost:3001`.
-2. Backend локально остаётся на `http://127.0.0.1:3000`.
+2. Backend origin задаётся server-only переменной `API_BASE_URL`; по умолчанию это удаленный `https://api.strelchukgo.ru/v1`.
 3. Browser и frontend-клиент обращаются к backend через same-origin путь `/v1`.
 4. В локальной разработке Next rewrites проксируют `/v1/:path*` на `API_BASE_URL`.
 5. `API_BASE_URL` — server-only переменная; backend origin не должен публиковаться через `NEXT_PUBLIC_*`.

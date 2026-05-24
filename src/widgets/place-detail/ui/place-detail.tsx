@@ -1,4 +1,5 @@
 import {
+  buildPlaceMaterialsAnchor,
   formatMaterialDuration,
   formatMaterialPublishedDate,
   formatMaterialsCount,
@@ -20,6 +21,7 @@ import {
   Grid,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Paper,
   Stack,
@@ -87,6 +89,8 @@ function MaterialSummary({ material, tone = 'default' }: Readonly<MaterialSummar
  */
 export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
   const imageSrc = place.coverImageUrl ?? PLACE_PLACEHOLDER_IMAGE_SRC;
+  const pinnedMaterial = place.pinnedMaterial;
+  const materialsGridSize = pinnedMaterial ? { xs: 12, md: 7 } : { xs: 12 };
 
   return (
     <Container component="main" maxWidth="lg" sx={{ py: { xs: 3.75, sm: 6 }, pb: 8 }}>
@@ -220,59 +224,55 @@ export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
           </Paper>
         </Grid>
 
-        <Grid size={{ xs: 12, md: 5 }}>
-          <Paper
-            aria-label="Закрепленный материал"
-            component="section"
-            elevation={0}
-            sx={{
-              height: '100%',
-              p: { xs: 2.5, sm: 3 },
-              bgcolor: '#111827',
-              color: '#fff',
-              borderRadius: 2,
-            }}
-          >
-            <Stack height="100%" spacing={2.25} justifyContent="space-between">
-              <Stack spacing={1.5}>
-                <Typography color="rgba(255, 255, 255, 0.68)" fontWeight={700} variant="overline">
-                  Закрепленный материал
-                </Typography>
-
-                {place.pinnedMaterial ? (
-                  <MaterialSummary material={place.pinnedMaterial} tone="inverted" />
-                ) : (
-                  <Typography color="rgba(255, 255, 255, 0.72)">
-                    Закрепленный материал пока не назначен.
+        {pinnedMaterial ? (
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Paper
+              aria-label="Закрепленный материал"
+              component="section"
+              elevation={0}
+              sx={{
+                height: '100%',
+                p: { xs: 2.5, sm: 3 },
+                bgcolor: '#111827',
+                color: '#fff',
+                borderRadius: 2,
+              }}
+            >
+              <Stack height="100%" spacing={2.25} justifyContent="space-between">
+                <Stack spacing={1.5}>
+                  <Typography color="rgba(255, 255, 255, 0.68)" fontWeight={700} variant="overline">
+                    Закрепленный материал
                   </Typography>
-                )}
+
+                  <MaterialSummary material={pinnedMaterial} tone="inverted" />
+                </Stack>
+
+                {pinnedMaterial.url ? (
+                  <Button
+                    component="a"
+                    href={pinnedMaterial.url}
+                    rel="noreferrer"
+                    target="_blank"
+                    variant="contained"
+                    sx={{
+                      alignSelf: 'flex-start',
+                      bgcolor: '#fff',
+                      color: '#111827',
+                      fontWeight: 800,
+                      '&:hover': {
+                        bgcolor: '#f3f4f6',
+                      },
+                    }}
+                  >
+                    Открыть материал
+                  </Button>
+                ) : null}
               </Stack>
+            </Paper>
+          </Grid>
+        ) : null}
 
-              {place.pinnedMaterial?.url ? (
-                <Button
-                  component="a"
-                  href={place.pinnedMaterial.url}
-                  rel="noreferrer"
-                  target="_blank"
-                  variant="contained"
-                  sx={{
-                    alignSelf: 'flex-start',
-                    bgcolor: '#fff',
-                    color: '#111827',
-                    fontWeight: 800,
-                    '&:hover': {
-                      bgcolor: '#f3f4f6',
-                    },
-                  }}
-                >
-                  Открыть материал
-                </Button>
-              ) : null}
-            </Stack>
-          </Paper>
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 7 }}>
+        <Grid size={materialsGridSize}>
           <Stack component="section" spacing={2}>
             <Typography color="#111827" component="h2" fontSize="1.65rem" fontWeight={800}>
               Материалы по платформам
@@ -286,6 +286,7 @@ export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
                 <Paper
                   component="section"
                   elevation={0}
+                  id={buildPlaceMaterialsAnchor(platform)}
                   key={platform}
                   sx={{
                     overflow: 'hidden',
@@ -322,36 +323,67 @@ export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
                       {materials.map((material, index) => (
                         <Box key={material.id}>
                           {index > 0 ? <Divider component="li" /> : null}
-                          <ListItem sx={{ py: 1.75 }}>
-                            <Stack
-                              direction={{ xs: 'column', sm: 'row' }}
-                              justifyContent="space-between"
-                              alignItems={{ xs: 'flex-start', sm: 'center' }}
-                              gap={1.5}
-                              width="100%"
-                            >
-                              <ListItemText
-                                primary={<MaterialSummary material={material} />}
-                                primaryTypographyProps={{ component: 'div' }}
-                                sx={{ my: 0 }}
-                              />
-                              {material.url ? (
-                                <Button
-                                  component="a"
-                                  href={material.url}
-                                  rel="noreferrer"
-                                  target="_blank"
-                                  variant="text"
-                                  sx={{ flexShrink: 0 }}
+                          <ListItem disablePadding sx={{ display: 'block' }}>
+                            {material.url ? (
+                              <ListItemButton
+                                component="a"
+                                href={material.url}
+                                rel="noreferrer"
+                                target="_blank"
+                                sx={{
+                                  px: 2,
+                                  py: 1.75,
+                                  alignItems: 'stretch',
+                                  '&:hover': {
+                                    bgcolor: 'rgba(35, 122, 118, 0.06)',
+                                  },
+                                  '&:focus-visible': {
+                                    outline: '3px solid rgba(35, 122, 118, 0.22)',
+                                    outlineOffset: -3,
+                                  },
+                                }}
+                              >
+                                <Stack
+                                  direction={{ xs: 'column', sm: 'row' }}
+                                  justifyContent="space-between"
+                                  alignItems={{ xs: 'flex-start', sm: 'center' }}
+                                  gap={1.5}
+                                  width="100%"
                                 >
-                                  Открыть
-                                </Button>
-                              ) : (
+                                  <ListItemText
+                                    primary={<MaterialSummary material={material} />}
+                                    primaryTypographyProps={{ component: 'div' }}
+                                    sx={{ my: 0 }}
+                                  />
+                                  <Typography
+                                    color="primary"
+                                    component="span"
+                                    fontWeight={800}
+                                    sx={{ flexShrink: 0 }}
+                                  >
+                                    Открыть
+                                  </Typography>
+                                </Stack>
+                              </ListItemButton>
+                            ) : (
+                              <Stack
+                                direction={{ xs: 'column', sm: 'row' }}
+                                justifyContent="space-between"
+                                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                                gap={1.5}
+                                width="100%"
+                                sx={{ px: 2, py: 1.75 }}
+                              >
+                                <ListItemText
+                                  primary={<MaterialSummary material={material} />}
+                                  primaryTypographyProps={{ component: 'div' }}
+                                  sx={{ my: 0 }}
+                                />
                                 <Button disabled variant="text" sx={{ flexShrink: 0 }}>
                                   Недоступно
                                 </Button>
-                              )}
-                            </Stack>
+                              </Stack>
+                            )}
                           </ListItem>
                         </Box>
                       ))}

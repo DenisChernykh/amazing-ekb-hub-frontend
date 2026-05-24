@@ -12,6 +12,7 @@ import * as zod from 'zod';
  * @summary List admin places
  */
 export const listAdminPlacesQueryPageDefault = 1;
+export const listAdminPlacesQueryPageMax = 1000;
 
 export const listAdminPlacesQueryPageSizeDefault = 20;
 export const listAdminPlacesQueryPageSizeMax = 100;
@@ -20,8 +21,9 @@ export const ListAdminPlacesQueryParams = zod.strictObject({
   page: zod
     .number()
     .min(1)
+    .max(listAdminPlacesQueryPageMax)
     .default(listAdminPlacesQueryPageDefault)
-    .describe('Номер страницы пагинации. Минимальное значение `1`.'),
+    .describe('Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.'),
   pageSize: zod
     .number()
     .min(1)
@@ -197,24 +199,6 @@ export const GetAdminPlaceDetail200Response = zod
       .describe(
         'Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.',
       ),
-    pinnedMaterial: zod
-      .strictObject({
-        id: zod.string().describe('Идентификатор материала.'),
-        placeId: zod.string().describe('Идентификатор места, к которому относится материал.'),
-        platform: zod
-          .enum(['dzen', 'telegram', 'instagram'])
-          .describe('Платформа, на которой опубликован материал.'),
-        type: zod.enum(['post', 'reel', 'video']).describe('Тип материала.'),
-        title: zod.string().describe('Заголовок материала.'),
-        publishedAt: zod.iso
-          .datetime({ offset: true })
-          .describe('Дата и время публикации материала.'),
-        durationSec: zod.number().nullable().describe('Длительность в секундах для видеоформатов.'),
-        url: zod.url().describe('Публичная ссылка на материал.'),
-      })
-      .describe('Материал, связанный с местом.')
-      .nullable()
-      .describe('Закреплённый материал места, если он назначен.'),
     counters: zod
       .strictObject({
         dzen: zod.number(),
@@ -223,6 +207,36 @@ export const GetAdminPlaceDetail200Response = zod
       })
       .describe('Количество материалов по платформам.'),
   })
+  .describe('Краткая публичная карточка места со счетчиками материалов по платформам.')
+  .and(
+    zod.strictObject({
+      pinnedMaterial: zod
+        .strictObject({
+          id: zod.string().describe('Идентификатор материала.'),
+          placeId: zod.string().describe('Идентификатор места, к которому относится материал.'),
+          platform: zod
+            .enum(['dzen', 'telegram', 'instagram'])
+            .describe('Платформа, на которой опубликован материал.'),
+          type: zod.enum(['post', 'reel', 'video']).describe('Тип материала.'),
+          title: zod.string().describe('Заголовок материала.'),
+          publishedAt: zod.iso
+            .datetime({ offset: true })
+            .describe('Дата и время публикации материала.'),
+          durationSec: zod
+            .number()
+            .nullable()
+            .describe('Длительность в секундах для видеоформатов.'),
+          url: zod
+            .url()
+            .describe(
+              'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
+            ),
+        })
+        .describe('Материал, связанный с местом.')
+        .nullable()
+        .describe('Закреплённый материал места, если он назначен.'),
+    }),
+  )
   .describe('Детальная карточка места с pinned material и счетчиками по платформам.');
 
 export const GetAdminPlaceDetail401Response = zod
@@ -519,7 +533,11 @@ export const ListAdminPlaceMaterials200Response = zod
               .number()
               .nullable()
               .describe('Длительность в секундах для видеоформатов.'),
-            url: zod.url().describe('Публичная ссылка на материал.'),
+            url: zod
+              .url()
+              .describe(
+                'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
+              ),
           })
           .describe('Материал, связанный с местом.'),
       )
@@ -584,7 +602,9 @@ export const CreatePlaceMaterialBody = zod
     title: zod.string().describe('Заголовок материала.'),
     publishedAt: zod.iso.datetime({ offset: true }).describe('Момент публикации материала.'),
     durationSec: zod.number().nullish().describe('Длительность в секундах для видеоформатов.'),
-    url: zod.url().describe('Публичная ссылка на материал.'),
+    url: zod
+      .url()
+      .describe('Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.'),
   })
   .describe('Payload создания нового материала для места.');
 
@@ -599,7 +619,9 @@ export const CreatePlaceMaterial201Response = zod
     title: zod.string().describe('Заголовок материала.'),
     publishedAt: zod.iso.datetime({ offset: true }).describe('Дата и время публикации материала.'),
     durationSec: zod.number().nullable().describe('Длительность в секундах для видеоформатов.'),
-    url: zod.url().describe('Публичная ссылка на материал.'),
+    url: zod
+      .url()
+      .describe('Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.'),
   })
   .describe('Материал, связанный с местом.');
 
@@ -661,7 +683,12 @@ export const UpdateMaterialBody = zod
     title: zod.string().optional().describe('Новый заголовок материала.'),
     publishedAt: zod.iso.datetime({ offset: true }).optional().describe('Новая дата публикации.'),
     durationSec: zod.number().nullish().describe('Новая длительность в секундах.'),
-    url: zod.url().optional().describe('Новая публичная ссылка на материал.'),
+    url: zod
+      .url()
+      .optional()
+      .describe(
+        'Новая публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
+      ),
   })
   .describe('Payload частичного обновления материала.');
 
@@ -676,7 +703,9 @@ export const UpdateMaterial200Response = zod
     title: zod.string().describe('Заголовок материала.'),
     publishedAt: zod.iso.datetime({ offset: true }).describe('Дата и время публикации материала.'),
     durationSec: zod.number().nullable().describe('Длительность в секундах для видеоформатов.'),
-    url: zod.url().describe('Публичная ссылка на материал.'),
+    url: zod
+      .url()
+      .describe('Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.'),
   })
   .describe('Материал, связанный с местом.');
 
@@ -751,24 +780,6 @@ export const SetPinnedMaterial200Response = zod
       .describe(
         'Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.',
       ),
-    pinnedMaterial: zod
-      .strictObject({
-        id: zod.string().describe('Идентификатор материала.'),
-        placeId: zod.string().describe('Идентификатор места, к которому относится материал.'),
-        platform: zod
-          .enum(['dzen', 'telegram', 'instagram'])
-          .describe('Платформа, на которой опубликован материал.'),
-        type: zod.enum(['post', 'reel', 'video']).describe('Тип материала.'),
-        title: zod.string().describe('Заголовок материала.'),
-        publishedAt: zod.iso
-          .datetime({ offset: true })
-          .describe('Дата и время публикации материала.'),
-        durationSec: zod.number().nullable().describe('Длительность в секундах для видеоформатов.'),
-        url: zod.url().describe('Публичная ссылка на материал.'),
-      })
-      .describe('Материал, связанный с местом.')
-      .nullable()
-      .describe('Закреплённый материал места, если он назначен.'),
     counters: zod
       .strictObject({
         dzen: zod.number(),
@@ -777,6 +788,36 @@ export const SetPinnedMaterial200Response = zod
       })
       .describe('Количество материалов по платформам.'),
   })
+  .describe('Краткая публичная карточка места со счетчиками материалов по платформам.')
+  .and(
+    zod.strictObject({
+      pinnedMaterial: zod
+        .strictObject({
+          id: zod.string().describe('Идентификатор материала.'),
+          placeId: zod.string().describe('Идентификатор места, к которому относится материал.'),
+          platform: zod
+            .enum(['dzen', 'telegram', 'instagram'])
+            .describe('Платформа, на которой опубликован материал.'),
+          type: zod.enum(['post', 'reel', 'video']).describe('Тип материала.'),
+          title: zod.string().describe('Заголовок материала.'),
+          publishedAt: zod.iso
+            .datetime({ offset: true })
+            .describe('Дата и время публикации материала.'),
+          durationSec: zod
+            .number()
+            .nullable()
+            .describe('Длительность в секундах для видеоформатов.'),
+          url: zod
+            .url()
+            .describe(
+              'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
+            ),
+        })
+        .describe('Материал, связанный с местом.')
+        .nullable()
+        .describe('Закреплённый материал места, если он назначен.'),
+    }),
+  )
   .describe('Детальная карточка места с pinned material и счетчиками по платформам.');
 
 export const SetPinnedMaterial400Response = zod
@@ -810,6 +851,101 @@ export const SetPinnedMaterial403Response = zod
   .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
 
 export const SetPinnedMaterial404Response = zod
+  .strictObject({
+    statusCode: zod.number().describe('HTTP status code ответа.'),
+    message: zod
+      .union([zod.string(), zod.array(zod.string())])
+      .describe('Сообщение ошибки. Для DTO validation NestJS обычно возвращает массив строк.'),
+    error: zod.string().optional().describe('Стандартное HTTP reason summary от NestJS.'),
+  })
+  .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
+
+/**
+ * Снимает закреплённый материал с места. Операция доступна только администратору.
+ * @summary Clear pinned material for place
+ */
+export const ClearPinnedMaterialParams = zod.strictObject({
+  placeId: zod.string().describe('Идентификатор места.'),
+});
+
+export const ClearPinnedMaterial200Response = zod
+  .strictObject({
+    id: zod.string().describe('Идентификатор места.'),
+    title: zod.string().describe('Название места.'),
+    summary: zod.string().describe('Короткое описание для каталога.'),
+    tags: zod.array(zod.string()).describe('Набор тегов для поиска и фильтрации.'),
+    category: zod
+      .enum(['pools', 'spa', 'cafe', 'hotels', 'workshops'])
+      .describe('Категория места в каталоге.'),
+    status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
+    popularityWeight: zod.number().describe('Вес популярности для сортировки.'),
+    coverImageUrl: zod
+      .string()
+      .nullable()
+      .describe(
+        'Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.',
+      ),
+    counters: zod
+      .strictObject({
+        dzen: zod.number(),
+        telegram: zod.number(),
+        instagram: zod.number(),
+      })
+      .describe('Количество материалов по платформам.'),
+  })
+  .describe('Краткая публичная карточка места со счетчиками материалов по платформам.')
+  .and(
+    zod.strictObject({
+      pinnedMaterial: zod
+        .strictObject({
+          id: zod.string().describe('Идентификатор материала.'),
+          placeId: zod.string().describe('Идентификатор места, к которому относится материал.'),
+          platform: zod
+            .enum(['dzen', 'telegram', 'instagram'])
+            .describe('Платформа, на которой опубликован материал.'),
+          type: zod.enum(['post', 'reel', 'video']).describe('Тип материала.'),
+          title: zod.string().describe('Заголовок материала.'),
+          publishedAt: zod.iso
+            .datetime({ offset: true })
+            .describe('Дата и время публикации материала.'),
+          durationSec: zod
+            .number()
+            .nullable()
+            .describe('Длительность в секундах для видеоформатов.'),
+          url: zod
+            .url()
+            .describe(
+              'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
+            ),
+        })
+        .describe('Материал, связанный с местом.')
+        .nullable()
+        .describe('Закреплённый материал места, если он назначен.'),
+    }),
+  )
+  .describe('Детальная карточка места с pinned material и счетчиками по платформам.');
+
+export const ClearPinnedMaterial401Response = zod
+  .strictObject({
+    statusCode: zod.number().describe('HTTP status code ответа.'),
+    message: zod
+      .union([zod.string(), zod.array(zod.string())])
+      .describe('Сообщение ошибки. Для DTO validation NestJS обычно возвращает массив строк.'),
+    error: zod.string().optional().describe('Стандартное HTTP reason summary от NestJS.'),
+  })
+  .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
+
+export const ClearPinnedMaterial403Response = zod
+  .strictObject({
+    statusCode: zod.number().describe('HTTP status code ответа.'),
+    message: zod
+      .union([zod.string(), zod.array(zod.string())])
+      .describe('Сообщение ошибки. Для DTO validation NestJS обычно возвращает массив строк.'),
+    error: zod.string().optional().describe('Стандартное HTTP reason summary от NestJS.'),
+  })
+  .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
+
+export const ClearPinnedMaterial404Response = zod
   .strictObject({
     statusCode: zod.number().describe('HTTP status code ответа.'),
     message: zod

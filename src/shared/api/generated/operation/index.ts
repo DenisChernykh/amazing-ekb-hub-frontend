@@ -21,6 +21,8 @@ export * from './pageParameter';
 export * from './pageSizeParameter';
 export * from './placeListResponse';
 export * from './placeNotFoundResponse';
+export * from './publicPlaceListResponse';
 export * from './serviceUnavailableResponse';
+export * from './tooManyRequestsResponse';
 export * from './unauthorizedResponse';
 export * from './validationErrorResponse';
