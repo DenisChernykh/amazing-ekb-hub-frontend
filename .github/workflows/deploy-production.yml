@@ -54,6 +54,7 @@ jobs:
     name: Build frontend runtime image
     needs: quality
     runs-on: ubuntu-latest
+    environment: production
 
     env:
       IMAGE_NAME: amazing-ekb-hub-frontend
