@@ -1,3 +1,4 @@
+import { appStyleTokens } from '@/shared/ui/theme';
 import { Box, CardMedia } from '@mui/material';
 import type { PlaceCardModel } from '../model/types';
 import { PlaceCategoryBadge } from './place-category-badge';
@@ -25,7 +26,7 @@ export function PlaceCardImage({ category, src, title }: Readonly<PlaceCardImage
         overflow: 'hidden',
         width: '100%',
         aspectRatio: '4 / 3',
-        bgcolor: '#edf2f0',
+        bgcolor: appStyleTokens.palette.imagePlaceholder,
       }}
     >
       <CardMedia
@@ -49,7 +50,7 @@ export function PlaceCardImage({ category, src, title }: Readonly<PlaceCardImage
           top: 12,
           left: 12,
           zIndex: 1,
-          boxShadow: '0 8px 20px rgba(15, 23, 42, 0.14)',
+          boxShadow: appStyleTokens.shadows.overlayBadge,
         }}
       />
     </Box>

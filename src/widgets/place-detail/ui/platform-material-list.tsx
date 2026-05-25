@@ -1,4 +1,5 @@
 import type { PlaceMaterialModel } from '@/entities/place';
+import { appStyleTokens } from '@/shared/ui/theme';
 import {
   Box,
   Button,
@@ -56,10 +57,10 @@ function PlatformMaterialListItem({
               py: 1.75,
               alignItems: 'stretch',
               '&:hover': {
-                bgcolor: 'rgba(35, 122, 118, 0.06)',
+                bgcolor: appStyleTokens.palette.accentSoft,
               },
               '&:focus-visible': {
-                outline: '3px solid rgba(35, 122, 118, 0.22)',
+                outline: `3px solid ${appStyleTokens.palette.focusRing}`,
                 outlineOffset: -3,
               },
             }}

@@ -5,7 +5,8 @@ import {
   getPlatformDisplay,
   type PlaceMaterialModel,
 } from '@/entities/place';
-import { Chip, Stack, Typography } from '@mui/material';
+import { appStyleTokens } from '@/shared/ui/theme';
+import { Chip, Stack, Typography, type ChipProps } from '@mui/material';
 
 interface MaterialSummaryProps {
   material: PlaceMaterialModel;
@@ -21,10 +22,10 @@ export function MaterialSummary({ material, tone = 'default' }: Readonly<Materia
   const duration = formatMaterialDuration(material.durationSec);
   const platformDisplay = getPlatformDisplay(material.platform);
   const isInverted = tone === 'inverted';
-  const outlinedChipSx = isInverted
+  const outlinedChipSx: ChipProps['sx'] = isInverted
     ? {
-        borderColor: 'rgba(255, 255, 255, 0.28)',
-        color: 'rgba(255, 255, 255, 0.82)',
+        borderColor: appStyleTokens.palette.invertedDivider,
+        color: appStyleTokens.palette.invertedTextMuted,
       }
     : undefined;
 
@@ -44,7 +45,11 @@ export function MaterialSummary({ material, tone = 'default' }: Readonly<Materia
         {duration && <Chip label={duration} size="small" sx={outlinedChipSx} variant="outlined" />}
       </Stack>
 
-      <Typography color={isInverted ? '#fff' : '#111827'} fontWeight={700} lineHeight={1.2}>
+      <Typography
+        color={isInverted ? 'common.white' : 'text.primary'}
+        fontWeight={700}
+        lineHeight={1.2}
+      >
         {material.title}
       </Typography>
     </Stack>
