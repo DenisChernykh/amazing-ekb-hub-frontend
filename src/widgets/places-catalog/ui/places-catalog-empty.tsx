@@ -9,19 +9,17 @@ export function PlacesCatalogEmpty() {
       aria-label="Пустой каталог"
       component="section"
       elevation={0}
+      variant="outlined"
       sx={{
         display: 'grid',
         minHeight: 240,
         p: 3.5,
-        color: '#4b5563',
-        bgcolor: '#fff',
-        border: '1px solid rgba(31, 41, 55, 0.1)',
-        borderRadius: 2,
+        color: 'text.secondary',
         placeContent: 'center',
         textAlign: 'center',
       }}
     >
-      <Typography color="#111827" fontSize="1.4rem" fontWeight={700} mb={1}>
+      <Typography color="text.primary" component="h2" variant="h3" mb={1}>
         Места не найдены
       </Typography>
       <Typography>Попробуйте изменить поиск или фильтр категории.</Typography>

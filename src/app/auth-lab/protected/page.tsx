@@ -18,10 +18,8 @@ export default async function AuthLabProtectedPage() {
     <Container component="main" maxWidth="md" sx={{ py: { xs: 3, sm: 5 } }}>
       <Paper
         elevation={0}
+        variant="outlined"
         sx={{
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 1,
           p: { xs: 2, sm: 3 },
         }}
       >

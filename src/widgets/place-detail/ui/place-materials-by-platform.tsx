@@ -18,7 +18,7 @@ interface MaterialsByPlatformProps {
 export function MaterialsByPlatform({ materialsByPlatform }: Readonly<MaterialsByPlatformProps>) {
   return (
     <Stack component="section" spacing={2}>
-      <Typography color="#111827" component="h2" fontSize="1.65rem" fontWeight={800}>
+      <Typography color="text.primary" component="h2" variant="h2">
         Материалы по платформам
       </Typography>
 
@@ -32,11 +32,9 @@ export function MaterialsByPlatform({ materialsByPlatform }: Readonly<MaterialsB
             elevation={0}
             id={buildPlaceMaterialsAnchor(platform)}
             key={platform}
+            variant="outlined"
             sx={{
               overflow: 'hidden',
-              bgcolor: '#fff',
-              border: '1px solid rgba(31, 41, 55, 0.1)',
-              borderRadius: 2,
             }}
           >
             <Stack
@@ -46,7 +44,7 @@ export function MaterialsByPlatform({ materialsByPlatform }: Readonly<MaterialsB
               gap={1}
               sx={{ p: 2 }}
             >
-              <Typography color="#111827" component="h3" fontSize="1.2rem" fontWeight={800}>
+              <Typography color="text.primary" component="h3" variant="h3">
                 {platformDisplay.label}
               </Typography>
               <Chip
@@ -65,7 +63,7 @@ export function MaterialsByPlatform({ materialsByPlatform }: Readonly<MaterialsB
             {materials.length > 0 ? (
               <PlatformMaterialList materials={materials} />
             ) : (
-              <Typography color="#6b7280" sx={{ px: 2, py: 2.25 }}>
+              <Typography color="text.secondary" sx={{ px: 2, py: 2.25 }}>
                 Материалов на этой платформе пока нет.
               </Typography>
             )}

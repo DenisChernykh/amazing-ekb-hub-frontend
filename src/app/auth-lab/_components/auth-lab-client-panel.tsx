@@ -26,10 +26,8 @@ export function AuthLabClientPanel() {
   return (
     <Paper
       elevation={0}
+      variant="outlined"
       sx={{
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 1,
         p: { xs: 2, sm: 3 },
       }}
     >

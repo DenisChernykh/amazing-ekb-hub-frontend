@@ -34,20 +34,13 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
         mb={3.5}
       >
         <Stack spacing={1.25}>
-          <Typography
-            color="#111827"
-            component="h1"
-            fontSize="clamp(2rem, 1.4rem + 2vw, 3.4rem)"
-            fontWeight={700}
-            letterSpacing={0}
-            lineHeight={1.04}
-          >
+          <Typography color="text.primary" component="h1" variant="h1">
             Места
           </Typography>
-          <Typography color="#5f6b7a">Найдено: {pagination.total}</Typography>
+          <Typography color="text.secondary">Найдено: {pagination.total}</Typography>
         </Stack>
 
-        <Typography color="#5f6b7a" mb={{ xs: 0, sm: 0.75 }} whiteSpace="nowrap">
+        <Typography color="text.secondary" mb={{ xs: 0, sm: 0.75 }} whiteSpace="nowrap">
           Страница {pagination.page} из {pagination.pageCount}
         </Typography>
       </Stack>

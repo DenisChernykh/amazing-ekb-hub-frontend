@@ -1,4 +1,5 @@
 import type { PlaceDetailModel } from '@/entities/place';
+import { appStyleTokens } from '@/shared/ui/theme';
 import { CardMedia, Paper } from '@mui/material';
 
 const PLACE_PLACEHOLDER_IMAGE_SRC = '/images/places/place-placeholder.webp';
@@ -16,13 +17,12 @@ export function PlaceCoverImage({ place }: Readonly<PlaceCoverImageProps>) {
   return (
     <Paper
       elevation={0}
+      variant="outlined"
       sx={{
         overflow: 'hidden',
         height: '100%',
         minHeight: { xs: 260, md: 360 },
-        bgcolor: '#edf2f0',
-        border: '1px solid rgba(31, 41, 55, 0.1)',
-        borderRadius: 2,
+        bgcolor: appStyleTokens.palette.imagePlaceholder,
       }}
     >
       <CardMedia
