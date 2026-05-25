@@ -25,7 +25,6 @@ function LoginSubmitButton() {
       variant="contained"
       sx={{
         minHeight: 48,
-        borderRadius: 1,
         fontWeight: 700,
       }}
     >

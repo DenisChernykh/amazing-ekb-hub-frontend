@@ -4,6 +4,7 @@ import {
   PLACE_PLATFORMS,
   type PlatformCounters as PlatformCountersModel,
 } from '@/entities/place';
+import { appStyleTokens } from '@/shared/ui/theme';
 import { Avatar, Box, Grid, Paper, Stack, Typography } from '@mui/material';
 
 interface PlatformCountersProps {
@@ -19,11 +20,9 @@ export function PlatformCounters({ counters }: Readonly<PlatformCountersProps>) 
       aria-label="Счетчики материалов по платформам"
       component="section"
       elevation={0}
+      variant="outlined"
       sx={{
         p: { xs: 2, sm: 2.5 },
-        bgcolor: '#fff',
-        border: '1px solid rgba(31, 41, 55, 0.1)',
-        borderRadius: 2,
       }}
     >
       <Grid container spacing={1.5}>
@@ -46,7 +45,7 @@ export function PlatformCounters({ counters }: Readonly<PlatformCountersProps>) 
               >
                 <Avatar
                   sx={{
-                    bgcolor: 'rgba(255, 255, 255, 0.72)',
+                    bgcolor: appStyleTokens.palette.whiteOverlay,
                     color: platformDisplay.color,
                     fontWeight: 800,
                   }}

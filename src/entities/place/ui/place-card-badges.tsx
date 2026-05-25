@@ -1,5 +1,6 @@
 'use client';
 
+import { appStyleTokens } from '@/shared/ui/theme';
 import { Avatar, Chip, Stack } from '@mui/material';
 import Link from 'next/link';
 import { buildPlaceMaterialsHref } from '../lib/build-place-materials-href';
@@ -35,7 +36,7 @@ export function PlaceCardBadges({ place }: Readonly<PlaceCardBadgesProps>) {
             avatar={
               <Avatar
                 sx={{
-                  bgcolor: 'rgba(255, 255, 255, 0.72)',
+                  bgcolor: appStyleTokens.palette.whiteOverlay,
                   color: platformDisplay.color,
                   fontSize: '0.72rem',
                   fontWeight: 800,

@@ -1,25 +1,14 @@
 'use client';
 
 import { SessionProvider, type SessionState } from '@/entities/session';
+import { appTheme } from '@/shared/ui/theme';
 import { CssBaseline } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 
 interface ProvidersProps {
   initialSession: SessionState;
   children: React.ReactNode;
 }
-
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    background: {
-      default: '#f6f1ea',
-    },
-  },
-  typography: {
-    fontFamily: 'var(--font-roboto)',
-  },
-});
 
 /**
  * Создаёт stable key для session boundary.
@@ -45,7 +34,7 @@ function getSessionBoundaryKey(session: SessionState): string {
  */
 export function Providers({ children, initialSession }: Readonly<ProvidersProps>) {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={appTheme}>
       <CssBaseline>
         <SessionProvider
           key={getSessionBoundaryKey(initialSession)}
