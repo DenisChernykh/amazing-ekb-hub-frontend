@@ -46,11 +46,11 @@ function PlatformMaterialListItem({
     <Box>
       {showDivider && <Divider component="li" />}
       <ListItem disablePadding sx={{ display: 'block' }}>
-        {material.url ? (
+        {material.redirectUrl ? (
           <ListItemButton
             component="a"
-            href={material.url}
-            rel="noreferrer"
+            href={material.redirectUrl}
+            rel="noopener noreferrer"
             target="_blank"
             sx={{
               px: 2,

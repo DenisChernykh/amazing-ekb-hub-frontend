@@ -204,6 +204,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/materials/{materialId}/go': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Redirect to material URL
+     * @description Выполняет временный redirect на сохраненный URL публичного материала. Endpoint не принимает внешний URL от клиента и работает только для материалов активных мест с безопасной https-ссылкой платформы.
+     */
+    get: operations['redirectMaterial'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/favorites': {
     parameters: {
       query?: never;
@@ -572,6 +592,11 @@ export interface components {
        * @example https://t.me/amazing_ekb/321
        */
       url: string;
+      /**
+       * @description Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.
+       * @example /v1/materials/material_telegram_001/go
+       */
+      redirectUrl?: string | null;
     };
     /** @description Детальная карточка места с pinned material и счетчиками по платформам. */
     PlaceDetail: components['schemas']['PublicPlaceSummary'] & {
@@ -1139,6 +1164,33 @@ export interface operations {
       };
       400: components['responses']['ValidationError'];
       404: components['responses']['PlaceNotFound'];
+    };
+  };
+  redirectMaterial: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор материала.
+         * @example material_telegram_001
+         */
+        materialId: components['parameters']['MaterialId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Временный redirect на сохраненный внешний URL материала. */
+      302: {
+        headers: {
+          /** @description Безопасный абсолютный https URL материала. */
+          Location?: string;
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      404: components['responses']['MaterialNotFound'];
     };
   };
   listFavorites: {

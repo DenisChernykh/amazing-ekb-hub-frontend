@@ -30,6 +30,7 @@ export * from './placeSummary';
 export * from './platform';
 export * from './publicPlaceSummary';
 export * from './publicPlaceSummaryCounters';
+export * from './redirectMaterialPathParameters';
 export * from './removeFavoritePathParameters';
 export * from './role';
 export * from './setPinnedMaterialPathParameters';
