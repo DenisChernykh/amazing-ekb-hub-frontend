@@ -37,11 +37,11 @@ export function PinnedMaterial({ material }: Readonly<PinnedMaterialProps>) {
           <MaterialSummary material={material} tone="inverted" />
         </Stack>
 
-        {material?.url && (
+        {material.redirectUrl && (
           <Button
             component="a"
-            href={material.url}
-            rel="noreferrer"
+            href={material.redirectUrl}
+            rel="noopener noreferrer"
             target="_blank"
             variant="contained"
             sx={{

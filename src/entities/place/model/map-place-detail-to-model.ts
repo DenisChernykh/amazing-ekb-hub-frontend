@@ -1,7 +1,7 @@
 import type { Material } from '@/shared/api/generated/model/material';
 import type { PlaceDetail } from '@/shared/api/generated/model/placeDetail';
 import { normalizeCoverImageUrl } from './normalize-cover-image-url';
-import { normalizeMaterialUrl } from './normalize-material-url';
+import { normalizeMaterialRedirectUrl } from './normalize-material-redirect-url';
 import {
   PLACE_PLATFORMS,
   type PlaceDetailModel,
@@ -29,7 +29,7 @@ function mapMaterialToModel(material: Material): PlaceMaterialModel {
     title: material.title,
     publishedAt: material.publishedAt,
     durationSec: material.durationSec,
-    url: normalizeMaterialUrl(material.url, material.platform),
+    redirectUrl: normalizeMaterialRedirectUrl(material.redirectUrl, material.id),
   };
 }
 

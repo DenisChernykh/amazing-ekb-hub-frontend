@@ -231,6 +231,12 @@ export const GetAdminPlaceDetail200Response = zod
             .describe(
               'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
             ),
+          redirectUrl: zod
+            .string()
+            .nullish()
+            .describe(
+              'Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.',
+            ),
         })
         .describe('Материал, связанный с местом.')
         .nullable()
@@ -538,6 +544,12 @@ export const ListAdminPlaceMaterials200Response = zod
               .describe(
                 'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
               ),
+            redirectUrl: zod
+              .string()
+              .nullish()
+              .describe(
+                'Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.',
+              ),
           })
           .describe('Материал, связанный с местом.'),
       )
@@ -622,6 +634,12 @@ export const CreatePlaceMaterial201Response = zod
     url: zod
       .url()
       .describe('Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.'),
+    redirectUrl: zod
+      .string()
+      .nullish()
+      .describe(
+        'Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.',
+      ),
   })
   .describe('Материал, связанный с местом.');
 
@@ -706,6 +724,12 @@ export const UpdateMaterial200Response = zod
     url: zod
       .url()
       .describe('Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.'),
+    redirectUrl: zod
+      .string()
+      .nullish()
+      .describe(
+        'Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.',
+      ),
   })
   .describe('Материал, связанный с местом.');
 
@@ -812,6 +836,12 @@ export const SetPinnedMaterial200Response = zod
             .describe(
               'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
             ),
+          redirectUrl: zod
+            .string()
+            .nullish()
+            .describe(
+              'Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.',
+            ),
         })
         .describe('Материал, связанный с местом.')
         .nullable()
@@ -916,6 +946,12 @@ export const ClearPinnedMaterial200Response = zod
             .url()
             .describe(
               'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
+            ),
+          redirectUrl: zod
+            .string()
+            .nullish()
+            .describe(
+              'Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.',
             ),
         })
         .describe('Материал, связанный с местом.')

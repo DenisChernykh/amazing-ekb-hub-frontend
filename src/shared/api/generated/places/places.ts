@@ -12,9 +12,11 @@ import type {
   ListPlaceMaterialsPathParameters,
   ListPlacesParams,
   MaterialListResponse,
+  MaterialNotFoundResponse,
   PlaceDetail,
   PlaceNotFoundResponse,
   PublicPlaceListResponse,
+  RedirectMaterialPathParameters,
   ValidationErrorResponse,
 } from '../model';
 
@@ -261,4 +263,54 @@ export const listPlaceMaterials = async (
   }
   const data: listPlaceMaterialsResponseSuccess['data'] = body ? JSON.parse(body) : {};
   return { data, status: res.status, headers: res.headers } as listPlaceMaterialsResponseSuccess;
+};
+
+/**
+ * Выполняет временный redirect на сохраненный URL публичного материала. Endpoint не принимает внешний URL от клиента и работает только для материалов активных мест с безопасной https-ссылкой платформы.
+ * @summary Redirect to material URL
+ */
+export type redirectMaterialResponse302 = {
+  data: void;
+  status: 302;
+};
+
+export type redirectMaterialResponse404 = {
+  data: MaterialNotFoundResponse;
+  status: 404;
+};
+export type redirectMaterialResponseError = (
+  | redirectMaterialResponse302
+  | redirectMaterialResponse404
+) & {
+  headers: Headers;
+};
+
+export type redirectMaterialResponse = redirectMaterialResponseError;
+
+export const getRedirectMaterialUrl = ({ materialId }: RedirectMaterialPathParameters) => {
+  return `${process.env.API_BASE_URL}/materials/${materialId}/go`;
+};
+
+export const redirectMaterial = async (
+  { materialId }: RedirectMaterialPathParameters,
+  options?: RequestInit,
+): Promise<redirectMaterialResponse> => {
+  const res = await fetch(getRedirectMaterialUrl({ materialId }), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: redirectMaterialResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: redirectMaterialResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: redirectMaterialResponse['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as redirectMaterialResponse;
 };

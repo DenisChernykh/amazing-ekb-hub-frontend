@@ -154,6 +154,12 @@ export const GetPlaceDetail200Response = zod
             .describe(
               'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
             ),
+          redirectUrl: zod
+            .string()
+            .nullish()
+            .describe(
+              'Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.',
+            ),
         })
         .describe('Материал, связанный с местом.')
         .nullable()
@@ -230,6 +236,12 @@ export const ListPlaceMaterials200Response = zod
               .describe(
                 'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
               ),
+            redirectUrl: zod
+              .string()
+              .nullish()
+              .describe(
+                'Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.',
+              ),
           })
           .describe('Материал, связанный с местом.'),
       )
@@ -248,6 +260,24 @@ export const ListPlaceMaterials400Response = zod
   .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
 
 export const ListPlaceMaterials404Response = zod
+  .strictObject({
+    statusCode: zod.number().describe('HTTP status code ответа.'),
+    message: zod
+      .union([zod.string(), zod.array(zod.string())])
+      .describe('Сообщение ошибки. Для DTO validation NestJS обычно возвращает массив строк.'),
+    error: zod.string().optional().describe('Стандартное HTTP reason summary от NestJS.'),
+  })
+  .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
+
+/**
+ * Выполняет временный redirect на сохраненный URL публичного материала. Endpoint не принимает внешний URL от клиента и работает только для материалов активных мест с безопасной https-ссылкой платформы.
+ * @summary Redirect to material URL
+ */
+export const RedirectMaterialParams = zod.strictObject({
+  materialId: zod.string().describe('Идентификатор материала.'),
+});
+
+export const RedirectMaterial404Response = zod
   .strictObject({
     statusCode: zod.number().describe('HTTP status code ответа.'),
     message: zod
