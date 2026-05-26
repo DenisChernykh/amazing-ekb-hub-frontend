@@ -3,6 +3,7 @@ import type { PlaceCategory } from '@/entities/place';
 type CatalogControlsNextState = {
   search?: string;
   category?: PlaceCategory | 'all';
+  page?: 'first';
   reset?: boolean;
 };
 

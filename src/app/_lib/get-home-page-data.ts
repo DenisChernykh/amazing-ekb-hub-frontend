@@ -50,6 +50,10 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
               currentSearchParams: buildRawSearchParamsString(rawSearchParams),
               next: { reset: true },
             }),
+            firstPageHref: buildCatalogControlsHref({
+              currentSearchParams: buildRawSearchParamsString(rawSearchParams),
+              next: { page: 'first' },
+            }),
           },
           pagination: {
             page: result.data.page,

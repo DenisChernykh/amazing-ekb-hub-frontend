@@ -10,6 +10,7 @@ export type PlacesCatalogModel = {
     search?: string;
     category?: PlaceCategory;
     resetHref: string;
+    firstPageHref: string;
   };
   pagination: PlacesPaginationModel & {
     total: number;

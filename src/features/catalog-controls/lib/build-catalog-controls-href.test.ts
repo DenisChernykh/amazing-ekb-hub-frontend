@@ -46,4 +46,13 @@ describe('buildCatalogControlsHref', () => {
       }),
     ).toBe('/?pageSize=40&sort=popular');
   });
+
+  it('moves to the first page while preserving active filters', () => {
+    expect(
+      buildCatalogControlsHref({
+        currentSearchParams: 'page=5&pageSize=40&search=spa&category=spa',
+        next: { page: 'first' },
+      }),
+    ).toBe('/?pageSize=40&search=spa&category=spa');
+  });
 });

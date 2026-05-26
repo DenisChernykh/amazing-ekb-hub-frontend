@@ -5,6 +5,7 @@ import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { FormEvent } from 'react';
 import { buildCatalogControlsHref } from '../lib/build-catalog-controls-href';
+import { buildCatalogControlsInputKey } from '../lib/build-catalog-controls-input-key';
 
 interface CatalogControlsProps {
   search?: string;
@@ -58,7 +59,7 @@ export function CatalogControls({ search, category }: Readonly<CatalogControlsPr
         alignItems={{ xs: 'stretch', sm: 'flex-start' }}
       >
         <TextField
-          key={search ?? 'empty-search'}
+          key={buildCatalogControlsInputKey({ search, category })}
           fullWidth
           defaultValue={search ?? ''}
           label="Поиск"

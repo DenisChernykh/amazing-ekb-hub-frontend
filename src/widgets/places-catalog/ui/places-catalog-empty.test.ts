@@ -25,4 +25,18 @@ describe('PlacesCatalogEmpty', () => {
     expect(html).toContain('href="/?pageSize=40"');
     expect(html).toContain('Сбросить фильтры');
   });
+
+  it('renders page empty copy with first page action', () => {
+    const html = renderToStaticMarkup(
+      createElement(PlacesCatalogEmpty, {
+        kind: 'page',
+        resetHref: '/?pageSize=40',
+      }),
+    );
+
+    expect(html).toContain('На этой странице нет мест');
+    expect(html).toContain('В каталоге есть места, но не на текущей странице.');
+    expect(html).toContain('href="/?pageSize=40"');
+    expect(html).toContain('Перейти на первую страницу');
+  });
 });
