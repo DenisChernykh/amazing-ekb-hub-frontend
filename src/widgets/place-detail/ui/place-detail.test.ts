@@ -4,7 +4,9 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { PlaceDetail } from './place-detail';
 
-const LINKED_MATERIAL_URL = 'https://dzen.ru/shorts/place-guide?utm=card';
+const DIRECT_DZEN_MATERIAL_URL = 'https://dzen.ru/shorts/place-guide?utm=card';
+const DZEN_REDIRECT_URL = '/v1/materials/material_dzen_001/go';
+const PINNED_DZEN_REDIRECT_URL = '/v1/materials/material_pinned_001/go';
 
 const PLACE_DETAIL_WITHOUT_PINNED_MATERIAL: PlaceDetailModel = {
   id: 'place_ekb_001',
@@ -28,7 +30,7 @@ const PLACE_DETAIL_WITHOUT_PINNED_MATERIAL: PlaceDetailModel = {
         title: 'Dzen shorts walkthrough',
         publishedAt: '2026-03-20T10:30:00.000Z',
         durationSec: 45,
-        url: LINKED_MATERIAL_URL,
+        redirectUrl: DZEN_REDIRECT_URL,
       },
     ],
     telegram: [
@@ -39,7 +41,7 @@ const PLACE_DETAIL_WITHOUT_PINNED_MATERIAL: PlaceDetailModel = {
         title: 'Telegram guide',
         publishedAt: '2026-03-20T10:30:00.000Z',
         durationSec: null,
-        url: 'https://t.me/amazing_ekb/321',
+        redirectUrl: '/v1/materials/material_telegram_001/go',
       },
     ],
     instagram: [],
@@ -47,21 +49,24 @@ const PLACE_DETAIL_WITHOUT_PINNED_MATERIAL: PlaceDetailModel = {
 };
 
 describe('PlaceDetail', () => {
-  it('renders linked material rows as external links around the row content', () => {
+  it('renders linked material rows through backend redirect links around the row content', () => {
     const html = renderToStaticMarkup(
       createElement(PlaceDetail, {
         place: PLACE_DETAIL_WITHOUT_PINNED_MATERIAL,
       }),
     );
 
-    const hrefIndex = html.indexOf(`href="${LINKED_MATERIAL_URL}"`);
+    const hrefIndex = html.indexOf(`href="${DZEN_REDIRECT_URL}"`);
     const titleIndex = html.indexOf('Dzen shorts walkthrough');
 
     expect(hrefIndex).toBeGreaterThanOrEqual(0);
     expect(titleIndex).toBeGreaterThanOrEqual(0);
     expect(hrefIndex).toBeLessThan(titleIndex);
     expect(html).toContain('target="_blank"');
-    expect(html).toContain('rel="noreferrer"');
+    expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).not.toContain(`href="${DIRECT_DZEN_MATERIAL_URL}"`);
+    expect(html).toContain('Dzen shorts walkthrough');
+    expect(html).toContain('Видео');
   });
 
   it('does not render an empty pinned material block when pinned material is missing', () => {
@@ -88,7 +93,7 @@ describe('PlaceDetail', () => {
             title: 'Assigned pinned material without URL',
             publishedAt: '2026-03-20T10:30:00.000Z',
             durationSec: null,
-            url: null,
+            redirectUrl: null,
           },
         },
       }),
@@ -97,5 +102,29 @@ describe('PlaceDetail', () => {
     expect(html).toContain('Закрепленный материал');
     expect(html).toContain('Assigned pinned material without URL');
     expect(html).not.toContain('Открыть материал');
+  });
+
+  it('renders pinned material CTA through backend redirect link', () => {
+    const html = renderToStaticMarkup(
+      createElement(PlaceDetail, {
+        place: {
+          ...PLACE_DETAIL_WITHOUT_PINNED_MATERIAL,
+          pinnedMaterial: {
+            id: 'material_pinned_001',
+            platform: 'dzen',
+            type: 'video',
+            title: 'Pinned Dzen material',
+            publishedAt: '2026-03-20T10:30:00.000Z',
+            durationSec: 60,
+            redirectUrl: PINNED_DZEN_REDIRECT_URL,
+          },
+        },
+      }),
+    );
+
+    expect(html).toContain(`href="${PINNED_DZEN_REDIRECT_URL}"`);
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).not.toContain(`href="${DIRECT_DZEN_MATERIAL_URL}"`);
   });
 });
