@@ -1,6 +1,8 @@
 import { PlaceCard } from '@/entities/place';
+import { CatalogControls } from '@/features/catalog-controls';
 import { PlacesPagination } from '@/features/places-pagination';
 import { Container, Grid, Stack, Typography } from '@mui/material';
+import { getPlacesCatalogEmptyState } from '../model/get-places-catalog-empty-state';
 import type { PlacesCatalogModel } from '../model/types';
 import { PlacesCatalogEmpty } from './places-catalog-empty';
 
@@ -14,7 +16,14 @@ interface PlacesCatalogProps {
  * @param props - Модель каталога мест.
  */
 export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
-  const { items, pagination } = model;
+  const { items, filters, pagination } = model;
+  const hasActiveFilters = Boolean(filters.search || filters.category);
+  const emptyState = getPlacesCatalogEmptyState({
+    hasActiveFilters,
+    total: pagination.total,
+    resetHref: filters.resetHref,
+    firstPageHref: filters.firstPageHref,
+  });
 
   return (
     <Container
@@ -45,6 +54,8 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
         </Typography>
       </Stack>
 
+      <CatalogControls search={filters.search} category={filters.category} />
+
       {items.length > 0 ? (
         <Grid aria-label="Список мест" container component="section" spacing={{ xs: 2, sm: 2.5 }}>
           {items.map((place) => (
@@ -54,7 +65,7 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
           ))}
         </Grid>
       ) : (
-        <PlacesCatalogEmpty />
+        <PlacesCatalogEmpty {...emptyState} />
       )}
 
       <PlacesPagination pagination={pagination} />
