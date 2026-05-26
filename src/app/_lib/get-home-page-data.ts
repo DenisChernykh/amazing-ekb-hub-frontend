@@ -1,5 +1,6 @@
 import { mapPlaceSummaryToCardModel } from '@/entities/place';
 import { fetchPublicPlaceList } from '@/entities/place/api/fetch-public-place-list';
+import { buildCatalogControlsHref } from '@/features/catalog-controls';
 import type { PlacesCatalogModel } from '@/widgets/places-catalog';
 import { normalizeHomeSearchParams, type HomeQuery } from './normalize-home-search-params';
 
@@ -42,6 +43,14 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
         kind: 'ready',
         catalog: {
           items: result.data.items.map(mapPlaceSummaryToCardModel),
+          filters: {
+            search: query.search,
+            category: query.category,
+            resetHref: buildCatalogControlsHref({
+              currentSearchParams: buildRawSearchParamsString(rawSearchParams),
+              next: { reset: true },
+            }),
+          },
           pagination: {
             page: result.data.page,
             pageCount,
@@ -88,4 +97,29 @@ function mapValidationMessagesToIssues(message: string | string[]): HomePageIssu
   return (Array.isArray(message) ? message : [message]).map((issueMessage) => ({
     message: issueMessage,
   }));
+}
+
+/**
+ * Это хелпер. Преобразует сырые route searchParams обратно в URLSearchParams string.
+ *
+ * @param rawSearchParams - Сырые query-параметры route entrypoint.
+ * @returns Строка query-параметров для URL helper.
+ */
+function buildRawSearchParamsString(rawSearchParams: RawSearchParams): string {
+  const params = new URLSearchParams();
+
+  Object.entries(rawSearchParams).forEach(([key, value]) => {
+    if (value === undefined) {
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach((item) => params.append(key, item));
+      return;
+    }
+
+    params.set(key, value);
+  });
+
+  return params.toString();
 }

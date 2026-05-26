@@ -2,6 +2,19 @@ import type { MaterialType } from '@/shared/api/generated/model/materialType';
 import type { PlaceCategory } from '@/shared/api/generated/model/placeCategory';
 import type { Platform } from '@/shared/api/generated/model/platform';
 
+export type { PlaceCategory };
+
+/**
+ * Это хелпер. Фиксированный порядок категорий в публичном каталоге.
+ */
+export const PLACE_CATEGORIES = [
+  'pools',
+  'spa',
+  'cafe',
+  'hotels',
+  'workshops',
+] as const satisfies readonly PlaceCategory[];
+
 /**
  * Счетчики материалов места по платформам.
  */

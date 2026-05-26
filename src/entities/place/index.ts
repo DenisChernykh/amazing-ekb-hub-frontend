@@ -10,11 +10,14 @@ export {
   formatMaterialPublishedDate,
   formatMaterialsCount,
   getMaterialTypeDisplay,
+  getPlaceCategoryDisplay,
   getPlatformDisplay,
 } from './model/place-display';
 export {
+  PLACE_CATEGORIES,
   PLACE_PLATFORMS,
   type PlaceCardModel,
+  type PlaceCategory,
   type PlaceDetailModel,
   type PlaceMaterialModel,
   type PlaceMaterialsByPlatform,

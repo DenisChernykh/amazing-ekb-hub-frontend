@@ -1,4 +1,5 @@
 import { PlaceCard } from '@/entities/place';
+import { CatalogControls } from '@/features/catalog-controls';
 import { PlacesPagination } from '@/features/places-pagination';
 import { Container, Grid, Stack, Typography } from '@mui/material';
 import type { PlacesCatalogModel } from '../model/types';
@@ -14,7 +15,8 @@ interface PlacesCatalogProps {
  * @param props - Модель каталога мест.
  */
 export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
-  const { items, pagination } = model;
+  const { items, filters, pagination } = model;
+  const hasActiveFilters = Boolean(filters.search || filters.category);
 
   return (
     <Container
@@ -45,6 +47,8 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
         </Typography>
       </Stack>
 
+      <CatalogControls search={filters.search} category={filters.category} />
+
       {items.length > 0 ? (
         <Grid aria-label="Список мест" container component="section" spacing={{ xs: 2, sm: 2.5 }}>
           {items.map((place) => (
@@ -53,6 +57,8 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
             </Grid>
           ))}
         </Grid>
+      ) : hasActiveFilters ? (
+        <PlacesCatalogEmpty kind="filtered" resetHref={filters.resetHref} />
       ) : (
         <PlacesCatalogEmpty />
       )}
