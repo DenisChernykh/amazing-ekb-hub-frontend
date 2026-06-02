@@ -1,9 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Amazing EKB Hub">
-  <rect width="64" height="64" rx="14" fill="#237a76" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Стрельчук в Екатеринбурге">
+  <rect width="64" height="64" rx="16" fill="#fffaf4" />
   <path
-    fill="#fffaf4"
-    d="M18 14h30a4 4 0 0 1 4 4v6H28v6h20v8H28v6h24v6a4 4 0 0 1-4 4H18V14Z"
+    fill="none"
+    stroke="#237a76"
+    stroke-linecap="round"
+    stroke-width="9"
+    d="M45 19a18 18 0 1 0 0 26"
   />
-  <path fill="#d88737" d="M18 14h10v40H18a6 6 0 0 1-6-6V20a6 6 0 0 1 6-6Z" />
-  <circle cx="46" cy="18" r="5" fill="#f6f1ea" opacity=".9" />
+  <path
+    fill="none"
+    stroke="#d88737"
+    stroke-linecap="round"
+    stroke-width="5"
+    d="M39 24c-8 2-13 7-14 15"
+  />
+  <circle cx="44" cy="43" r="8" fill="#237a76" />
+  <circle cx="44" cy="43" r="3" fill="#fffaf4" />
 </svg>
