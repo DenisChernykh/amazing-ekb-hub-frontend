@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Amazing EKB Hub">
+  <rect width="64" height="64" rx="14" fill="#237a76" />
+  <path
+    fill="#fffaf4"
+    d="M18 14h30a4 4 0 0 1 4 4v6H28v6h20v8H28v6h24v6a4 4 0 0 1-4 4H18V14Z"
+  />
+  <path fill="#d88737" d="M18 14h10v40H18a6 6 0 0 1-6-6V20a6 6 0 0 1 6-6Z" />
+  <circle cx="46" cy="18" r="5" fill="#f6f1ea" opacity=".9" />
+</svg>
