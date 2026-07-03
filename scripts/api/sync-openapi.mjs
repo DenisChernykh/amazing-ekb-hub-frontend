@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DEFAULT_SPEC_SOURCE = 'https://api.strelchukgo.ru/docs/openapi.yaml';
+const DEFAULT_SPEC_SOURCE = 'http://127.0.0.1:3000/docs/openapi.yaml';
 const DEFAULT_SPEC_OUTPUT = 'openapi.yaml';
 
 const source = process.env.OPENAPI_SPEC_SOURCE ?? DEFAULT_SPEC_SOURCE;

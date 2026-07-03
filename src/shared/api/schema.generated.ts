@@ -481,12 +481,12 @@ export interface components {
       /**
        * Format: email
        * @description Email пользователя.
-       * @example admin@amazing-ekb.ru
+       * @example user@example.test
        */
       email: string;
       /**
        * @description Пароль пользователя.
-       * @example supersecret123
+       * @example <user-password>
        */
       password: string;
     };
@@ -500,7 +500,7 @@ export interface components {
       /**
        * Format: email
        * @description Email пользователя.
-       * @example admin@amazing-ekb.ru
+       * @example user@example.test
        */
       email: string;
       role: components['schemas']['Role'];
@@ -589,7 +589,7 @@ export interface components {
       /**
        * Format: uri
        * @description Публичная ссылка на материал. Допускаются только абсолютные http/https URL.
-       * @example https://t.me/amazing_ekb/321
+       * @example https://social.example.test/amazing/321
        */
       url: string;
       /**
@@ -730,7 +730,7 @@ export interface components {
       /**
        * Format: uri
        * @description Публичная ссылка на материал. Допускаются только абсолютные http/https URL.
-       * @example https://t.me/amazing_ekb/321
+       * @example https://social.example.test/amazing/321
        */
       url: string;
     };
@@ -757,7 +757,7 @@ export interface components {
       /**
        * Format: uri
        * @description Новая публичная ссылка на материал. Допускаются только абсолютные http/https URL.
-       * @example https://t.me/amazing_ekb/400
+       * @example https://social.example.test/amazing/400
        */
       url?: string;
     };

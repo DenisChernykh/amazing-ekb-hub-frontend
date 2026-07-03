@@ -15,7 +15,7 @@ describe('normalizeMaterialRedirectUrl', () => {
   });
 
   it.each([
-    ['direct Dzen URL', 'https://dzen.ru/video/aquacity-start', 'material_dzen_001'],
+    ['direct external URL', 'https://video.example.test/video/aquacity-start', 'material_dzen_001'],
     [
       'same-origin absolute redirect',
       'https://amazing-ekb.example/v1/materials/material_dzen_001/go',
@@ -23,7 +23,7 @@ describe('normalizeMaterialRedirectUrl', () => {
     ],
     [
       'frontend redirect URL',
-      '/out?url=https%3A%2F%2Fdzen.ru%2Fvideo%2Faquacity-start',
+      '/out?url=https%3A%2F%2Fvideo.example.test%2Fvideo%2Faquacity-start',
       'material_dzen_001',
     ],
     ['different v1 path', '/v1/places/place_ekb_001', 'material_dzen_001'],

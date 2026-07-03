@@ -117,7 +117,7 @@ jobs:
       IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.run_id }}-${{ github.sha }}
       IMAGE_ARTIFACT_DIR: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}
       IMAGE_ARTIFACT_PATH: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}/frontend-runtime-image.tar.gz
-      PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL || 'https://www.strelchukgo.ru' }}
+      PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL }}
 
     steps:
       - name: Download runtime image

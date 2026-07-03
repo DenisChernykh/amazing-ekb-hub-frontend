@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { PlaceDetail } from './place-detail';
 
-const DIRECT_DZEN_MATERIAL_URL = 'https://dzen.ru/shorts/place-guide?utm=card';
+const DIRECT_DZEN_MATERIAL_URL = 'https://video.example.test/shorts/place-guide?utm=card';
 const DZEN_REDIRECT_URL = '/v1/materials/material_dzen_001/go';
 const PINNED_DZEN_REDIRECT_URL = '/v1/materials/material_pinned_001/go';
 
