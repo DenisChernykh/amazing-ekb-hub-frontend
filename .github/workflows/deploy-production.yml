@@ -117,7 +117,7 @@ jobs:
       IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.run_id }}-${{ github.sha }}
       IMAGE_ARTIFACT_DIR: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}
       IMAGE_ARTIFACT_PATH: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}/frontend-runtime-image.tar.gz
-      PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL }}
+      PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL || vars.PUBLIC_BASE_URL }}
 
     steps:
       - name: Download runtime image
@@ -125,6 +125,39 @@ jobs:
         with:
           name: ${{ env.IMAGE_ARTIFACT_NAME }}
           path: ${{ env.IMAGE_ARTIFACT_DIR }}
+
+      - name: Resolve production public base URL
+        run: |
+          set -euo pipefail
+
+          public_base_url="${PUBLIC_BASE_URL}"
+
+          if [ -z "${public_base_url}" ] && [ -f "${APP_DIR}/.env" ]; then
+            public_base_url="$(
+              awk -F= '
+                $1 == "PUBLIC_BASE_URL" { value = substr($0, index($0, "=") + 1) }
+                END { print value }
+              ' "${APP_DIR}/.env"
+            )"
+          fi
+
+          if [ -z "${public_base_url}" ] && [ -f "${APP_DIR}/.env" ]; then
+            public_frontend_domain="$(
+              awk -F= '
+                $1 == "PUBLIC_FRONTEND_DOMAIN" { value = substr($0, index($0, "=") + 1) }
+                END { print value }
+              ' "${APP_DIR}/.env"
+            )"
+
+            if [ -n "${public_frontend_domain}" ]; then
+              public_base_url="https://${public_frontend_domain}"
+            fi
+          fi
+
+          public_base_url="${public_base_url%/}"
+
+          test -n "${public_base_url}"
+          printf 'PUBLIC_BASE_URL=%s\n' "${public_base_url}" >> "${GITHUB_ENV}"
 
       - name: Validate production environment
         run: |
