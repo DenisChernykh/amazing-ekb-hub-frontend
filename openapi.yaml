@@ -80,14 +80,14 @@ components:
     AuthLoginRequest:
       summary: Вход по email и паролю
       value:
-        email: admin@amazing-ekb.ru
-        password: supersecret123
+        email: user@example.test
+        password: <user-password>
 
     AuthMeResponse:
       summary: Профиль текущего пользователя
       value:
         id: user_admin_001
-        email: admin@amazing-ekb.ru
+        email: user@example.test
         role: admin
 
     PlaceSummary:
@@ -146,7 +146,7 @@ components:
           title: Обзор комплекса и советы по посещению
           publishedAt: '2026-03-20T10:30:00.000Z'
           durationSec: null
-          url: https://t.me/amazing_ekb/321
+          url: https://social.example.test/amazing/321
           redirectUrl: /v1/materials/material_telegram_001/go
         counters:
           dzen: 12
@@ -227,7 +227,7 @@ components:
         title: Обзор комплекса и советы по посещению
         publishedAt: '2026-03-20T10:30:00.000Z'
         durationSec: null
-        url: https://t.me/amazing_ekb/321
+        url: https://social.example.test/amazing/321
         redirectUrl: /v1/materials/material_telegram_001/go
 
     MaterialListResponse:
@@ -241,7 +241,7 @@ components:
             title: Обзор комплекса и советы по посещению
             publishedAt: '2026-03-20T10:30:00.000Z'
             durationSec: null
-            url: https://t.me/amazing_ekb/321
+            url: https://social.example.test/amazing/321
             redirectUrl: /v1/materials/material_telegram_001/go
           - id: material_dzen_002
             placeId: place_ekb_001
@@ -250,7 +250,7 @@ components:
             title: Видеообзор термального комплекса
             publishedAt: '2026-03-22T09:00:00.000Z'
             durationSec: 183
-            url: https://dzen.ru/video/watch/abcdef
+            url: https://video.example.test/watch/abcdef
             redirectUrl: /v1/materials/material_dzen_002/go
 
     ValidationError:
@@ -454,12 +454,12 @@ components:
           type: string
           format: email
           description: Email пользователя.
-          example: admin@amazing-ekb.ru
+          example: user@example.test
         password:
           type: string
           minLength: 8
           description: Пароль пользователя.
-          example: supersecret123
+          example: <user-password>
 
     AuthMeResponse:
       type: object
@@ -474,7 +474,7 @@ components:
           type: string
           format: email
           description: Email пользователя.
-          example: admin@amazing-ekb.ru
+          example: user@example.test
         role:
           $ref: '#/components/schemas/Role'
 
@@ -576,7 +576,7 @@ components:
           type: string
           format: uri
           description: Публичная ссылка на материал. Допускаются только абсолютные http/https URL.
-          example: https://t.me/amazing_ekb/321
+          example: https://social.example.test/amazing/321
         redirectUrl:
           type: string
           nullable: true
@@ -745,7 +745,7 @@ components:
           type: string
           format: uri
           description: Публичная ссылка на материал. Допускаются только абсолютные http/https URL.
-          example: https://t.me/amazing_ekb/321
+          example: https://social.example.test/amazing/321
 
     UpdateMaterialRequest:
       type: object
@@ -773,7 +773,7 @@ components:
           type: string
           format: uri
           description: Новая публичная ссылка на материал. Допускаются только абсолютные http/https URL.
-          example: https://t.me/amazing_ekb/400
+          example: https://social.example.test/amazing/400
 
     SetPinnedMaterialRequest:
       type: object
@@ -1449,7 +1449,7 @@ paths:
                   title: Обзор комплекса и советы по посещению
                   publishedAt: '2026-03-20T10:30:00.000Z'
                   durationSec: null
-                  url: https://t.me/amazing_ekb/321
+                  url: https://social.example.test/amazing/321
       responses:
         '201':
           description: Материал успешно создан.
@@ -1495,7 +1495,7 @@ paths:
                   title: Обновлённый видеообзор комплекса
                   publishedAt: '2026-03-22T09:00:00.000Z'
                   durationSec: 240
-                  url: https://dzen.ru/video/watch/abcdef
+                  url: https://video.example.test/watch/abcdef
       responses:
         '200':
           description: Материал успешно обновлён.

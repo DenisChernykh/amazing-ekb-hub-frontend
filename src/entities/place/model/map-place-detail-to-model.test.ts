@@ -3,7 +3,7 @@ import type { PlaceDetail } from '@/shared/api/generated/model/placeDetail';
 import { describe, expect, it } from 'vitest';
 import { mapPlaceDetailToModel } from './map-place-detail-to-model';
 
-const DIRECT_DZEN_URL = 'https://dzen.ru/video/aquacity-start';
+const DIRECT_DZEN_URL = 'https://video.example.test/video/aquacity-start';
 const DZEN_REDIRECT_URL = '/v1/materials/material_dzen_001/go';
 
 const BASE_PLACE_DETAIL: PlaceDetail = {
@@ -50,7 +50,7 @@ describe('mapPlaceDetailToModel', () => {
       dzen: [
         {
           ...BASE_DZEN_MATERIAL,
-          redirectUrl: '/out?url=https%3A%2F%2Fdzen.ru%2Fvideo%2Faquacity-start',
+          redirectUrl: '/out?url=https%3A%2F%2Fvideo.example.test%2Fvideo%2Faquacity-start',
         },
       ],
     });
