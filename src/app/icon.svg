@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Стрельчук в Екатеринбурге">
+  <rect width="64" height="64" rx="16" fill="#fffaf4" />
+  <path
+    fill="none"
+    stroke="#237a76"
+    stroke-linecap="round"
+    stroke-width="9"
+    d="M45 19a18 18 0 1 0 0 26"
+  />
+  <path
+    fill="none"
+    stroke="#d88737"
+    stroke-linecap="round"
+    stroke-width="5"
+    d="M39 24c-8 2-13 7-14 15"
+  />
+  <circle cx="44" cy="43" r="8" fill="#237a76" />
+  <circle cx="44" cy="43" r="3" fill="#fffaf4" />
+</svg>
