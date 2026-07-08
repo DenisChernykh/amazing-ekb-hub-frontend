@@ -6,7 +6,12 @@ const BASE_PLACE_SUMMARY = {
   title: 'Baden-Baden Uktus',
   summary: 'Thermal complex with spa zone.',
   tags: ['spa'],
-  category: 'spa' as const,
+  category: {
+    id: 'category_spa',
+    slug: 'spa',
+    title: 'SPA',
+    badgeBackgroundColor: '#faf0ed',
+  },
   status: 'active' as const,
   popularityWeight: 95,
   coverImageUrl: '/v1/places/place_ekb_001/photo',
@@ -50,6 +55,15 @@ describe('mapPlaceSummaryToCardModel', () => {
       dzen: 0,
       telegram: 2,
       instagram: 0,
+    });
+  });
+
+  it('keeps backend category object for dynamic badges and filters', () => {
+    expect(mapPlaceSummaryToCardModel(BASE_PLACE_SUMMARY).category).toEqual({
+      id: 'category_spa',
+      slug: 'spa',
+      title: 'SPA',
+      badgeBackgroundColor: '#faf0ed',
     });
   });
 });

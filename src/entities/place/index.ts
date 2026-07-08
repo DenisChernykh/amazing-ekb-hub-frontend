@@ -14,7 +14,6 @@ export {
   getPlatformDisplay,
 } from './model/place-display';
 export {
-  PLACE_CATEGORIES,
   PLACE_PLATFORMS,
   type PlaceCardModel,
   type PlaceCategory,

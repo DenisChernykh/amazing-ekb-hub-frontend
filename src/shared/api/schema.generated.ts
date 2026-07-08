@@ -124,6 +124,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/categories': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List place categories
+     * @description Возвращает публичный справочник категорий мест для фильтров и бейджей.
+     */
+    get: operations['listPlaceCategories'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/places': {
     parameters: {
       query?: never;
@@ -268,6 +288,58 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/admin/categories': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List admin place categories
+     * @description Возвращает административный справочник категорий мест.
+     */
+    get: operations['listAdminPlaceCategories'];
+    put?: never;
+    /**
+     * Create place category
+     * @description Создает категорию места. Операция доступна только администратору.
+     */
+    post: operations['createPlaceCategory'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/categories/{categoryId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get admin place category
+     * @description Возвращает категорию места по идентификатору.
+     */
+    get: operations['getAdminPlaceCategory'];
+    put?: never;
+    post?: never;
+    /**
+     * Delete place category
+     * @description Удаляет категорию места, если она не используется местами.
+     */
+    delete: operations['deletePlaceCategory'];
+    options?: never;
+    head?: never;
+    /**
+     * Update place category
+     * @description Частично обновляет категорию места.
+     */
+    patch: operations['updatePlaceCategory'];
+    trace?: never;
+  };
   '/admin/places': {
     parameters: {
       query?: never;
@@ -356,6 +428,154 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/admin/content-sources': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List admin content sources
+     * @description Возвращает до 100 пользовательских content sources. Источник — это управляемый канал/ресурс пользователя, а не случайная внешняя ссылка.
+     */
+    get: operations['listContentSources'];
+    put?: never;
+    /**
+     * Create content source
+     * @description Создает пользовательский content source для будущих импортов материалов.
+     */
+    post: operations['createContentSource'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/content-sources/{sourceId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update content source
+     * @description Частично обновляет content source. Platform и import cursor-поля в этом endpoint не изменяются.
+     */
+    patch: operations['updateContentSource'];
+    trace?: never;
+  };
+  '/admin/content-sources/{sourceId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update content source status
+     * @description Переключает content source между `active` и `disabled` без удаления записи.
+     */
+    patch: operations['updateContentSourceStatus'];
+    trace?: never;
+  };
+  '/admin/import-runs': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List import runs
+     * @description Возвращает до 100 диагностических записей попыток импорта материалов.
+     */
+    get: operations['listImportRuns'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/import-runs/{runId}/events': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Stream import run updates
+     * @description Открывает Server-Sent Events stream для одного import run. Stream сразу отправляет initial snapshot текущего `ImportRun`, затем runtime-обновления `import-run.updated` при изменении статуса или счетчиков.
+     *
+     *     Если подписка не может быть подготовлена, NestJS SSE handler отправляет `event: error` и закрывает stream.
+     *
+     *     БД и `GET /admin/import-runs` остаются источником истины и fallback для refresh/reconnect; in-memory SSE доставляет только обновления текущего backend process.
+     */
+    get: operations['streamImportRunEvents'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/content-sources/{sourceId}/imports/telegram': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Import Telegram channel posts
+     * @description Создает durable queued one-click Telegram import/backfill run для active Telegram content source. HTTP не ждет GramJS/Telegram processing; worker позже переведет run в `running`, обработает до 20 внутренних batch-ов по `limit` логических постов, сохраняя cursor после каждого успешного непустого batch-а, и остановится при исчерпании истории, safety cap или final failure. Fresh active `queued/running` run того же source возвращает `409 Conflict`; stale `queued/running` runs старше консервативного timeout закрываются как `failed` перед созданием новой queued попытки.
+     */
+    post: operations['importTelegramChannel'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/materials': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List admin material library
+     * @description Возвращает страницу материалов общей библиотеки. Если передать `placeId`, каждый item содержит статус связи с этим местом.
+     */
+    get: operations['listAdminMaterialLibrary'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/admin/places/{placeId}/materials': {
     parameters: {
       query?: never;
@@ -380,6 +600,34 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/admin/places/{placeId}/materials/{materialId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Link material to place
+     * @description Создает или реактивирует связь существующего библиотечного материала с местом. Повторный active-link запрос идемпотентен.
+     */
+    put: operations['linkPlaceMaterial'];
+    post?: never;
+    /**
+     * Hide place-material link
+     * @description Скрывает активную связь материала с местом без удаления материала из общей библиотеки.
+     */
+    delete: operations['hidePlaceMaterialLink'];
+    options?: never;
+    head?: never;
+    /**
+     * Update place-material link
+     * @description Обновляет активную связь материала с местом: закрепление и ручной порядок отображения.
+     */
+    patch: operations['updatePlaceMaterialLink'];
+    trace?: never;
+  };
   '/admin/materials/{materialId}': {
     parameters: {
       query?: never;
@@ -398,6 +646,26 @@ export interface paths {
      * @description Частично обновляет материал по идентификатору. Операция доступна только администратору.
      */
     patch: operations['updateMaterial'];
+    trace?: never;
+  };
+  '/admin/materials/{materialId}/admin-status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update material admin status
+     * @description Обновляет review-статус материала в административной библиотеке. Статус не удаляет материал и сам по себе не меняет публичную видимость уже существующих `PlaceMaterial` связей.
+     */
+    patch: operations['updateMaterialAdminStatus'];
     trace?: never;
   };
   '/admin/places/{placeId}/pinned-material': {
@@ -434,12 +702,51 @@ export interface components {
      * @enum {string}
      */
     Role: 'admin' | 'user';
-    /**
-     * @description Категория места в каталоге.
-     * @example spa
-     * @enum {string}
-     */
-    PlaceCategory: 'pools' | 'spa' | 'cafe' | 'hotels' | 'workshops';
+    /** @description Публичная категория места для фильтров и бейджей. */
+    PlaceCategory: {
+      /**
+       * @description Идентификатор категории.
+       * @example category_spa
+       */
+      id: string;
+      /**
+       * @description Человекочитаемый slug категории.
+       * @example spa
+       */
+      slug: string;
+      /**
+       * @description Название категории для интерфейса.
+       * @example SPA
+       */
+      title: string;
+      /**
+       * @description Цвет фона бейджа категории в HEX-формате.
+       * @example #faf0ed
+       */
+      badgeBackgroundColor: string;
+    };
+    AdminPlaceCategory: components['schemas']['PlaceCategory'] & {
+      /**
+       * Format: date-time
+       * @description Время создания категории.
+       * @example 2026-07-03T10:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Время последнего обновления категории.
+       * @example 2026-07-03T10:00:00.000Z
+       */
+      updatedAt: string;
+    };
+    /** @description Публичный список категорий мест. */
+    PlaceCategoryListResponse: {
+      items: components['schemas']['PlaceCategory'][];
+    };
+    /** @description Административный список категорий мест. */
+    AdminPlaceCategoryListResponse: {
+      items: components['schemas']['AdminPlaceCategory'][];
+    };
     /**
      * @description Статус публикации места.
      * @example active
@@ -458,6 +765,36 @@ export interface components {
      * @enum {string}
      */
     MaterialType: 'post' | 'reel' | 'video';
+    /**
+     * @description Review-статус материала в административной библиотеке.
+     * @example approved
+     * @enum {string}
+     */
+    MaterialAdminStatus: 'pending' | 'approved' | 'rejected' | 'archived';
+    /**
+     * @description Статус связи библиотечного материала с конкретным местом.
+     * @example active
+     * @enum {string}
+     */
+    PlaceMaterialLinkStatus: 'active' | 'hidden';
+    /**
+     * @description Платформа пользовательского источника контента. Этот enum отделен от material `Platform`, чтобы будущие источники не меняли публичные счетчики материалов.
+     * @example telegram
+     * @enum {string}
+     */
+    ContentSourcePlatform: 'telegram' | 'dzen' | 'instagram' | 'tiktok' | 'vk' | 'pinterest';
+    /**
+     * @description Статус пользовательского content source.
+     * @example active
+     * @enum {string}
+     */
+    ContentSourceStatus: 'active' | 'disabled';
+    /**
+     * @description Статус попытки импорта материалов.
+     * @example completed
+     * @enum {string}
+     */
+    ImportRunStatus: 'queued' | 'running' | 'completed' | 'failed';
     /** @description Стандартный JSON body, который NestJS возвращает для `HttpException`. */
     NestErrorResponse: {
       /**
@@ -481,12 +818,12 @@ export interface components {
       /**
        * Format: email
        * @description Email пользователя.
-       * @example user@example.test
+       * @example admin@example.test
        */
       email: string;
       /**
-       * @description Пароль пользователя.
-       * @example <user-password>
+       * @description Пароль пользователя. Login не раскрывает password policy и возвращает generic credentials error для неверного пароля любой длины.
+       * @example replace_me_password
        */
       password: string;
     };
@@ -500,7 +837,7 @@ export interface components {
       /**
        * Format: email
        * @description Email пользователя.
-       * @example user@example.test
+       * @example admin@example.test
        */
       email: string;
       role: components['schemas']['Role'];
@@ -545,7 +882,43 @@ export interface components {
       coverImageUrl: string | null;
     };
     /** @description Краткая публичная карточка места со счетчиками материалов по платформам. */
-    PublicPlaceSummary: components['schemas']['PlaceSummary'] & {
+    PublicPlaceSummary: {
+      /**
+       * @description Идентификатор места.
+       * @example place_ekb_001
+       */
+      id: string;
+      /**
+       * @description Название места.
+       * @example Bаден-Баден Уктус
+       */
+      title: string;
+      /**
+       * @description Короткое описание для каталога.
+       * @example Термальный комплекс с открытыми бассейнами и SPA-зоной.
+       */
+      summary: string;
+      /**
+       * @description Набор тегов для поиска и фильтрации.
+       * @example [
+       *       "термы",
+       *       "spa",
+       *       "бассейн"
+       *     ]
+       */
+      tags: string[];
+      category: components['schemas']['PlaceCategory'];
+      status: components['schemas']['PlaceStatus'];
+      /**
+       * @description Вес популярности для сортировки.
+       * @example 95
+       */
+      popularityWeight: number;
+      /**
+       * @description Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.
+       * @example /v1/places/place_ekb_001/photo
+       */
+      coverImageUrl: string | null;
       /** @description Количество материалов по платформам. */
       counters: {
         /** @example 12 */
@@ -556,7 +929,7 @@ export interface components {
         instagram: number;
       };
     };
-    /** @description Материал, связанный с местом. */
+    /** @description Административный материал, связанный с местом. Содержит исходную внешнюю ссылку для внутренних сценариев управления. */
     Material: {
       /**
        * @description Идентификатор материала.
@@ -571,14 +944,14 @@ export interface components {
       platform: components['schemas']['Platform'];
       type: components['schemas']['MaterialType'];
       /**
-       * @description Заголовок материала.
-       * @example Обзор комплекса и советы по посещению
+       * @description Заголовок материала. Для импортированных материалов может быть `null`, если источник не дает надежный ручной title.
+       * @example null
        */
-      title: string;
+      title: string | null;
       /**
-       * Format: date-time
-       * @description Дата и время публикации материала.
-       * @example 2026-03-20T10:30:00.000Z
+       * Format: date
+       * @description Календарная дата публикации материала в формате `YYYY-MM-DD`.
+       * @example 2026-03-20
        */
       publishedAt: string;
       /**
@@ -588,21 +961,339 @@ export interface components {
       durationSec: number | null;
       /**
        * Format: uri
-       * @description Публичная ссылка на материал. Допускаются только абсолютные http/https URL.
-       * @example https://social.example.test/amazing/321
+       * @description Исходная внешняя ссылка на материал. Допускаются только абсолютные http/https URL.
+       * @example https://t.me/amazing_ekb/321
        */
       url: string;
+    };
+    /** @description Публичный материал, связанный с местом. Исходный внешний URL не отдается; публичные клиенты должны использовать `redirectUrl`. */
+    PublicMaterial: {
+      /**
+       * @description Идентификатор материала.
+       * @example material_telegram_001
+       */
+      id: string;
+      /**
+       * @description Идентификатор места, к которому относится материал.
+       * @example place_ekb_001
+       */
+      placeId: string;
+      platform: components['schemas']['Platform'];
+      type: components['schemas']['MaterialType'];
+      /**
+       * @description Заголовок материала. Для импортированных материалов может быть `null`, если источник не дает надежный ручной title.
+       * @example null
+       */
+      title: string | null;
+      /**
+       * Format: date
+       * @description Календарная дата публикации материала в формате `YYYY-MM-DD`.
+       * @example 2026-03-20
+       */
+      publishedAt: string;
+      /**
+       * @description Длительность в секундах для видеоформатов.
+       * @example 183
+       */
+      durationSec: number | null;
       /**
        * @description Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.
        * @example /v1/materials/material_telegram_001/go
        */
-      redirectUrl?: string | null;
+      redirectUrl: string | null;
     };
-    /** @description Детальная карточка места с pinned material и счетчиками по платформам. */
-    PlaceDetail: components['schemas']['PublicPlaceSummary'] & {
-      /** @description Закреплённый материал места, если он назначен. */
-      pinnedMaterial: components['schemas']['Material'] | null;
+    /** @description Краткое представление content source для imported material. */
+    MaterialContentSourceSummary: {
+      /**
+       * @description Идентификатор content source.
+       * @example source_telegram_001
+       */
+      id: string;
+      platform: components['schemas']['ContentSourcePlatform'];
+      /**
+       * @description Административное имя source.
+       * @example Amazing EKB Telegram
+       */
+      displayName: string;
+      /**
+       * Format: uri
+       * @description URL source.
+       * @example https://t.me/amazing_ekb
+       */
+      url: string;
     };
+    /** @description Материал из общей библиотеки для административного интерфейса. */
+    AdminMaterialLibraryItem: {
+      /**
+       * @description Идентификатор материала.
+       * @example material_telegram_001
+       */
+      id: string;
+      platform: components['schemas']['Platform'];
+      type: components['schemas']['MaterialType'];
+      /**
+       * @description Заголовок материала. Для импортированных материалов может быть `null`.
+       * @example null
+       */
+      title: string | null;
+      /**
+       * Format: date
+       * @description Календарная дата публикации материала в формате `YYYY-MM-DD`.
+       * @example 2026-03-20
+       */
+      publishedAt: string;
+      /**
+       * @description Длительность в секундах для видеоформатов.
+       * @example 183
+       */
+      durationSec: number | null;
+      /**
+       * Format: uri
+       * @description Публичная ссылка на материал.
+       * @example https://t.me/amazing_ekb/321
+       */
+      url: string;
+      /** @description Content source, из которого импортирован материал. Для manual materials возвращается `null`. */
+      source: components['schemas']['MaterialContentSourceSummary'] | null;
+      /**
+       * @description Платформенный id материала внутри source, например Telegram message id.
+       * @example 321
+       */
+      externalId: string | null;
+      /**
+       * @description Полный текст импортированного материала, если он есть.
+       * @example Пост из Telegram-канала Amazing EKB
+       */
+      text: string | null;
+      /**
+       * @description Короткий текстовый preview для админского списка.
+       * @example Пост из Telegram-канала Amazing EKB
+       */
+      excerpt: string | null;
+      /**
+       * @description Нормализованный тип media из импортера без скачивания бинарных файлов.
+       * @example photo
+       */
+      mediaKind: string | null;
+      /**
+       * Format: uri
+       * @description URL preview media, если адаптер смог безопасно его получить.
+       * @example null
+       */
+      mediaPreviewUrl: string | null;
+      adminStatus: components['schemas']['MaterialAdminStatus'];
+      /**
+       * @description Есть ли у материала хотя бы одна связь `PlaceMaterial` с любым местом, включая hidden-связи.
+       * @example false
+       */
+      linked: boolean;
+      /** @description Статус связи с `placeId` из query. Если `placeId` не передан или связи нет, возвращается `null`. */
+      placeLink: components['schemas']['PlaceMaterialLinkStatus'] | null;
+    };
+    /** @description Пагинированный административный список материалов общей библиотеки. */
+    AdminMaterialLibraryListResponse: {
+      /** @description Материалы библиотеки на текущей странице. */
+      items: components['schemas']['AdminMaterialLibraryItem'][];
+      /**
+       * @description Общее количество материалов, подходящих под фильтры.
+       * @example 42
+       */
+      total: number;
+      /**
+       * @description Текущая страница.
+       * @example 1
+       */
+      page: number;
+      /**
+       * @description Размер страницы.
+       * @example 100
+       */
+      pageSize: number;
+    };
+    /** @description Пользовательский управляемый источник контента: Telegram-канал, Dzen-канал/профиль или будущий platform resource. */
+    ContentSource: {
+      /**
+       * @description Идентификатор content source.
+       * @example source_telegram_001
+       */
+      id: string;
+      platform: components['schemas']['ContentSourcePlatform'];
+      /**
+       * @description Административное имя источника, отдельное от заголовков материалов.
+       * @example Amazing EKB Telegram
+       */
+      displayName: string;
+      /**
+       * Format: uri
+       * @description Публичный URL управляемого источника. Допускаются только абсолютные http/https URL.
+       * @example https://t.me/amazing_ekb
+       */
+      url: string;
+      /**
+       * @description Платформенный идентификатор источника, если известен.
+       * @example 123456
+       */
+      externalId: string | null;
+      /**
+       * @description Человекочитаемый handle источника, если он есть.
+       * @example amazing_ekb
+       */
+      handle: string | null;
+      /**
+       * @description Дополнительный channel id для платформ, где он отличается от externalId/handle.
+       * @example null
+       */
+      channelId: string | null;
+      status: components['schemas']['ContentSourceStatus'];
+      /**
+       * Format: date-time
+       * @description Время последнего успешного import batch.
+       * @example null
+       */
+      lastImportedAt: string | null;
+      /**
+       * @description JSON cursor последнего Telegram import batch или cursor будущего платформенного импортера.
+       * @example null
+       */
+      lastCursor: string | null;
+      /**
+       * Format: date-time
+       * @description Время создания записи.
+       * @example 2026-05-20T10:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Время последнего обновления записи.
+       * @example 2026-05-20T10:00:00.000Z
+       */
+      updatedAt: string;
+    };
+    /** @description Ограниченный административный список пользовательских content sources. */
+    ContentSourceListResponse: {
+      /** @description Content sources в стабильном порядке. */
+      items: components['schemas']['ContentSource'][];
+    };
+    /** @description Диагностическая запись одной попытки импорта материалов. */
+    ImportRun: {
+      /**
+       * @description Идентификатор import run.
+       * @example import_run_001
+       */
+      id: string;
+      /**
+       * @description Идентификатор content source, для которого выполнялся импорт.
+       * @example source_telegram_001
+       */
+      sourceId: string;
+      status: components['schemas']['ImportRunStatus'];
+      /**
+       * Format: date-time
+       * @description Время начала фактической обработки. Для queued run может быть `null`.
+       * @example 2026-05-26T05:00:00.000Z
+       */
+      startedAt: string | null;
+      /**
+       * Format: date-time
+       * @description Время завершения успешной или failed попытки.
+       * @example 2026-05-26T05:01:00.000Z
+       */
+      finishedAt: string | null;
+      /**
+       * @description Сколько материалов адаптер обнаружил во внешнем источнике.
+       * @example 7
+       */
+      foundCount: number;
+      /**
+       * @description Сколько новых материалов создано в библиотеке.
+       * @example 2
+       */
+      createdCount: number;
+      /**
+       * @description Сколько существующих материалов обновлено.
+       * @example 4
+       */
+      updatedCount: number;
+      /**
+       * @description Сколько найденных материалов пропущено как дубликаты.
+       * @example 1
+       */
+      skippedDuplicateCount: number;
+      /**
+       * @description Безопасная однострочная диагностика failed run без stack trace и secret-значений.
+       * @example null
+       */
+      errorMessage: string | null;
+      /**
+       * Format: date-time
+       * @description Время создания записи.
+       * @example 2026-05-26T05:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Время последнего обновления записи.
+       * @example 2026-05-26T05:01:00.000Z
+       */
+      updatedAt: string;
+    };
+    /** @description Ограниченный административный список попыток импорта. */
+    ImportRunListResponse: {
+      /** @description Import runs в порядке от новых к старым. */
+      items: components['schemas']['ImportRun'][];
+    };
+    /** @description Детальная карточка места с публично-безопасным pinned material без исходного внешнего URL и счетчиками по платформам. */
+    PlaceDetail: {
+      /**
+       * @description Идентификатор места.
+       * @example place_ekb_001
+       */
+      id: string;
+      /**
+       * @description Название места.
+       * @example Bаден-Баден Уктус
+       */
+      title: string;
+      /**
+       * @description Короткое описание для каталога.
+       * @example Термальный комплекс с открытыми бассейнами и SPA-зоной.
+       */
+      summary: string;
+      /**
+       * @description Набор тегов для поиска и фильтрации.
+       * @example [
+       *       "термы",
+       *       "spa",
+       *       "бассейн"
+       *     ]
+       */
+      tags: string[];
+      category: components['schemas']['PlaceCategory'];
+      status: components['schemas']['PlaceStatus'];
+      /**
+       * @description Вес популярности для сортировки.
+       * @example 95
+       */
+      popularityWeight: number;
+      /**
+       * @description Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.
+       * @example /v1/places/place_ekb_001/photo
+       */
+      coverImageUrl: string | null;
+      /** @description Количество материалов по платформам. */
+      counters: {
+        /** @example 12 */
+        dzen: number;
+        /** @example 7 */
+        telegram: number;
+        /** @example 3 */
+        instagram: number;
+      };
+      /** @description Закреплённый материал места, если он назначен. Исходный внешний URL не отдается; клиенты должны использовать только `redirectUrl`, когда он доступен. */
+      pinnedMaterial: components['schemas']['PublicMaterial'] | null;
+    };
+    /** @description Детальная карточка места для администратора. Shape совпадает с `PlaceDetail`: исходный внешний URL закрепленного материала не отдается. */
+    AdminPlaceDetail: components['schemas']['PlaceDetail'];
     /** @description Пагинированный список мест. */
     PlaceListResponse: {
       /** @description Элементы текущей страницы. */
@@ -643,10 +1334,10 @@ export interface components {
        */
       pageSize: number;
     };
-    /** @description Ограниченный список материалов места. */
+    /** @description Ограниченный список материалов места без исходного внешнего URL. */
     MaterialListResponse: {
       /** @description Материалы места в стабильном порядке отображения. */
-      items: components['schemas']['Material'][];
+      items: components['schemas']['PublicMaterial'][];
     };
     /** @description Payload создания нового места. */
     CreatePlaceRequest: {
@@ -669,7 +1360,11 @@ export interface components {
        *     ]
        */
       tags?: string[];
-      category: components['schemas']['PlaceCategory'];
+      /**
+       * @description Идентификатор существующей категории места.
+       * @example category_spa
+       */
+      categoryId: string;
       /**
        * @description Начальный вес популярности. Если поле не передано, backend сохранит 0.
        * @example 95
@@ -696,16 +1391,119 @@ export interface components {
        *     ]
        */
       tags?: string[];
-      category?: components['schemas']['PlaceCategory'];
       /**
-       * @description Обновлённый вес популярности.
+       * @description Новый идентификатор существующей категории места.
+       * @example category_spa
+       */
+      categoryId?: string;
+      /**
+       * @description Новый вес популярности.
        * @example 99
        */
       popularityWeight?: number;
     };
+    /** @description Payload создания категории места. */
+    CreatePlaceCategoryRequest: {
+      /**
+       * @description Необязательный ручной slug категории из lowercase букв, цифр и одиночных дефисов. Если поле отсутствует, backend генерирует slug из `title`.
+       * @example family-spa
+       */
+      slug?: string;
+      /**
+       * @description Название категории.
+       * @example Family SPA
+       */
+      title: string;
+      /**
+       * @description Цвет фона бейджа. Backend сохраняет значение в lowercase.
+       * @example #FAF0ED
+       */
+      badgeBackgroundColor: string;
+    };
+    /** @description Payload частичного обновления категории места. */
+    UpdatePlaceCategoryRequest: {
+      /**
+       * @description Новый slug категории.
+       * @example family-spa
+       */
+      slug?: string;
+      /**
+       * @description Новое название категории.
+       * @example Family SPA
+       */
+      title?: string;
+      /**
+       * @description Новый цвет фона бейджа. Backend сохраняет значение в lowercase.
+       * @example #DBEAFE
+       */
+      badgeBackgroundColor?: string;
+    };
     /** @description Payload изменения статуса места. */
     UpdatePlaceStatusRequest: {
       status: components['schemas']['PlaceStatus'];
+    };
+    /** @description Payload создания пользовательского content source. */
+    CreateContentSourceRequest: {
+      platform: components['schemas']['ContentSourcePlatform'];
+      /**
+       * @description Административное имя источника.
+       * @example Amazing EKB Telegram
+       */
+      displayName: string;
+      /**
+       * Format: uri
+       * @description Публичный URL источника. Допускаются только абсолютные http/https URL.
+       * @example https://t.me/amazing_ekb
+       */
+      url: string;
+      /**
+       * @description Платформенный идентификатор источника, если известен.
+       * @example 123456
+       */
+      externalId?: string | null;
+      /**
+       * @description Человекочитаемый handle источника, если он есть.
+       * @example amazing_ekb
+       */
+      handle?: string | null;
+      /**
+       * @description Дополнительный channel id для платформ, где он отличается от externalId/handle.
+       * @example null
+       */
+      channelId?: string | null;
+    };
+    /** @description Payload частичного обновления content source. `platform`, `lastImportedAt` и `lastCursor` здесь не редактируются. После старта импортов identity-поля `url`, `externalId`, `handle` и `channelId` заблокированы, чтобы не смешивать cursor и imported-material dedupe разных источников. */
+    UpdateContentSourceRequest: {
+      /**
+       * @description Новое административное имя источника.
+       * @example Amazing EKB Telegram Updated
+       */
+      displayName?: string;
+      /**
+       * Format: uri
+       * @description Новый публичный URL источника. Допускаются только абсолютные http/https URL.
+       * @example https://t.me/amazing_ekb
+       */
+      url?: string;
+      /**
+       * @description Новый платформенный идентификатор или `null`, чтобы очистить поле.
+       * @example null
+       */
+      externalId?: string | null;
+      /**
+       * @description Новый handle или `null`, чтобы очистить поле.
+       * @example amazing_ekb
+       */
+      handle?: string | null;
+      /**
+       * @description Новый channel id или `null`, чтобы очистить поле.
+       * @example null
+       */
+      channelId?: string | null;
+    };
+    /** @description Payload переключения статуса content source без удаления записи. */
+    UpdateContentSourceStatusRequest: {
+      status: components['schemas']['ContentSourceStatus'];
     };
     /** @description Payload создания нового материала для места. */
     CreateMaterialRequest: {
@@ -717,9 +1515,9 @@ export interface components {
        */
       title: string;
       /**
-       * Format: date-time
-       * @description Момент публикации материала.
-       * @example 2026-03-20T10:30:00.000Z
+       * Format: date
+       * @description Календарная дата публикации материала в формате `YYYY-MM-DD`.
+       * @example 2026-03-20
        */
       publishedAt: string;
       /**
@@ -730,7 +1528,7 @@ export interface components {
       /**
        * Format: uri
        * @description Публичная ссылка на материал. Допускаются только абсолютные http/https URL.
-       * @example https://social.example.test/amazing/321
+       * @example https://t.me/amazing_ekb/321
        */
       url: string;
     };
@@ -744,9 +1542,9 @@ export interface components {
        */
       title?: string;
       /**
-       * Format: date-time
-       * @description Новая дата публикации.
-       * @example 2026-03-22T09:00:00.000Z
+       * Format: date
+       * @description Новая календарная дата публикации в формате `YYYY-MM-DD`.
+       * @example 2026-03-22
        */
       publishedAt?: string;
       /**
@@ -757,9 +1555,26 @@ export interface components {
       /**
        * Format: uri
        * @description Новая публичная ссылка на материал. Допускаются только абсолютные http/https URL.
-       * @example https://social.example.test/amazing/400
+       * @example https://t.me/amazing_ekb/400
        */
       url?: string;
+    };
+    /** @description Payload обновления review-статуса материала в административной библиотеке. */
+    UpdateMaterialAdminStatusRequest: {
+      adminStatus: components['schemas']['MaterialAdminStatus'];
+    };
+    /** @description Payload обновления активной связи материала с местом. */
+    UpdatePlaceMaterialLinkRequest: {
+      /**
+       * @description Нужно ли закрепить материал в блоке “Начни отсюда”. Если `true`, backend снимет закрепление с других материалов этого места.
+       * @example true
+       */
+      isPinned?: boolean;
+      /**
+       * @description Ручной порядок отображения в списках материалов места.
+       * @example 10
+       */
+      sortOrder?: number;
     };
     /** @description Payload назначения закреплённого материала для места. */
     SetPinnedMaterialRequest: {
@@ -848,8 +1663,53 @@ export interface components {
         'application/json': components['schemas']['NestErrorResponse'];
       };
     };
+    /** @description Указанная категория не найдена. */
+    CategoryNotFound: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['NestErrorResponse'];
+      };
+    };
+    /** @description Категория конфликтует с существующей записью или используется местами. */
+    CategoryConflict: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['NestErrorResponse'];
+      };
+    };
     /** @description Указанный материал не найден. */
     MaterialNotFound: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['NestErrorResponse'];
+      };
+    };
+    /** @description Указанный content source не найден. */
+    ContentSourceNotFound: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['NestErrorResponse'];
+      };
+    };
+    /** @description Content source с такой platform/url уже существует или identity source уже нельзя менять после старта импортов. */
+    ContentSourceConflict: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['NestErrorResponse'];
+      };
+    };
+    /** @description Для этого content source уже есть active queued/running Telegram import run. */
+    TelegramImportAlreadyRunning: {
       headers: {
         [name: string]: unknown;
       };
@@ -874,10 +1734,20 @@ export interface components {
      */
     PlaceId: string;
     /**
+     * @description Идентификатор категории места.
+     * @example category_spa
+     */
+    CategoryId: string;
+    /**
      * @description Идентификатор материала.
      * @example material_telegram_001
      */
     MaterialId: string;
+    /**
+     * @description Идентификатор content source.
+     * @example source_telegram_001
+     */
+    ContentSourceId: string;
     /**
      * @description Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.
      * @example 1
@@ -1029,6 +1899,26 @@ export interface operations {
       401: components['responses']['Unauthorized'];
     };
   };
+  listPlaceCategories: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Список категорий мест. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceCategoryListResponse'];
+        };
+      };
+    };
+  };
   listPlaces: {
     parameters: {
       query?: {
@@ -1049,14 +1939,14 @@ export interface operations {
         search?: string;
         /**
          * @description Режим сортировки списка мест.
-         * @example popular
+         * @example title_asc
          */
-        sort?: 'popular';
+        sort?: 'popular' | 'title_asc';
         /**
-         * @description Фильтр по категории места.
-         * @example spa
+         * @description Фильтр по идентификатору категории места.
+         * @example category_spa
          */
-        category?: components['schemas']['PlaceCategory'];
+        categoryId?: string;
       };
       header?: never;
       path?: never;
@@ -1265,6 +2155,150 @@ export interface operations {
       401: components['responses']['Unauthorized'];
     };
   };
+  listAdminPlaceCategories: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Список категорий мест. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminPlaceCategoryListResponse'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
+  createPlaceCategory: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Данные новой категории. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreatePlaceCategoryRequest'];
+      };
+    };
+    responses: {
+      /** @description Категория создана. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminPlaceCategory'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      409: components['responses']['CategoryConflict'];
+    };
+  };
+  getAdminPlaceCategory: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор категории места.
+         * @example category_spa
+         */
+        categoryId: components['parameters']['CategoryId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Категория найдена. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminPlaceCategory'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['CategoryNotFound'];
+    };
+  };
+  deletePlaceCategory: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор категории места.
+         * @example category_spa
+         */
+        categoryId: components['parameters']['CategoryId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Категория удалена. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['CategoryNotFound'];
+      409: components['responses']['CategoryConflict'];
+    };
+  };
+  updatePlaceCategory: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор категории места.
+         * @example category_spa
+         */
+        categoryId: components['parameters']['CategoryId'];
+      };
+      cookie?: never;
+    };
+    /** @description Поля категории для обновления. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePlaceCategoryRequest'];
+      };
+    };
+    responses: {
+      /** @description Категория обновлена. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminPlaceCategory'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['CategoryNotFound'];
+      409: components['responses']['CategoryConflict'];
+    };
+  };
   listAdminPlaces: {
     parameters: {
       query?: {
@@ -1330,6 +2364,7 @@ export interface operations {
       400: components['responses']['ValidationError'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
+      404: components['responses']['CategoryNotFound'];
     };
   };
   getAdminPlaceDetail: {
@@ -1353,7 +2388,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceDetail'];
+          'application/json': components['schemas']['AdminPlaceDetail'];
         };
       };
       401: components['responses']['Unauthorized'];
@@ -1393,7 +2428,15 @@ export interface operations {
       400: components['responses']['ValidationError'];
       401: components['responses']['Unauthorized'];
       403: components['responses']['Forbidden'];
-      404: components['responses']['PlaceNotFound'];
+      /** @description Место или категория не найдены. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NestErrorResponse'];
+        };
+      };
     };
   };
   updatePlaceStatus: {
@@ -1458,6 +2501,303 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['PlaceSummary'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['PlaceNotFound'];
+    };
+  };
+  listContentSources: {
+    parameters: {
+      query?: {
+        /**
+         * @description Фильтр по платформе источника.
+         * @example telegram
+         */
+        platform?: components['schemas']['ContentSourcePlatform'];
+        /**
+         * @description Фильтр по статусу источника.
+         * @example active
+         */
+        status?: components['schemas']['ContentSourceStatus'];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Список content sources. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ContentSourceListResponse'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
+  createContentSource: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Данные нового content source. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateContentSourceRequest'];
+      };
+    };
+    responses: {
+      /** @description Content source создан. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ContentSource'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      409: components['responses']['ContentSourceConflict'];
+    };
+  };
+  updateContentSource: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор content source.
+         * @example source_telegram_001
+         */
+        sourceId: components['parameters']['ContentSourceId'];
+      };
+      cookie?: never;
+    };
+    /** @description Поля content source, которые нужно обновить. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateContentSourceRequest'];
+      };
+    };
+    responses: {
+      /** @description Content source обновлен. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ContentSource'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['ContentSourceNotFound'];
+      409: components['responses']['ContentSourceConflict'];
+    };
+  };
+  updateContentSourceStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор content source.
+         * @example source_telegram_001
+         */
+        sourceId: components['parameters']['ContentSourceId'];
+      };
+      cookie?: never;
+    };
+    /** @description Новый статус content source. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateContentSourceStatusRequest'];
+      };
+    };
+    responses: {
+      /** @description Статус content source обновлен. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ContentSource'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['ContentSourceNotFound'];
+    };
+  };
+  listImportRuns: {
+    parameters: {
+      query?: {
+        /**
+         * @description Фильтр по content source.
+         * @example source_telegram_001
+         */
+        sourceId?: string;
+        /**
+         * @description Фильтр по статусу import run.
+         * @example completed
+         */
+        status?: components['schemas']['ImportRunStatus'];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Список import runs. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportRunListResponse'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
+  streamImportRunEvents: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор import run.
+         * @example import_run_001
+         */
+        runId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Server-Sent Events stream. Каждое событие `import-run.updated` содержит JSON-serialized `ImportRun` в `data`; ошибка подготовки подписки приходит как SSE `error` event. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'text/event-stream': string;
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
+  importTelegramChannel: {
+    parameters: {
+      query?: {
+        /**
+         * @description Размер одного внутреннего batch-а в логических Telegram-постах; одиночный message считается одним постом, album/media group с общим groupedId тоже считается одним постом. Один queued run может обработать несколько batch-ов подряд и останавливается при исчерпании истории или safety cap 20 batch-ов.
+         * @example 50
+         */
+        limit?: number;
+      };
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор content source.
+         * @example source_telegram_001
+         */
+        sourceId: components['parameters']['ContentSourceId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Telegram import job поставлен в очередь; response содержит queued import run reference. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ImportRun'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['ContentSourceNotFound'];
+      409: components['responses']['TelegramImportAlreadyRunning'];
+      /** @description Import run создан, но job не удалось поставить в queue; run переведен в failed с безопасной диагностикой. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NestErrorResponse'];
+        };
+      };
+    };
+  };
+  listAdminMaterialLibrary: {
+    parameters: {
+      query?: {
+        /**
+         * @description Фильтр по платформе публикации материала.
+         * @example telegram
+         */
+        platform?: components['schemas']['Platform'];
+        /**
+         * @description Идентификатор места, для которого нужно вернуть статус связи `placeLink`.
+         * @example place_ekb_001
+         */
+        placeId?: string;
+        /**
+         * @description Фильтр по review-статусу материала. Для selector-а привязки обычно используется `approved`.
+         * @example approved
+         */
+        adminStatus?: components['schemas']['MaterialAdminStatus'];
+        /**
+         * @description Фильтр по глобальному наличию `PlaceMaterial` связи. `false` означает, что у материала нет ни одной связи с любым place, включая hidden.
+         * @example false
+         */
+        linked?: boolean;
+        /**
+         * @description Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.
+         * @example 1
+         */
+        page?: components['parameters']['Page'];
+        /**
+         * @description Размер страницы. Допустимый диапазон от `1` до `100`. По умолчанию `100`, чтобы сохранить прежний bounded list размер без явной пагинации.
+         * @example 100
+         */
+        pageSize?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Список материалов общей библиотеки. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminMaterialLibraryListResponse'];
         };
       };
       400: components['responses']['ValidationError'];
@@ -1537,6 +2877,136 @@ export interface operations {
       404: components['responses']['PlaceNotFound'];
     };
   };
+  linkPlaceMaterial: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+        /**
+         * @description Идентификатор материала.
+         * @example material_telegram_001
+         */
+        materialId: components['parameters']['MaterialId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Материал связан с местом. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Material'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description Место или материал не найдены. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NestErrorResponse'];
+        };
+      };
+    };
+  };
+  hidePlaceMaterialLink: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+        /**
+         * @description Идентификатор материала.
+         * @example material_telegram_001
+         */
+        materialId: components['parameters']['MaterialId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Связь скрыта, тело ответа отсутствует. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description Место, материал или активная связь не найдены. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NestErrorResponse'];
+        };
+      };
+    };
+  };
+  updatePlaceMaterialLink: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор места.
+         * @example place_ekb_001
+         */
+        placeId: components['parameters']['PlaceId'];
+        /**
+         * @description Идентификатор материала.
+         * @example material_telegram_001
+         */
+        materialId: components['parameters']['MaterialId'];
+      };
+      cookie?: never;
+    };
+    /** @description Поля связи, которые нужно обновить. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePlaceMaterialLinkRequest'];
+      };
+    };
+    responses: {
+      /** @description Связь материала с местом обновлена. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Material'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description Место, материал или активная связь не найдены. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NestErrorResponse'];
+        };
+      };
+    };
+  };
   updateMaterial: {
     parameters: {
       query?: never;
@@ -1572,6 +3042,41 @@ export interface operations {
       404: components['responses']['MaterialNotFound'];
     };
   };
+  updateMaterialAdminStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор материала.
+         * @example material_telegram_001
+         */
+        materialId: components['parameters']['MaterialId'];
+      };
+      cookie?: never;
+    };
+    /** @description Новый review-статус материала. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateMaterialAdminStatusRequest'];
+      };
+    };
+    responses: {
+      /** @description Review-статус материала обновлен. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminMaterialLibraryItem'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['MaterialNotFound'];
+    };
+  };
   clearPinnedMaterial: {
     parameters: {
       query?: never;
@@ -1593,7 +3098,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceDetail'];
+          'application/json': components['schemas']['AdminPlaceDetail'];
         };
       };
       401: components['responses']['Unauthorized'];
@@ -1635,7 +3140,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceDetail'];
+          'application/json': components['schemas']['AdminPlaceDetail'];
         };
       };
       /** @description Ошибка валидации или нарушение бизнес-правила. */

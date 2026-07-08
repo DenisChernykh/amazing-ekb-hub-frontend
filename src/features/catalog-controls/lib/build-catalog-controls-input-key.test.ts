@@ -6,12 +6,12 @@ describe('buildCatalogControlsInputKey', () => {
     expect(
       buildCatalogControlsInputKey({
         search: 'Хаятт',
-        category: 'hotels',
+        category: 'family-spa',
       }),
     ).not.toBe(
       buildCatalogControlsInputKey({
         search: 'Хаятт',
-        category: 'cafe',
+        category: 'water-park',
       }),
     );
   });

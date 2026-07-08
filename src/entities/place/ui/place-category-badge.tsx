@@ -1,6 +1,6 @@
-import type { PlaceCategory } from '@/shared/api/generated/model/placeCategory';
 import { Chip, type ChipProps } from '@mui/material';
 import { getPlaceCategoryDisplay } from '../model/place-display';
+import type { PlaceCategory } from '../model/types';
 
 interface PlaceCategoryBadgeProps {
   category: PlaceCategory;

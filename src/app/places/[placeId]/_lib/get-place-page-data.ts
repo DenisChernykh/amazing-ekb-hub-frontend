@@ -2,8 +2,8 @@ import { mapPlaceDetailToModel, PLACE_PLATFORMS, type PlaceDetailModel } from '@
 import { fetchPublicPlaceDetail } from '@/entities/place/api/fetch-public-place-detail';
 import { fetchPublicPlaceMaterials } from '@/entities/place/api/fetch-public-place-materials';
 import { normalizePlaceIdForBackendPath } from '@/entities/place/model/normalize-place-id';
-import type { Material } from '@/shared/api/generated/model/material';
 import type { Platform } from '@/shared/api/generated/model/platform';
+import type { PublicMaterial } from '@/shared/api/generated/model/publicMaterial';
 
 /**
  * View model route-страницы места.
@@ -70,7 +70,7 @@ export async function getPlacePageData(placeId: string): Promise<PlacePageModel>
     };
   }
 
-  const materialsByPlatform = materialResults.reduce<Partial<Record<Platform, Material[]>>>(
+  const materialsByPlatform = materialResults.reduce<Partial<Record<Platform, PublicMaterial[]>>>(
     (result, { platform, result: materialResult }) => ({
       ...result,
       [platform]: materialResult.kind === 'success' ? materialResult.data.items : [],

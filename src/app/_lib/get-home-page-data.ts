@@ -1,6 +1,8 @@
 import { mapPlaceSummaryToCardModel } from '@/entities/place';
+import { fetchPublicPlaceCategories } from '@/entities/place/api/fetch-public-place-categories';
 import { fetchPublicPlaceList } from '@/entities/place/api/fetch-public-place-list';
 import { buildCatalogControlsHref } from '@/features/catalog-controls';
+import type { ListPlacesParams } from '@/shared/api/generated/operation/listPlacesParams';
 import type { PlacesCatalogModel } from '@/widgets/places-catalog';
 import { normalizeHomeSearchParams, type HomeQuery } from './normalize-home-search-params';
 
@@ -33,7 +35,22 @@ export type HomePageModel =
  */
 export async function getHomePageData(rawSearchParams: RawSearchParams): Promise<HomePageModel> {
   const query = normalizeHomeSearchParams(rawSearchParams);
-  const result = await fetchPublicPlaceList(query);
+  const categoriesResult = await fetchPublicPlaceCategories();
+
+  if (categoriesResult.kind === 'unexpected_error') {
+    return {
+      kind: 'unexpected_error',
+      query,
+      message: categoriesResult.message,
+    };
+  }
+
+  const categories = categoriesResult.data.items;
+  const activeCategory = query.category
+    ? categories.find((category) => category.slug === query.category)
+    : undefined;
+  const listQuery = toListPlacesParams(query, activeCategory?.id);
+  const result = await fetchPublicPlaceList(listQuery);
 
   switch (result.kind) {
     case 'success': {
@@ -43,9 +60,10 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
         kind: 'ready',
         catalog: {
           items: result.data.items.map(mapPlaceSummaryToCardModel),
+          categories,
           filters: {
             search: query.search,
-            category: query.category,
+            activeCategorySlug: activeCategory?.slug,
             resetHref: buildCatalogControlsHref({
               currentSearchParams: buildRawSearchParamsString(rawSearchParams),
               next: { reset: true },
@@ -126,4 +144,21 @@ function buildRawSearchParamsString(rawSearchParams: RawSearchParams): string {
   });
 
   return params.toString();
+}
+
+/**
+ * Это хелпер. Преобразует публичный query главной страницы в API query списка мест.
+ *
+ * @param query - Нормализованный route query с category slug.
+ * @param categoryId - Backend-идентификатор найденной категории.
+ * @returns Query для generated `/places` client.
+ */
+function toListPlacesParams(query: HomeQuery, categoryId: string | undefined): ListPlacesParams {
+  return {
+    page: query.page,
+    pageSize: query.pageSize,
+    sort: query.sort,
+    ...(query.search ? { search: query.search } : {}),
+    ...(categoryId ? { categoryId } : {}),
+  };
 }

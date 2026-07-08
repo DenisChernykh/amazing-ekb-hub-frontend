@@ -9,7 +9,7 @@ import type { MaterialType } from './materialType';
 import type { Platform } from './platform';
 
 /**
- * Материал, связанный с местом.
+ * Административный материал, связанный с местом. Содержит исходную внешнюю ссылку для внутренних сценариев управления.
  */
 export type Material = {
   /** Идентификатор материала. */
@@ -18,20 +18,18 @@ export type Material = {
   placeId: string;
   platform: Platform;
   type: MaterialType;
-  /** Заголовок материала. */
-  title: string;
-  /** Дата и время публикации материала. */
+  /**
+   * Заголовок материала. Для импортированных материалов может быть `null`, если источник не дает надежный ручной title.
+   * @nullable
+   */
+  title: string | null;
+  /** Календарная дата публикации материала в формате `YYYY-MM-DD`. */
   publishedAt: string;
   /**
    * Длительность в секундах для видеоформатов.
    * @nullable
    */
   durationSec: number | null;
-  /** Публичная ссылка на материал. Допускаются только абсолютные http/https URL. */
+  /** Исходная внешняя ссылка на материал. Допускаются только абсолютные http/https URL. */
   url: string;
-  /**
-   * Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.
-   * @nullable
-   */
-  redirectUrl?: string | null;
 };

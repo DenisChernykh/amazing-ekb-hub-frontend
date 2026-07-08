@@ -1,8 +1,6 @@
-import type { PlaceCategory } from '@/entities/place';
-
 type CatalogControlsNextState = {
   search?: string;
-  category?: PlaceCategory | 'all';
+  category?: string | null;
   page?: 'first';
   reset?: boolean;
 };
@@ -44,7 +42,7 @@ export function buildCatalogControlsHref({
   }
 
   if (next.category !== undefined) {
-    if (next.category === 'all') {
+    if (next.category === null) {
       params.delete('category');
     } else {
       params.set('category', next.category);
