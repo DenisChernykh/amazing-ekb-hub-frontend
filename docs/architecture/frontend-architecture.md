@@ -2,14 +2,14 @@
 
 ## Architectural Style
 
-Frontend построен на Next.js App Router, FSD-слоях и Material UI.
+Frontend построен на Next.js App Router и FSD-слоях. Текущий UI всё ещё в основном MUI, но целевой stack для нового и мигрированного UI — Tailwind CSS + shadcn/ui.
 
 Целевой стиль для новых экранов:
 
 - server-first data loading;
 - thin `app` routes;
 - FSD decomposition через `entities`, `features`, `widgets`, `shared`;
-- Material UI как основной UI toolkit;
+- Tailwind CSS + shadcn/ui как целевой UI toolkit;
 - mapper/adapters между backend DTO и frontend UI model;
 - route-private orchestration в `app/_lib`;
 - route-private rendering switch в `app/_components`.
@@ -175,9 +175,25 @@ Page-level reusable composition:
 - list + controls + empty state;
 - domain page sections.
 
-## Material UI Rules
+## UI Toolkit Rules
 
-Material UI — основной UI toolkit.
+Tailwind CSS + shadcn/ui — целевой UI toolkit для нового и мигрированного UI.
+
+Material UI остаётся legacy bridge для ещё не мигрированных участков.
+
+### New and Migrated UI
+
+Правила:
+
+1. shadcn/ui компоненты добавляются через CLI и живут в `src/shared/ui`.
+2. Tailwind tokens в `src/app/globals.css` сохраняют текущий visual language до отдельного redesign-решения.
+3. Новый UI не импортирует MUI.
+4. Повторяемые состояния loading, empty, error, disabled, focus и confirmation оформляются через shared UI contracts.
+5. Для каждого migration slice нужны desktop/mobile visual checks.
+
+### Legacy MUI UI
+
+Эти правила действуют только для ещё не мигрированных MUI-участков.
 
 Правила:
 
@@ -257,6 +273,9 @@ Throw-based bridge и `std-errors` остаются target direction для но
 - `src/widgets/places-catalog`.
 
 ## Related Documents
+
+- `docs/adr/ADR-0006-tailwind-shadcn-ui-migration.md`
+- `docs/architecture/mui-to-shadcn-migration-plan.md`
 
 - `docs/architecture/server-first-screen-pattern.md`
 - `docs/architecture/api-integration.md`

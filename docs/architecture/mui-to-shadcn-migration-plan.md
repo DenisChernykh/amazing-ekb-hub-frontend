@@ -1,0 +1,146 @@
+# MUI to shadcn/ui Migration Plan
+
+## Goal
+
+Gradually migrate the public frontend UI from Material UI to Tailwind CSS + shadcn/ui without changing the current visual language or rewriting all screens at once.
+
+The target stack is:
+
+- Next.js App Router;
+- FSD layers;
+- Tailwind CSS as the everyday styling language;
+- shadcn/ui source components in `src/shared/ui`;
+- MUI kept only as a legacy bridge until no MUI imports remain.
+
+## Guardrails
+
+1. Do not run `shadcn add --all`.
+2. Do not remove `ThemeProvider`, `CssBaseline`, Emotion, `AppRouterCacheProvider`, or `@mui/*` while any MUI component remains.
+3. New migrated UI must not import MUI.
+4. Each migration slice must keep the existing copy, layout intent, colors, radii, focus behavior, and responsive states unless a separate redesign decision exists.
+5. Tailwind preflight is enabled globally during the bridge period; keep cascade layer order `theme, base, mui, components, utilities`.
+6. For every slice, keep desktop and mobile visual checks for affected states plus representative legacy MUI pages.
+7. Repeated loading, empty, error, disabled, focus, and confirmation behavior belongs in shared UI contracts, not local JSX copies.
+
+## Phases
+
+### Phase 0: Foundation
+
+Status: in progress.
+
+- Add Tailwind CSS, shadcn/ui config, PostCSS config, and shared `cn`.
+- Add only the first needed shadcn components to `src/shared/ui`.
+- Mirror current MUI app-level tokens in `src/app/globals.css`.
+- Document the target stack in ADR and architecture docs.
+- Ignore generated visual-check output unless selected screenshots are intentionally promoted to docs assets.
+
+Exit criteria:
+
+- `components.json` points shadcn UI to `src/shared/ui`.
+- `shadcn` CLI is a dev-only dependency or used through `pnpm dlx`.
+- A first low-risk component is migrated and verified.
+
+### Phase 1: Low-risk Shared States
+
+Migrate small, visually bounded states first:
+
+1. `PlacesCatalogEmpty`.
+2. Shared route/page `ErrorState`.
+3. App-level `loading` surfaces.
+4. Other empty/error/loading surfaces that do not require complex form controls.
+
+Exit criteria:
+
+- Empty/error/loading UI uses shared shadcn/Tailwind contracts.
+- Tests cover visible copy, semantic landmarks/headings, and action links/buttons.
+- Legacy MUI pages still pass representative desktop/mobile visual checks.
+
+### Phase 2: Small Display Primitives
+
+Migrate reusable display components:
+
+1. Category badges/chips.
+2. Material metadata badges.
+3. Platform counters.
+4. Simple card sections that do not depend on MUI `CardActionArea`.
+
+Exit criteria:
+
+- New `Badge`, `Card`, and related shared components cover the repeated display patterns.
+- Domain components import shared UI through public APIs.
+- No domain slice owns duplicated badge/card styling that should be shared.
+
+### Phase 3: Forms and Controls
+
+Migrate interaction-heavy features after shared primitives are stable:
+
+1. Catalog controls.
+2. Login form.
+3. Pagination.
+4. Auth lab/debug surfaces if they are still useful.
+
+Special rule:
+
+- Do not migrate `TextField` blindly. Preserve useful MUI micro-UX, especially label/helper/error behavior, in project-owned shared input/field contracts.
+
+Exit criteria:
+
+- Form fields have shared validation, helper text, disabled, pending, and focus behavior.
+- Client boundaries stay leaf-level.
+- Controls preserve URL/state behavior and existing tests.
+
+### Phase 4: High-visibility Pages
+
+Migrate the most visible user surfaces last:
+
+1. Place cards.
+2. Places catalog layout.
+3. Place detail hero.
+4. Pinned material and materials-by-platform sections.
+
+Exit criteria:
+
+- The catalog and detail pages preserve the existing look unless a redesign ADR exists.
+- No MUI imports remain in migrated entity/widget slices.
+- Visual checks cover home, filtered empty, login, place detail, desktop and mobile.
+
+### Phase 5: Remove MUI Bridge
+
+Start only when `rg "@mui|@emotion|AppRouterCacheProvider|ThemeProvider|CssBaseline" src package.json` shows no remaining UI dependency need.
+
+- Remove MUI providers from root layout/provider wiring.
+- Remove MUI and Emotion packages.
+- Delete `src/shared/ui/theme`.
+- Remove MUI-specific CSS exceptions from `globals.css`.
+- Update stale MUI docs and ADRs as superseded.
+
+Exit criteria:
+
+- No MUI/Emotion imports remain.
+- Full quality gates pass.
+- The final ADR or changelog states that the bridge period is over.
+
+## Required Checks Per Slice
+
+1. `pnpm exec prettier --check <changed-files>`
+2. `pnpm exec tsc --noEmit --pretty false --incremental false`
+3. Relevant unit/component tests.
+4. Desktop and mobile visual check for affected states.
+5. Smoke check for at least one legacy MUI page while MUI bridge is active.
+6. `git diff --check`
+
+Use full `pnpm lint:strict`, `pnpm test:unit`, and `pnpm build` before merging larger slices or removing bridge pieces.
+
+## Current First Slice
+
+The first slice is `src/widgets/places-catalog/ui/places-catalog-empty.tsx`.
+
+It validates the foundation because it exercises:
+
+- shared `Button` and `Card`;
+- Tailwind token mapping;
+- server-rendered UI;
+- empty-state semantics;
+- action link rendering through the shared button contract.
+
+Do not use this slice as permission for mass conversion. Each next slice should be small enough to review visually and mechanically.
