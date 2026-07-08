@@ -1,6 +1,7 @@
 {
   "name": "amazing-ekb-hub-frontend",
   "version": "0.1.0",
+  "packageManager": "pnpm@11.7.0",
   "private": true,
   "scripts": {
     "dev": "next dev --webpack --port 3001",
@@ -21,12 +22,6 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,css,md,json,yaml,yml}": "prettier --write"
-  },
-  "pnpm": {
-    "overrides": {
-      "postcss": "8.5.10",
-      "yaml@1": "1.10.3"
-    }
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
