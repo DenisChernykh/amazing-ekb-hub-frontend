@@ -1,0 +1,8 @@
+overrides:
+  postcss: 8.5.10
+  'yaml@1': 1.10.3
+
+allowBuilds:
+  unrs-resolver: true
+  esbuild: true
+  sharp: true
