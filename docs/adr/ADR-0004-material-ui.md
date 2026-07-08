@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded for new and migrated UI by ADR-0006. Material UI remains a legacy bridge until the migration is complete.
 
 ## Decision
 

@@ -4,6 +4,8 @@
 
 Accepted
 
+UI toolkit parts are superseded by ADR-0006. Server-first App Router and FSD decisions remain accepted.
+
 ## Context
 
 Frontend исторически развивался через смесь `app`, `views`, `entities`, result-first data access и экспериментальные module-oriented документы.

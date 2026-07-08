@@ -8,7 +8,11 @@ describe('PlacesCatalogEmpty', () => {
     const html = renderToStaticMarkup(createElement(PlacesCatalogEmpty));
 
     expect(html).toContain('Каталог пока пуст');
+    expect(html).toContain('aria-label="Пустой каталог"');
+    expect(html).toContain('role="region"');
+    expect(html).toContain('<h2');
     expect(html).toContain('Мы покажем места, когда они появятся в каталоге.');
+    expect(html).not.toContain('<a ');
     expect(html).not.toContain('Сбросить фильтры');
   });
 
@@ -22,7 +26,11 @@ describe('PlacesCatalogEmpty', () => {
 
     expect(html).toContain('Ничего не найдено');
     expect(html).toContain('Нет мест, которые подходят под текущий поиск или категорию.');
+    expect(html).toContain('<h2');
+    expect(html).toContain('<a ');
     expect(html).toContain('href="/?pageSize=40"');
+    expect(html).toContain('data-slot="button-link"');
+    expect(html).not.toContain('role="button"');
     expect(html).toContain('Сбросить фильтры');
   });
 
@@ -36,7 +44,11 @@ describe('PlacesCatalogEmpty', () => {
 
     expect(html).toContain('На этой странице нет мест');
     expect(html).toContain('В каталоге есть места, но не на текущей странице.');
+    expect(html).toContain('<h2');
+    expect(html).toContain('<a ');
     expect(html).toContain('href="/?pageSize=40"');
+    expect(html).toContain('data-slot="button-link"');
+    expect(html).not.toContain('role="button"');
     expect(html).toContain('Перейти на первую страницу');
   });
 });

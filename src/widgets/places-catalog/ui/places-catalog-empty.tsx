@@ -1,4 +1,4 @@
-import { Button, Paper, Stack, Typography } from '@mui/material';
+import { ButtonLink, Card } from '@/shared/ui';
 
 type PlacesCatalogEmptyProps =
   | {
@@ -24,35 +24,26 @@ export function PlacesCatalogEmpty(props: Readonly<PlacesCatalogEmptyProps>) {
   const content = getEmptyStateContent(kind);
 
   return (
-    <Paper
+    <Card
       aria-label="Пустой каталог"
-      component="section"
-      elevation={0}
-      variant="outlined"
-      sx={{
-        display: 'grid',
-        minHeight: 240,
-        p: 3.5,
-        color: 'text.secondary',
-        placeContent: 'center',
-        textAlign: 'center',
-      }}
+      role="region"
+      className="grid min-h-60 place-content-center p-7 text-center text-muted-foreground shadow-none"
     >
-      <Stack spacing={2} alignItems="center">
-        <Stack spacing={1}>
-          <Typography color="text.primary" component="h2" variant="h3">
+      <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-xl leading-tight font-extrabold text-card-foreground">
             {content.title}
-          </Typography>
-          <Typography>{content.description}</Typography>
-        </Stack>
+          </h2>
+          <p className="text-base leading-relaxed">{content.description}</p>
+        </div>
 
         {kind !== 'generic' && (
-          <Button component="a" href={props.resetHref} variant="outlined">
+          <ButtonLink href={props.resetHref} variant="outline">
             {content.actionLabel}
-          </Button>
+          </ButtonLink>
         )}
-      </Stack>
-    </Paper>
+      </div>
+    </Card>
   );
 }
 
