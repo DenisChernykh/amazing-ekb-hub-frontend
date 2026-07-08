@@ -141,10 +141,18 @@ const MATERIAL_DATE_FORMATTER = new Intl.DateTimeFormat('ru-RU', {
 /**
  * Это хелпер. Форматирует дату публикации материала.
  *
- * @param publishedAt - ISO-дата публикации из API.
+ * @param publishedAt - Календарная дата публикации из API в формате `YYYY-MM-DD`.
  * @returns Дата для отображения в карточке материала.
  */
 export function formatMaterialPublishedDate(publishedAt: string): string {
+  const calendarDateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(publishedAt);
+
+  if (calendarDateMatch) {
+    const [, year, month, day] = calendarDateMatch.map(Number);
+
+    return MATERIAL_DATE_FORMATTER.format(new Date(year, month - 1, day));
+  }
+
   return MATERIAL_DATE_FORMATTER.format(new Date(publishedAt));
 }
 

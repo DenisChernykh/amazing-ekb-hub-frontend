@@ -1,6 +1,6 @@
 import type { PlaceCategory } from '@/shared/api/generated/model/placeCategory';
 import { describe, expect, it } from 'vitest';
-import { getPlaceCategoryDisplay } from './place-display';
+import { formatMaterialPublishedDate, getPlaceCategoryDisplay } from './place-display';
 
 /**
  * Создает тестовую категорию с заданным цветом фона бейджа.
@@ -28,5 +28,11 @@ describe('getPlaceCategoryDisplay', () => {
 
   it('chooses the higher contrast text color for mid-tone category backgrounds', () => {
     expect(getPlaceCategoryDisplay(makeCategory('#808080')).color).toBe('#111827');
+  });
+});
+
+describe('formatMaterialPublishedDate', () => {
+  it('formats date-only values as calendar dates without timezone shift', () => {
+    expect(formatMaterialPublishedDate('2026-03-20')).toBe('20 марта 2026 г.');
   });
 });
