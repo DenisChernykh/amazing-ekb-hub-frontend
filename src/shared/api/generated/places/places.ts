@@ -13,12 +13,49 @@ import type {
   ListPlacesParams,
   MaterialListResponse,
   MaterialNotFoundResponse,
+  PlaceCategoryListResponse,
   PlaceDetail,
   PlaceNotFoundResponse,
   PublicPlaceListResponse,
   RedirectMaterialPathParameters,
   ValidationErrorResponse,
 } from '../model';
+
+/**
+ * Возвращает публичный справочник категорий мест для фильтров и бейджей.
+ * @summary List place categories
+ */
+export type listPlaceCategoriesResponse200 = {
+  data: PlaceCategoryListResponse;
+  status: 200;
+};
+
+export type listPlaceCategoriesResponseSuccess = listPlaceCategoriesResponse200 & {
+  headers: Headers;
+};
+export const getListPlaceCategoriesUrl = () => {
+  return `${process.env.API_BASE_URL}/categories`;
+};
+
+export const listPlaceCategories = async (
+  options?: RequestInit,
+): Promise<listPlaceCategoriesResponseSuccess> => {
+  const res = await fetch(getListPlaceCategoriesUrl(), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & { info?: any; status?: number } = new globalThis.Error();
+    const data = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: listPlaceCategoriesResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as listPlaceCategoriesResponseSuccess;
+};
 
 /**
  * Возвращает публичный список мест с пагинацией, поиском и фильтрацией по категории.

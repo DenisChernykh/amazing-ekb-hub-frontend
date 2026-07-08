@@ -1,6 +1,6 @@
 'use client';
 
-import { PLACE_CATEGORIES, getPlaceCategoryDisplay, type PlaceCategory } from '@/entities/place';
+import { getPlaceCategoryDisplay, type PlaceCategory } from '@/entities/place';
 import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { FormEvent } from 'react';
@@ -9,7 +9,8 @@ import { buildCatalogControlsInputKey } from '../lib/build-catalog-controls-inpu
 
 interface CatalogControlsProps {
   search?: string;
-  category?: PlaceCategory;
+  activeCategorySlug?: string;
+  categories: PlaceCategory[];
 }
 
 /**
@@ -17,7 +18,11 @@ interface CatalogControlsProps {
  *
  * @param props - Активные фильтры из нормализованного server-side query.
  */
-export function CatalogControls({ search, category }: Readonly<CatalogControlsProps>) {
+export function CatalogControls({
+  search,
+  activeCategorySlug,
+  categories,
+}: Readonly<CatalogControlsProps>) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -59,7 +64,7 @@ export function CatalogControls({ search, category }: Readonly<CatalogControlsPr
         alignItems={{ xs: 'stretch', sm: 'flex-start' }}
       >
         <TextField
-          key={buildCatalogControlsInputKey({ search, category })}
+          key={buildCatalogControlsInputKey({ search, category: activeCategorySlug })}
           fullWidth
           defaultValue={search ?? ''}
           label="Поиск"
@@ -79,22 +84,31 @@ export function CatalogControls({ search, category }: Readonly<CatalogControlsPr
         </Typography>
         <Stack direction="row" flexWrap="wrap" gap={1}>
           <Chip
-            color={category ? 'default' : 'primary'}
+            color={activeCategorySlug ? 'default' : 'primary'}
             label="Все"
-            onClick={() => navigate({ category: 'all' })}
-            variant={category ? 'outlined' : 'filled'}
+            onClick={() => navigate({ category: null })}
+            variant={activeCategorySlug ? 'outlined' : 'filled'}
           />
 
-          {PLACE_CATEGORIES.map((placeCategory) => {
+          {categories.map((placeCategory) => {
             const display = getPlaceCategoryDisplay(placeCategory);
-            const isActive = category === placeCategory;
+            const isActive = activeCategorySlug === placeCategory.slug;
 
             return (
               <Chip
-                key={placeCategory}
+                key={placeCategory.id}
                 color={isActive ? 'primary' : 'default'}
                 label={display.label}
-                onClick={() => navigate({ category: placeCategory })}
+                onClick={() => navigate({ category: placeCategory.slug })}
+                sx={
+                  isActive
+                    ? {
+                        bgcolor: display.backgroundColor,
+                        color: display.color,
+                        fontWeight: 700,
+                      }
+                    : undefined
+                }
                 variant={isActive ? 'filled' : 'outlined'}
               />
             );

@@ -18,11 +18,17 @@ describe('normalizeHomeSearchParams', () => {
     });
   });
 
-  it('drops unsupported category values', () => {
+  it('drops unsafe category slugs', () => {
     expect(normalizeHomeSearchParams({ category: 'spa/../../admin' })).toEqual({
       page: 1,
       pageSize: 20,
       sort: 'popular',
+    });
+  });
+
+  it('preserves well-formed custom category slugs', () => {
+    expect(normalizeHomeSearchParams({ category: 'family-spa-2' })).toMatchObject({
+      category: 'family-spa-2',
     });
   });
 

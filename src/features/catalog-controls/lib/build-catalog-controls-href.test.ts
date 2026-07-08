@@ -24,16 +24,25 @@ describe('buildCatalogControlsHref', () => {
     expect(
       buildCatalogControlsHref({
         currentSearchParams: 'page=4&pageSize=20&search=spa',
-        next: { category: 'hotels' },
+        next: { category: 'family-spa' },
       }),
-    ).toBe('/?pageSize=20&search=spa&category=hotels');
+    ).toBe('/?pageSize=20&search=spa&category=family-spa');
   });
 
-  it('removes category when the next category value is all', () => {
+  it('writes all as a real dynamic category slug', () => {
     expect(
       buildCatalogControlsHref({
-        currentSearchParams: 'page=4&pageSize=20&search=spa&category=hotels',
+        currentSearchParams: 'page=4&pageSize=20&search=spa',
         next: { category: 'all' },
+      }),
+    ).toBe('/?pageSize=20&search=spa&category=all');
+  });
+
+  it('removes category when the next category value is null', () => {
+    expect(
+      buildCatalogControlsHref({
+        currentSearchParams: 'page=4&pageSize=20&search=spa&category=family-spa',
+        next: { category: null },
       }),
     ).toBe('/?pageSize=20&search=spa');
   });

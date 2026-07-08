@@ -8,6 +8,32 @@
 import * as zod from 'zod';
 
 /**
+ * Возвращает публичный справочник категорий мест для фильтров и бейджей.
+ * @summary List place categories
+ */
+export const listPlaceCategories200ResponseItemsItemBadgeBackgroundColorRegExp = new RegExp(
+  '^#[0-9a-f]{6}$',
+);
+
+export const ListPlaceCategories200Response = zod
+  .strictObject({
+    items: zod.array(
+      zod
+        .strictObject({
+          id: zod.string().describe('Идентификатор категории.'),
+          slug: zod.string().describe('Человекочитаемый slug категории.'),
+          title: zod.string().describe('Название категории для интерфейса.'),
+          badgeBackgroundColor: zod
+            .string()
+            .regex(listPlaceCategories200ResponseItemsItemBadgeBackgroundColorRegExp)
+            .describe('Цвет фона бейджа категории в HEX-формате.'),
+        })
+        .describe('Публичная категория места для фильтров и бейджей.'),
+    ),
+  })
+  .describe('Публичный список категорий мест.');
+
+/**
  * Возвращает публичный список мест с пагинацией, поиском и фильтрацией по категории.
  * @summary List places
  */
@@ -40,14 +66,15 @@ export const ListPlacesQueryParams = zod.strictObject({
     .optional()
     .describe('Полнотекстовый поиск по названию и описанию места. Максимум 100 символов.'),
   sort: zod
-    .enum(['popular'])
+    .enum(['popular', 'title_asc'])
     .default(listPlacesQuerySortDefault)
     .describe('Режим сортировки списка мест.'),
-  category: zod
-    .enum(['pools', 'spa', 'cafe', 'hotels', 'workshops'])
-    .optional()
-    .describe('Фильтр по категории места.'),
+  categoryId: zod.string().optional().describe('Фильтр по идентификатору категории места.'),
 });
+
+export const listPlaces200ResponseItemsItemCategoryBadgeBackgroundColorRegExp = new RegExp(
+  '^#[0-9a-f]{6}$',
+);
 
 export const ListPlaces200Response = zod
   .strictObject({
@@ -60,8 +87,16 @@ export const ListPlaces200Response = zod
             summary: zod.string().describe('Короткое описание для каталога.'),
             tags: zod.array(zod.string()).describe('Набор тегов для поиска и фильтрации.'),
             category: zod
-              .enum(['pools', 'spa', 'cafe', 'hotels', 'workshops'])
-              .describe('Категория места в каталоге.'),
+              .strictObject({
+                id: zod.string().describe('Идентификатор категории.'),
+                slug: zod.string().describe('Человекочитаемый slug категории.'),
+                title: zod.string().describe('Название категории для интерфейса.'),
+                badgeBackgroundColor: zod
+                  .string()
+                  .regex(listPlaces200ResponseItemsItemCategoryBadgeBackgroundColorRegExp)
+                  .describe('Цвет фона бейджа категории в HEX-формате.'),
+              })
+              .describe('Публичная категория места для фильтров и бейджей.'),
             status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
             popularityWeight: zod.number().describe('Вес популярности для сортировки.'),
             coverImageUrl: zod
@@ -105,6 +140,10 @@ export const GetPlaceDetailParams = zod.strictObject({
   placeId: zod.string().describe('Идентификатор места.'),
 });
 
+export const getPlaceDetail200ResponseCategoryBadgeBackgroundColorRegExp = new RegExp(
+  '^#[0-9a-f]{6}$',
+);
+
 export const GetPlaceDetail200Response = zod
   .strictObject({
     id: zod.string().describe('Идентификатор места.'),
@@ -112,8 +151,16 @@ export const GetPlaceDetail200Response = zod
     summary: zod.string().describe('Короткое описание для каталога.'),
     tags: zod.array(zod.string()).describe('Набор тегов для поиска и фильтрации.'),
     category: zod
-      .enum(['pools', 'spa', 'cafe', 'hotels', 'workshops'])
-      .describe('Категория места в каталоге.'),
+      .strictObject({
+        id: zod.string().describe('Идентификатор категории.'),
+        slug: zod.string().describe('Человекочитаемый slug категории.'),
+        title: zod.string().describe('Название категории для интерфейса.'),
+        badgeBackgroundColor: zod
+          .string()
+          .regex(getPlaceDetail200ResponseCategoryBadgeBackgroundColorRegExp)
+          .describe('Цвет фона бейджа категории в HEX-формате.'),
+      })
+      .describe('Публичная категория места для фильтров и бейджей.'),
     status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
     popularityWeight: zod.number().describe('Вес популярности для сортировки.'),
     coverImageUrl: zod
@@ -129,44 +176,42 @@ export const GetPlaceDetail200Response = zod
         instagram: zod.number(),
       })
       .describe('Количество материалов по платформам.'),
+    pinnedMaterial: zod
+      .strictObject({
+        id: zod.string().describe('Идентификатор материала.'),
+        placeId: zod.string().describe('Идентификатор места, к которому относится материал.'),
+        platform: zod
+          .enum(['dzen', 'telegram', 'instagram'])
+          .describe('Платформа, на которой опубликован материал.'),
+        type: zod.enum(['post', 'reel', 'video']).describe('Тип материала.'),
+        title: zod
+          .string()
+          .nullable()
+          .describe(
+            'Заголовок материала. Для импортированных материалов может быть `null`, если источник не дает надежный ручной title.',
+          ),
+        publishedAt: zod.iso
+          .date()
+          .describe('Календарная дата публикации материала в формате `YYYY-MM-DD`.'),
+        durationSec: zod.number().nullable().describe('Длительность в секундах для видеоформатов.'),
+        redirectUrl: zod
+          .string()
+          .nullable()
+          .describe(
+            'Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.',
+          ),
+      })
+      .describe(
+        'Публичный материал, связанный с местом. Исходный внешний URL не отдается; публичные клиенты должны использовать `redirectUrl`.',
+      )
+      .nullable()
+      .describe(
+        'Закреплённый материал места, если он назначен. Исходный внешний URL не отдается; клиенты должны использовать только `redirectUrl`, когда он доступен.',
+      ),
   })
-  .describe('Краткая публичная карточка места со счетчиками материалов по платформам.')
-  .and(
-    zod.strictObject({
-      pinnedMaterial: zod
-        .strictObject({
-          id: zod.string().describe('Идентификатор материала.'),
-          placeId: zod.string().describe('Идентификатор места, к которому относится материал.'),
-          platform: zod
-            .enum(['dzen', 'telegram', 'instagram'])
-            .describe('Платформа, на которой опубликован материал.'),
-          type: zod.enum(['post', 'reel', 'video']).describe('Тип материала.'),
-          title: zod.string().describe('Заголовок материала.'),
-          publishedAt: zod.iso
-            .datetime({ offset: true })
-            .describe('Дата и время публикации материала.'),
-          durationSec: zod
-            .number()
-            .nullable()
-            .describe('Длительность в секундах для видеоформатов.'),
-          url: zod
-            .url()
-            .describe(
-              'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
-            ),
-          redirectUrl: zod
-            .string()
-            .nullish()
-            .describe(
-              'Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.',
-            ),
-        })
-        .describe('Материал, связанный с местом.')
-        .nullable()
-        .describe('Закреплённый материал места, если он назначен.'),
-    }),
-  )
-  .describe('Детальная карточка места с pinned material и счетчиками по платформам.');
+  .describe(
+    'Детальная карточка места с публично-безопасным pinned material без исходного внешнего URL и счетчиками по платформам.',
+  );
 
 export const GetPlaceDetail404Response = zod
   .strictObject({
@@ -223,31 +268,33 @@ export const ListPlaceMaterials200Response = zod
               .enum(['dzen', 'telegram', 'instagram'])
               .describe('Платформа, на которой опубликован материал.'),
             type: zod.enum(['post', 'reel', 'video']).describe('Тип материала.'),
-            title: zod.string().describe('Заголовок материала.'),
+            title: zod
+              .string()
+              .nullable()
+              .describe(
+                'Заголовок материала. Для импортированных материалов может быть `null`, если источник не дает надежный ручной title.',
+              ),
             publishedAt: zod.iso
-              .datetime({ offset: true })
-              .describe('Дата и время публикации материала.'),
+              .date()
+              .describe('Календарная дата публикации материала в формате `YYYY-MM-DD`.'),
             durationSec: zod
               .number()
               .nullable()
               .describe('Длительность в секундах для видеоформатов.'),
-            url: zod
-              .url()
-              .describe(
-                'Публичная ссылка на материал. Допускаются только абсолютные http\/https URL.',
-              ),
             redirectUrl: zod
               .string()
-              .nullish()
+              .nullable()
               .describe(
                 'Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.',
               ),
           })
-          .describe('Материал, связанный с местом.'),
+          .describe(
+            'Публичный материал, связанный с местом. Исходный внешний URL не отдается; публичные клиенты должны использовать `redirectUrl`.',
+          ),
       )
       .describe('Материалы места в стабильном порядке отображения.'),
   })
-  .describe('Ограниченный список материалов места.');
+  .describe('Ограниченный список материалов места без исходного внешнего URL.');
 
 export const ListPlaceMaterials400Response = zod
   .strictObject({

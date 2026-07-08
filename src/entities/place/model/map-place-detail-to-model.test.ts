@@ -1,5 +1,5 @@
-import type { Material } from '@/shared/api/generated/model/material';
 import type { PlaceDetail } from '@/shared/api/generated/model/placeDetail';
+import type { PublicMaterial } from '@/shared/api/generated/model/publicMaterial';
 import { describe, expect, it } from 'vitest';
 import { mapPlaceDetailToModel } from './map-place-detail-to-model';
 
@@ -11,7 +11,12 @@ const BASE_PLACE_DETAIL: PlaceDetail = {
   title: 'Baden-Baden Uktus',
   summary: 'Thermal complex with spa zone.',
   tags: ['spa'],
-  category: 'spa',
+  category: {
+    id: 'category_spa',
+    slug: 'spa',
+    title: 'SPA',
+    badgeBackgroundColor: '#faf0ed',
+  },
   status: 'active',
   popularityWeight: 10,
   coverImageUrl: null,
@@ -23,15 +28,14 @@ const BASE_PLACE_DETAIL: PlaceDetail = {
   pinnedMaterial: null,
 };
 
-const BASE_DZEN_MATERIAL: Material = {
+const BASE_DZEN_MATERIAL: PublicMaterial = {
   id: 'material_dzen_001',
   placeId: 'place_ekb_001',
   platform: 'dzen',
   type: 'video',
   title: 'Dzen shorts walkthrough',
-  publishedAt: '2026-03-20T10:30:00.000Z',
+  publishedAt: '2026-03-20',
   durationSec: 45,
-  url: DIRECT_DZEN_URL,
   redirectUrl: DZEN_REDIRECT_URL,
 };
 
@@ -57,5 +61,27 @@ describe('mapPlaceDetailToModel', () => {
 
     expect(place.materialsByPlatform.dzen[0]?.title).toBe('Dzen shorts walkthrough');
     expect(place.materialsByPlatform.dzen[0]?.redirectUrl).toBeNull();
+  });
+
+  it('keeps backend category object for detail badges', () => {
+    expect(mapPlaceDetailToModel(BASE_PLACE_DETAIL, {}).category).toEqual({
+      id: 'category_spa',
+      slug: 'spa',
+      title: 'SPA',
+      badgeBackgroundColor: '#faf0ed',
+    });
+  });
+
+  it('uses a stable fallback title when public material title is missing', () => {
+    const place = mapPlaceDetailToModel(BASE_PLACE_DETAIL, {
+      dzen: [
+        {
+          ...BASE_DZEN_MATERIAL,
+          title: null,
+        },
+      ],
+    });
+
+    expect(place.materialsByPlatform.dzen[0]?.title).toBe('Без названия');
   });
 });

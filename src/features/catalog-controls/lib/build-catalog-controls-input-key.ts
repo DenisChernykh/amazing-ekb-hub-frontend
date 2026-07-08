@@ -1,8 +1,6 @@
-import type { PlaceCategory } from '@/entities/place';
-
 type BuildCatalogControlsInputKeyOptions = {
   search?: string;
-  category?: PlaceCategory;
+  category?: string;
 };
 
 /**

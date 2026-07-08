@@ -1,5 +1,5 @@
-import type { Material } from '@/shared/api/generated/model/material';
 import type { PlaceDetail } from '@/shared/api/generated/model/placeDetail';
+import type { PublicMaterial } from '@/shared/api/generated/model/publicMaterial';
 import { normalizeCoverImageUrl } from './normalize-cover-image-url';
 import { normalizeMaterialRedirectUrl } from './normalize-material-redirect-url';
 import {
@@ -13,7 +13,9 @@ type PlaceDetailFields = PlaceDetail & {
   coverImageUrl?: string | null;
 };
 
-type PlaceMaterialsByPlatformInput = Partial<Record<PlaceMaterialModel['platform'], Material[]>>;
+type PlaceMaterialsByPlatformInput = Partial<
+  Record<PlaceMaterialModel['platform'], PublicMaterial[]>
+>;
 
 /**
  * Это хелпер. Преобразует API material в frontend contract материала.
@@ -21,12 +23,12 @@ type PlaceMaterialsByPlatformInput = Partial<Record<PlaceMaterialModel['platform
  * @param material - Материал из API.
  * @returns Данные материала для UI детальной страницы места.
  */
-function mapMaterialToModel(material: Material): PlaceMaterialModel {
+function mapMaterialToModel(material: PublicMaterial): PlaceMaterialModel {
   return {
     id: material.id,
     platform: material.platform,
     type: material.type,
-    title: material.title,
+    title: material.title ?? 'Без названия',
     publishedAt: material.publishedAt,
     durationSec: material.durationSec,
     redirectUrl: normalizeMaterialRedirectUrl(material.redirectUrl, material.id),

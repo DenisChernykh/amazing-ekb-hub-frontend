@@ -42,7 +42,12 @@ describe('getPlacePageData', () => {
         title: 'Aqua City',
         summary: 'Pool',
         tags: ['pool'],
-        category: 'pools',
+        category: {
+          id: 'category_pools',
+          slug: 'pools',
+          title: 'Бассейны',
+          badgeBackgroundColor: '#e0f2fe',
+        },
         status: 'active',
         popularityWeight: 100,
         coverImageUrl: null,

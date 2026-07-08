@@ -12,9 +12,11 @@ export type HomeQuery = {
   page: number;
   pageSize: number;
   search?: string;
-  sort: 'popular';
-  category?: 'pools' | 'spa' | 'cafe' | 'hotels' | 'workshops';
+  sort: 'popular' | 'title_asc';
+  category?: string;
 };
+
+const CATEGORY_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /**
  * Это хелпер. Возвращает первое значение query-параметра, если Next передал массив.
@@ -59,19 +61,23 @@ function toTrimmedString(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
-/**
- * Это хелпер. Проверяет, что строка входит в список допустимых enum-значений.
- *
- * @param value - Сырое строковое значение query-параметра.
- * @param allowed - Допустимые значения.
- * @returns Валидное enum-значение или `undefined`.
- */
 function toEnumValue<T extends string>(
   value: string | undefined,
   allowed: readonly T[],
 ): T | undefined {
   if (!value) return undefined;
   return allowed.includes(value as T) ? (value as T) : undefined;
+}
+
+/**
+ * Это хелпер. Проверяет публичный slug категории из URL.
+ *
+ * @param value - Сырое строковое значение query-параметра.
+ * @returns Безопасный slug или `undefined`.
+ */
+function toCategorySlug(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  return CATEGORY_SLUG_PATTERN.test(value) ? value : undefined;
 }
 
 /**
@@ -93,17 +99,11 @@ export function normalizeHomeSearchParams(raw: RawSearchParams): HomeQuery {
       min: 1,
       max: listPlacesQueryPageSizeMax,
     }),
-    sort: toEnumValue(pickFirst(raw.sort), ['popular']) ?? listPlacesQuerySortDefault,
+    sort: toEnumValue(pickFirst(raw.sort), ['popular', 'title_asc']) ?? listPlacesQuerySortDefault,
   };
 
   const search = toTrimmedString(pickFirst(raw.search));
-  const category = toEnumValue(pickFirst(raw.category), [
-    'pools',
-    'spa',
-    'cafe',
-    'hotels',
-    'workshops',
-  ]);
+  const category = toCategorySlug(pickFirst(raw.category));
 
   if (search) {
     query.search = search;
@@ -113,7 +113,12 @@ export function normalizeHomeSearchParams(raw: RawSearchParams): HomeQuery {
     query.category = category;
   }
 
-  const parsed = ListPlacesQueryParams.safeParse(query);
+  const parsed = ListPlacesQueryParams.safeParse({
+    page: query.page,
+    pageSize: query.pageSize,
+    search: query.search,
+    sort: query.sort,
+  });
 
   if (!parsed.success) {
     return {
@@ -123,5 +128,5 @@ export function normalizeHomeSearchParams(raw: RawSearchParams): HomeQuery {
     };
   }
 
-  return parsed.data;
+  return query;
 }

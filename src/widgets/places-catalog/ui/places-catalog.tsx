@@ -16,8 +16,8 @@ interface PlacesCatalogProps {
  * @param props - Модель каталога мест.
  */
 export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
-  const { items, filters, pagination } = model;
-  const hasActiveFilters = Boolean(filters.search || filters.category);
+  const { items, categories, filters, pagination } = model;
+  const hasActiveFilters = Boolean(filters.search || filters.activeCategorySlug);
   const emptyState = getPlacesCatalogEmptyState({
     hasActiveFilters,
     total: pagination.total,
@@ -54,7 +54,11 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
         </Typography>
       </Stack>
 
-      <CatalogControls search={filters.search} category={filters.category} />
+      <CatalogControls
+        search={filters.search}
+        activeCategorySlug={filters.activeCategorySlug}
+        categories={categories}
+      />
 
       {items.length > 0 ? (
         <Grid aria-label="Список мест" container component="section" spacing={{ xs: 2, sm: 2.5 }}>

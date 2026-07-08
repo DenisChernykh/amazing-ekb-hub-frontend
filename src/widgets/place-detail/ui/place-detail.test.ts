@@ -13,7 +13,12 @@ const PLACE_DETAIL_WITHOUT_PINNED_MATERIAL: PlaceDetailModel = {
   title: 'Baden-Baden Uktus',
   summary: 'Thermal complex with spa zone.',
   tags: ['spa'],
-  category: 'spa',
+  category: {
+    id: 'category_spa',
+    slug: 'spa',
+    title: 'SPA',
+    badgeBackgroundColor: '#faf0ed',
+  },
   coverImageUrl: null,
   platformCounters: {
     dzen: 1,

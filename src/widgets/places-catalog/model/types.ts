@@ -6,9 +6,10 @@ import type { PlacesPaginationModel } from '@/features/places-pagination';
  */
 export type PlacesCatalogModel = {
   items: PlaceCardModel[];
+  categories: PlaceCategory[];
   filters: {
     search?: string;
-    category?: PlaceCategory;
+    activeCategorySlug?: string;
     resetHref: string;
     firstPageHref: string;
   };

@@ -6,29 +6,64 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  AdminMaterialLibraryItem,
+  AdminMaterialLibraryListResponse,
+  AdminPlaceCategory,
+  AdminPlaceCategoryListResponse,
+  AdminPlaceDetail,
+  CategoryConflictResponse,
+  CategoryNotFoundResponse,
   ClearPinnedMaterialPathParameters,
+  ContentSource,
+  ContentSourceConflictResponse,
+  ContentSourceListResponse,
+  ContentSourceNotFoundResponse,
+  CreateContentSourceRequest,
   CreateMaterialRequest,
+  CreatePlaceCategoryRequest,
   CreatePlaceMaterialPathParameters,
   CreatePlaceRequest,
+  DeletePlaceCategoryPathParameters,
   ForbiddenResponse,
+  GetAdminPlaceCategoryPathParameters,
   GetAdminPlaceDetailPathParameters,
+  HidePlaceMaterialLinkPathParameters,
+  ImportRun,
+  ImportRunListResponse,
+  ImportTelegramChannelParams,
+  ImportTelegramChannelPathParameters,
+  LinkPlaceMaterialPathParameters,
+  ListAdminMaterialLibraryParams,
   ListAdminPlaceMaterialsParams,
   ListAdminPlaceMaterialsPathParameters,
   ListAdminPlacesParams,
+  ListContentSourcesParams,
+  ListImportRunsParams,
   Material,
   MaterialListResponse,
   MaterialNotFoundResponse,
   NestErrorResponse,
-  PlaceDetail,
   PlaceListResponse,
   PlaceNotFoundResponse,
   PlacePhotoUploadRequest,
   PlaceSummary,
   SetPinnedMaterialPathParameters,
   SetPinnedMaterialRequest,
+  StreamImportRunEventsPathParameters,
+  TelegramImportAlreadyRunningResponse,
   UnauthorizedResponse,
+  UpdateContentSourcePathParameters,
+  UpdateContentSourceRequest,
+  UpdateContentSourceStatusPathParameters,
+  UpdateContentSourceStatusRequest,
+  UpdateMaterialAdminStatusPathParameters,
+  UpdateMaterialAdminStatusRequest,
   UpdateMaterialPathParameters,
   UpdateMaterialRequest,
+  UpdatePlaceCategoryPathParameters,
+  UpdatePlaceCategoryRequest,
+  UpdatePlaceMaterialLinkPathParameters,
+  UpdatePlaceMaterialLinkRequest,
   UpdatePlacePathParameters,
   UpdatePlaceRequest,
   UpdatePlaceStatusPathParameters,
@@ -36,6 +71,349 @@ import type {
   UploadPlaceCoverPhotoPathParameters,
   ValidationErrorResponse,
 } from '../model';
+
+/**
+ * Возвращает административный справочник категорий мест.
+ * @summary List admin place categories
+ */
+export type listAdminPlaceCategoriesResponse200 = {
+  data: AdminPlaceCategoryListResponse;
+  status: 200;
+};
+
+export type listAdminPlaceCategoriesResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type listAdminPlaceCategoriesResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type listAdminPlaceCategoriesResponseSuccess = listAdminPlaceCategoriesResponse200 & {
+  headers: Headers;
+};
+export type listAdminPlaceCategoriesResponseError = (
+  | listAdminPlaceCategoriesResponse401
+  | listAdminPlaceCategoriesResponse403
+) & {
+  headers: Headers;
+};
+
+export const getListAdminPlaceCategoriesUrl = () => {
+  return `${process.env.API_BASE_URL}/admin/categories`;
+};
+
+export const listAdminPlaceCategories = async (
+  options?: RequestInit,
+): Promise<listAdminPlaceCategoriesResponseSuccess> => {
+  const res = await fetch(getListAdminPlaceCategoriesUrl(), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: listAdminPlaceCategoriesResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: listAdminPlaceCategoriesResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: listAdminPlaceCategoriesResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as listAdminPlaceCategoriesResponseSuccess;
+};
+
+/**
+ * Создает категорию места. Операция доступна только администратору.
+ * @summary Create place category
+ */
+export type createPlaceCategoryResponse201 = {
+  data: AdminPlaceCategory;
+  status: 201;
+};
+
+export type createPlaceCategoryResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type createPlaceCategoryResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type createPlaceCategoryResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type createPlaceCategoryResponse409 = {
+  data: CategoryConflictResponse;
+  status: 409;
+};
+
+export type createPlaceCategoryResponseSuccess = createPlaceCategoryResponse201 & {
+  headers: Headers;
+};
+export type createPlaceCategoryResponseError = (
+  | createPlaceCategoryResponse400
+  | createPlaceCategoryResponse401
+  | createPlaceCategoryResponse403
+  | createPlaceCategoryResponse409
+) & {
+  headers: Headers;
+};
+
+export const getCreatePlaceCategoryUrl = () => {
+  return `${process.env.API_BASE_URL}/admin/categories`;
+};
+
+export const createPlaceCategory = async (
+  createPlaceCategoryRequest: CreatePlaceCategoryRequest,
+  options?: RequestInit,
+): Promise<createPlaceCategoryResponseSuccess> => {
+  const res = await fetch(getCreatePlaceCategoryUrl(), {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(createPlaceCategoryRequest),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: createPlaceCategoryResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: createPlaceCategoryResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: createPlaceCategoryResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as createPlaceCategoryResponseSuccess;
+};
+
+/**
+ * Возвращает категорию места по идентификатору.
+ * @summary Get admin place category
+ */
+export type getAdminPlaceCategoryResponse200 = {
+  data: AdminPlaceCategory;
+  status: 200;
+};
+
+export type getAdminPlaceCategoryResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type getAdminPlaceCategoryResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type getAdminPlaceCategoryResponse404 = {
+  data: CategoryNotFoundResponse;
+  status: 404;
+};
+
+export type getAdminPlaceCategoryResponseSuccess = getAdminPlaceCategoryResponse200 & {
+  headers: Headers;
+};
+export type getAdminPlaceCategoryResponseError = (
+  | getAdminPlaceCategoryResponse401
+  | getAdminPlaceCategoryResponse403
+  | getAdminPlaceCategoryResponse404
+) & {
+  headers: Headers;
+};
+
+export const getGetAdminPlaceCategoryUrl = ({
+  categoryId,
+}: GetAdminPlaceCategoryPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/categories/${categoryId}`;
+};
+
+export const getAdminPlaceCategory = async (
+  { categoryId }: GetAdminPlaceCategoryPathParameters,
+  options?: RequestInit,
+): Promise<getAdminPlaceCategoryResponseSuccess> => {
+  const res = await fetch(getGetAdminPlaceCategoryUrl({ categoryId }), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: getAdminPlaceCategoryResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: getAdminPlaceCategoryResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: getAdminPlaceCategoryResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as getAdminPlaceCategoryResponseSuccess;
+};
+
+/**
+ * Частично обновляет категорию места.
+ * @summary Update place category
+ */
+export type updatePlaceCategoryResponse200 = {
+  data: AdminPlaceCategory;
+  status: 200;
+};
+
+export type updatePlaceCategoryResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type updatePlaceCategoryResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type updatePlaceCategoryResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type updatePlaceCategoryResponse404 = {
+  data: CategoryNotFoundResponse;
+  status: 404;
+};
+
+export type updatePlaceCategoryResponse409 = {
+  data: CategoryConflictResponse;
+  status: 409;
+};
+
+export type updatePlaceCategoryResponseSuccess = updatePlaceCategoryResponse200 & {
+  headers: Headers;
+};
+export type updatePlaceCategoryResponseError = (
+  | updatePlaceCategoryResponse400
+  | updatePlaceCategoryResponse401
+  | updatePlaceCategoryResponse403
+  | updatePlaceCategoryResponse404
+  | updatePlaceCategoryResponse409
+) & {
+  headers: Headers;
+};
+
+export const getUpdatePlaceCategoryUrl = ({ categoryId }: UpdatePlaceCategoryPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/categories/${categoryId}`;
+};
+
+export const updatePlaceCategory = async (
+  { categoryId }: UpdatePlaceCategoryPathParameters,
+  updatePlaceCategoryRequest: UpdatePlaceCategoryRequest,
+  options?: RequestInit,
+): Promise<updatePlaceCategoryResponseSuccess> => {
+  const res = await fetch(getUpdatePlaceCategoryUrl({ categoryId }), {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updatePlaceCategoryRequest),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: updatePlaceCategoryResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: updatePlaceCategoryResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: updatePlaceCategoryResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as updatePlaceCategoryResponseSuccess;
+};
+
+/**
+ * Удаляет категорию места, если она не используется местами.
+ * @summary Delete place category
+ */
+export type deletePlaceCategoryResponse204 = {
+  data: void;
+  status: 204;
+};
+
+export type deletePlaceCategoryResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type deletePlaceCategoryResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type deletePlaceCategoryResponse404 = {
+  data: CategoryNotFoundResponse;
+  status: 404;
+};
+
+export type deletePlaceCategoryResponse409 = {
+  data: CategoryConflictResponse;
+  status: 409;
+};
+
+export type deletePlaceCategoryResponseSuccess = deletePlaceCategoryResponse204 & {
+  headers: Headers;
+};
+export type deletePlaceCategoryResponseError = (
+  | deletePlaceCategoryResponse401
+  | deletePlaceCategoryResponse403
+  | deletePlaceCategoryResponse404
+  | deletePlaceCategoryResponse409
+) & {
+  headers: Headers;
+};
+
+export const getDeletePlaceCategoryUrl = ({ categoryId }: DeletePlaceCategoryPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/categories/${categoryId}`;
+};
+
+export const deletePlaceCategory = async (
+  { categoryId }: DeletePlaceCategoryPathParameters,
+  options?: RequestInit,
+): Promise<deletePlaceCategoryResponseSuccess> => {
+  const res = await fetch(getDeletePlaceCategoryUrl({ categoryId }), {
+    ...options,
+    method: 'DELETE',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: deletePlaceCategoryResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: deletePlaceCategoryResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: deletePlaceCategoryResponseSuccess['data'] = body ? JSON.parse(body) : undefined;
+  return { data, status: res.status, headers: res.headers } as deletePlaceCategoryResponseSuccess;
+};
 
 /**
  * Возвращает административный список мест с пагинацией и опциональной фильтрацией по статусу. Если `status` не указан, возвращаются и активные, и скрытые места.
@@ -134,6 +512,11 @@ export type createPlaceResponse403 = {
   status: 403;
 };
 
+export type createPlaceResponse404 = {
+  data: CategoryNotFoundResponse;
+  status: 404;
+};
+
 export type createPlaceResponseSuccess = createPlaceResponse201 & {
   headers: Headers;
 };
@@ -141,6 +524,7 @@ export type createPlaceResponseError = (
   | createPlaceResponse400
   | createPlaceResponse401
   | createPlaceResponse403
+  | createPlaceResponse404
 ) & {
   headers: Headers;
 };
@@ -178,7 +562,7 @@ export const createPlace = async (
  * @summary Get admin place details
  */
 export type getAdminPlaceDetailResponse200 = {
-  data: PlaceDetail;
+  data: AdminPlaceDetail;
   status: 200;
 };
 
@@ -261,7 +645,7 @@ export type updatePlaceResponse403 = {
 };
 
 export type updatePlaceResponse404 = {
-  data: PlaceNotFoundResponse;
+  data: NestErrorResponse;
   status: 404;
 };
 
@@ -453,6 +837,625 @@ export const uploadPlaceCoverPhoto = async (
 };
 
 /**
+ * Возвращает до 100 пользовательских content sources. Источник — это управляемый канал/ресурс пользователя, а не случайная внешняя ссылка.
+ * @summary List admin content sources
+ */
+export type listContentSourcesResponse200 = {
+  data: ContentSourceListResponse;
+  status: 200;
+};
+
+export type listContentSourcesResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type listContentSourcesResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type listContentSourcesResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type listContentSourcesResponseSuccess = listContentSourcesResponse200 & {
+  headers: Headers;
+};
+export type listContentSourcesResponseError = (
+  | listContentSourcesResponse400
+  | listContentSourcesResponse401
+  | listContentSourcesResponse403
+) & {
+  headers: Headers;
+};
+
+export const getListContentSourcesUrl = (params?: ListContentSourcesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `${process.env.API_BASE_URL}/admin/content-sources?${stringifiedParams}`
+    : `${process.env.API_BASE_URL}/admin/content-sources`;
+};
+
+export const listContentSources = async (
+  params?: ListContentSourcesParams,
+  options?: RequestInit,
+): Promise<listContentSourcesResponseSuccess> => {
+  const res = await fetch(getListContentSourcesUrl(params), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: listContentSourcesResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: listContentSourcesResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: listContentSourcesResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as listContentSourcesResponseSuccess;
+};
+
+/**
+ * Создает пользовательский content source для будущих импортов материалов.
+ * @summary Create content source
+ */
+export type createContentSourceResponse201 = {
+  data: ContentSource;
+  status: 201;
+};
+
+export type createContentSourceResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type createContentSourceResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type createContentSourceResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type createContentSourceResponse409 = {
+  data: ContentSourceConflictResponse;
+  status: 409;
+};
+
+export type createContentSourceResponseSuccess = createContentSourceResponse201 & {
+  headers: Headers;
+};
+export type createContentSourceResponseError = (
+  | createContentSourceResponse400
+  | createContentSourceResponse401
+  | createContentSourceResponse403
+  | createContentSourceResponse409
+) & {
+  headers: Headers;
+};
+
+export const getCreateContentSourceUrl = () => {
+  return `${process.env.API_BASE_URL}/admin/content-sources`;
+};
+
+export const createContentSource = async (
+  createContentSourceRequest: CreateContentSourceRequest,
+  options?: RequestInit,
+): Promise<createContentSourceResponseSuccess> => {
+  const res = await fetch(getCreateContentSourceUrl(), {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(createContentSourceRequest),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: createContentSourceResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: createContentSourceResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: createContentSourceResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as createContentSourceResponseSuccess;
+};
+
+/**
+ * Частично обновляет content source. Platform и import cursor-поля в этом endpoint не изменяются.
+ * @summary Update content source
+ */
+export type updateContentSourceResponse200 = {
+  data: ContentSource;
+  status: 200;
+};
+
+export type updateContentSourceResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type updateContentSourceResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type updateContentSourceResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type updateContentSourceResponse404 = {
+  data: ContentSourceNotFoundResponse;
+  status: 404;
+};
+
+export type updateContentSourceResponse409 = {
+  data: ContentSourceConflictResponse;
+  status: 409;
+};
+
+export type updateContentSourceResponseSuccess = updateContentSourceResponse200 & {
+  headers: Headers;
+};
+export type updateContentSourceResponseError = (
+  | updateContentSourceResponse400
+  | updateContentSourceResponse401
+  | updateContentSourceResponse403
+  | updateContentSourceResponse404
+  | updateContentSourceResponse409
+) & {
+  headers: Headers;
+};
+
+export const getUpdateContentSourceUrl = ({ sourceId }: UpdateContentSourcePathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/content-sources/${sourceId}`;
+};
+
+export const updateContentSource = async (
+  { sourceId }: UpdateContentSourcePathParameters,
+  updateContentSourceRequest: UpdateContentSourceRequest,
+  options?: RequestInit,
+): Promise<updateContentSourceResponseSuccess> => {
+  const res = await fetch(getUpdateContentSourceUrl({ sourceId }), {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updateContentSourceRequest),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: updateContentSourceResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: updateContentSourceResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: updateContentSourceResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as updateContentSourceResponseSuccess;
+};
+
+/**
+ * Переключает content source между `active` и `disabled` без удаления записи.
+ * @summary Update content source status
+ */
+export type updateContentSourceStatusResponse200 = {
+  data: ContentSource;
+  status: 200;
+};
+
+export type updateContentSourceStatusResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type updateContentSourceStatusResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type updateContentSourceStatusResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type updateContentSourceStatusResponse404 = {
+  data: ContentSourceNotFoundResponse;
+  status: 404;
+};
+
+export type updateContentSourceStatusResponseSuccess = updateContentSourceStatusResponse200 & {
+  headers: Headers;
+};
+export type updateContentSourceStatusResponseError = (
+  | updateContentSourceStatusResponse400
+  | updateContentSourceStatusResponse401
+  | updateContentSourceStatusResponse403
+  | updateContentSourceStatusResponse404
+) & {
+  headers: Headers;
+};
+
+export const getUpdateContentSourceStatusUrl = ({
+  sourceId,
+}: UpdateContentSourceStatusPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/content-sources/${sourceId}/status`;
+};
+
+export const updateContentSourceStatus = async (
+  { sourceId }: UpdateContentSourceStatusPathParameters,
+  updateContentSourceStatusRequest: UpdateContentSourceStatusRequest,
+  options?: RequestInit,
+): Promise<updateContentSourceStatusResponseSuccess> => {
+  const res = await fetch(getUpdateContentSourceStatusUrl({ sourceId }), {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updateContentSourceStatusRequest),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: updateContentSourceStatusResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: updateContentSourceStatusResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: updateContentSourceStatusResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as updateContentSourceStatusResponseSuccess;
+};
+
+/**
+ * Возвращает до 100 диагностических записей попыток импорта материалов.
+ * @summary List import runs
+ */
+export type listImportRunsResponse200 = {
+  data: ImportRunListResponse;
+  status: 200;
+};
+
+export type listImportRunsResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type listImportRunsResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type listImportRunsResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type listImportRunsResponseSuccess = listImportRunsResponse200 & {
+  headers: Headers;
+};
+export type listImportRunsResponseError = (
+  | listImportRunsResponse400
+  | listImportRunsResponse401
+  | listImportRunsResponse403
+) & {
+  headers: Headers;
+};
+
+export const getListImportRunsUrl = (params?: ListImportRunsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `${process.env.API_BASE_URL}/admin/import-runs?${stringifiedParams}`
+    : `${process.env.API_BASE_URL}/admin/import-runs`;
+};
+
+export const listImportRuns = async (
+  params?: ListImportRunsParams,
+  options?: RequestInit,
+): Promise<listImportRunsResponseSuccess> => {
+  const res = await fetch(getListImportRunsUrl(params), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & { info?: listImportRunsResponseError['data']; status?: number } =
+      new globalThis.Error();
+    const data: listImportRunsResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: listImportRunsResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as listImportRunsResponseSuccess;
+};
+
+/**
+ * Открывает Server-Sent Events stream для одного import run. Stream сразу отправляет initial snapshot текущего `ImportRun`, затем runtime-обновления `import-run.updated` при изменении статуса или счетчиков.
+
+Если подписка не может быть подготовлена, NestJS SSE handler отправляет `event: error` и закрывает stream.
+
+БД и `GET /admin/import-runs` остаются источником истины и fallback для refresh/reconnect; in-memory SSE доставляет только обновления текущего backend process.
+
+ * @summary Stream import run updates
+ */
+export type streamImportRunEventsResponse200 = {
+  data: string;
+  status: 200;
+};
+
+export type streamImportRunEventsResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type streamImportRunEventsResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type streamImportRunEventsResponseSuccess = streamImportRunEventsResponse200 & {
+  headers: Headers;
+};
+export type streamImportRunEventsResponseError = (
+  | streamImportRunEventsResponse401
+  | streamImportRunEventsResponse403
+) & {
+  headers: Headers;
+};
+
+export const getStreamImportRunEventsUrl = ({ runId }: StreamImportRunEventsPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/import-runs/${runId}/events`;
+};
+
+export const streamImportRunEvents = async (
+  { runId }: StreamImportRunEventsPathParameters,
+  options?: RequestInit,
+): Promise<streamImportRunEventsResponseSuccess> => {
+  const res = await fetch(getStreamImportRunEventsUrl({ runId }), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: streamImportRunEventsResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: streamImportRunEventsResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: streamImportRunEventsResponseSuccess['data'] = body !== null ? body : '';
+  return { data, status: res.status, headers: res.headers } as streamImportRunEventsResponseSuccess;
+};
+
+/**
+ * Создает durable queued one-click Telegram import/backfill run для active Telegram content source. HTTP не ждет GramJS/Telegram processing; worker позже переведет run в `running`, обработает до 20 внутренних batch-ов по `limit` логических постов, сохраняя cursor после каждого успешного непустого batch-а, и остановится при исчерпании истории, safety cap или final failure. Fresh active `queued/running` run того же source возвращает `409 Conflict`; stale `queued/running` runs старше консервативного timeout закрываются как `failed` перед созданием новой queued попытки.
+ * @summary Import Telegram channel posts
+ */
+export type importTelegramChannelResponse201 = {
+  data: ImportRun;
+  status: 201;
+};
+
+export type importTelegramChannelResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type importTelegramChannelResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type importTelegramChannelResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type importTelegramChannelResponse404 = {
+  data: ContentSourceNotFoundResponse;
+  status: 404;
+};
+
+export type importTelegramChannelResponse409 = {
+  data: TelegramImportAlreadyRunningResponse;
+  status: 409;
+};
+
+export type importTelegramChannelResponse503 = {
+  data: NestErrorResponse;
+  status: 503;
+};
+
+export type importTelegramChannelResponseSuccess = importTelegramChannelResponse201 & {
+  headers: Headers;
+};
+export type importTelegramChannelResponseError = (
+  | importTelegramChannelResponse400
+  | importTelegramChannelResponse401
+  | importTelegramChannelResponse403
+  | importTelegramChannelResponse404
+  | importTelegramChannelResponse409
+  | importTelegramChannelResponse503
+) & {
+  headers: Headers;
+};
+
+export const getImportTelegramChannelUrl = (
+  { sourceId }: ImportTelegramChannelPathParameters,
+  params?: ImportTelegramChannelParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `${process.env.API_BASE_URL}/admin/content-sources/${sourceId}/imports/telegram?${stringifiedParams}`
+    : `${process.env.API_BASE_URL}/admin/content-sources/${sourceId}/imports/telegram`;
+};
+
+export const importTelegramChannel = async (
+  { sourceId }: ImportTelegramChannelPathParameters,
+  params?: ImportTelegramChannelParams,
+  options?: RequestInit,
+): Promise<importTelegramChannelResponseSuccess> => {
+  const res = await fetch(getImportTelegramChannelUrl({ sourceId }, params), {
+    ...options,
+    method: 'POST',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: importTelegramChannelResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: importTelegramChannelResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: importTelegramChannelResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as importTelegramChannelResponseSuccess;
+};
+
+/**
+ * Возвращает страницу материалов общей библиотеки. Если передать `placeId`, каждый item содержит статус связи с этим местом.
+ * @summary List admin material library
+ */
+export type listAdminMaterialLibraryResponse200 = {
+  data: AdminMaterialLibraryListResponse;
+  status: 200;
+};
+
+export type listAdminMaterialLibraryResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type listAdminMaterialLibraryResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type listAdminMaterialLibraryResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type listAdminMaterialLibraryResponse404 = {
+  data: PlaceNotFoundResponse;
+  status: 404;
+};
+
+export type listAdminMaterialLibraryResponseSuccess = listAdminMaterialLibraryResponse200 & {
+  headers: Headers;
+};
+export type listAdminMaterialLibraryResponseError = (
+  | listAdminMaterialLibraryResponse400
+  | listAdminMaterialLibraryResponse401
+  | listAdminMaterialLibraryResponse403
+  | listAdminMaterialLibraryResponse404
+) & {
+  headers: Headers;
+};
+
+export const getListAdminMaterialLibraryUrl = (params?: ListAdminMaterialLibraryParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `${process.env.API_BASE_URL}/admin/materials?${stringifiedParams}`
+    : `${process.env.API_BASE_URL}/admin/materials`;
+};
+
+export const listAdminMaterialLibrary = async (
+  params?: ListAdminMaterialLibraryParams,
+  options?: RequestInit,
+): Promise<listAdminMaterialLibraryResponseSuccess> => {
+  const res = await fetch(getListAdminMaterialLibraryUrl(params), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: listAdminMaterialLibraryResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: listAdminMaterialLibraryResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: listAdminMaterialLibraryResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as listAdminMaterialLibraryResponseSuccess;
+};
+
+/**
  * Возвращает до 100 материалов указанного места для администратора, включая скрытые места.
  * @summary List admin place materials
  */
@@ -614,6 +1617,217 @@ export const createPlaceMaterial = async (
 };
 
 /**
+ * Создает или реактивирует связь существующего библиотечного материала с местом. Повторный active-link запрос идемпотентен.
+ * @summary Link material to place
+ */
+export type linkPlaceMaterialResponse200 = {
+  data: Material;
+  status: 200;
+};
+
+export type linkPlaceMaterialResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type linkPlaceMaterialResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type linkPlaceMaterialResponse404 = {
+  data: NestErrorResponse;
+  status: 404;
+};
+
+export type linkPlaceMaterialResponseSuccess = linkPlaceMaterialResponse200 & {
+  headers: Headers;
+};
+export type linkPlaceMaterialResponseError = (
+  | linkPlaceMaterialResponse401
+  | linkPlaceMaterialResponse403
+  | linkPlaceMaterialResponse404
+) & {
+  headers: Headers;
+};
+
+export const getLinkPlaceMaterialUrl = ({
+  placeId,
+  materialId,
+}: LinkPlaceMaterialPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/places/${placeId}/materials/${materialId}`;
+};
+
+export const linkPlaceMaterial = async (
+  { placeId, materialId }: LinkPlaceMaterialPathParameters,
+  options?: RequestInit,
+): Promise<linkPlaceMaterialResponseSuccess> => {
+  const res = await fetch(getLinkPlaceMaterialUrl({ placeId, materialId }), {
+    ...options,
+    method: 'PUT',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: linkPlaceMaterialResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: linkPlaceMaterialResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: linkPlaceMaterialResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as linkPlaceMaterialResponseSuccess;
+};
+
+/**
+ * Обновляет активную связь материала с местом: закрепление и ручной порядок отображения.
+ * @summary Update place-material link
+ */
+export type updatePlaceMaterialLinkResponse200 = {
+  data: Material;
+  status: 200;
+};
+
+export type updatePlaceMaterialLinkResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type updatePlaceMaterialLinkResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type updatePlaceMaterialLinkResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type updatePlaceMaterialLinkResponse404 = {
+  data: NestErrorResponse;
+  status: 404;
+};
+
+export type updatePlaceMaterialLinkResponseSuccess = updatePlaceMaterialLinkResponse200 & {
+  headers: Headers;
+};
+export type updatePlaceMaterialLinkResponseError = (
+  | updatePlaceMaterialLinkResponse400
+  | updatePlaceMaterialLinkResponse401
+  | updatePlaceMaterialLinkResponse403
+  | updatePlaceMaterialLinkResponse404
+) & {
+  headers: Headers;
+};
+
+export const getUpdatePlaceMaterialLinkUrl = ({
+  placeId,
+  materialId,
+}: UpdatePlaceMaterialLinkPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/places/${placeId}/materials/${materialId}`;
+};
+
+export const updatePlaceMaterialLink = async (
+  { placeId, materialId }: UpdatePlaceMaterialLinkPathParameters,
+  updatePlaceMaterialLinkRequest: UpdatePlaceMaterialLinkRequest,
+  options?: RequestInit,
+): Promise<updatePlaceMaterialLinkResponseSuccess> => {
+  const res = await fetch(getUpdatePlaceMaterialLinkUrl({ placeId, materialId }), {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updatePlaceMaterialLinkRequest),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: updatePlaceMaterialLinkResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: updatePlaceMaterialLinkResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: updatePlaceMaterialLinkResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as updatePlaceMaterialLinkResponseSuccess;
+};
+
+/**
+ * Скрывает активную связь материала с местом без удаления материала из общей библиотеки.
+ * @summary Hide place-material link
+ */
+export type hidePlaceMaterialLinkResponse204 = {
+  data: void;
+  status: 204;
+};
+
+export type hidePlaceMaterialLinkResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type hidePlaceMaterialLinkResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type hidePlaceMaterialLinkResponse404 = {
+  data: NestErrorResponse;
+  status: 404;
+};
+
+export type hidePlaceMaterialLinkResponseSuccess = hidePlaceMaterialLinkResponse204 & {
+  headers: Headers;
+};
+export type hidePlaceMaterialLinkResponseError = (
+  | hidePlaceMaterialLinkResponse401
+  | hidePlaceMaterialLinkResponse403
+  | hidePlaceMaterialLinkResponse404
+) & {
+  headers: Headers;
+};
+
+export const getHidePlaceMaterialLinkUrl = ({
+  placeId,
+  materialId,
+}: HidePlaceMaterialLinkPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/places/${placeId}/materials/${materialId}`;
+};
+
+export const hidePlaceMaterialLink = async (
+  { placeId, materialId }: HidePlaceMaterialLinkPathParameters,
+  options?: RequestInit,
+): Promise<hidePlaceMaterialLinkResponseSuccess> => {
+  const res = await fetch(getHidePlaceMaterialLinkUrl({ placeId, materialId }), {
+    ...options,
+    method: 'DELETE',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: hidePlaceMaterialLinkResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: hidePlaceMaterialLinkResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: hidePlaceMaterialLinkResponseSuccess['data'] = body ? JSON.parse(body) : undefined;
+  return { data, status: res.status, headers: res.headers } as hidePlaceMaterialLinkResponseSuccess;
+};
+
+/**
  * Частично обновляет материал по идентификатору. Операция доступна только администратору.
  * @summary Update material
  */
@@ -684,11 +1898,89 @@ export const updateMaterial = async (
 };
 
 /**
+ * Обновляет review-статус материала в административной библиотеке. Статус не удаляет материал и сам по себе не меняет публичную видимость уже существующих `PlaceMaterial` связей.
+ * @summary Update material admin status
+ */
+export type updateMaterialAdminStatusResponse200 = {
+  data: AdminMaterialLibraryItem;
+  status: 200;
+};
+
+export type updateMaterialAdminStatusResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type updateMaterialAdminStatusResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type updateMaterialAdminStatusResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type updateMaterialAdminStatusResponse404 = {
+  data: MaterialNotFoundResponse;
+  status: 404;
+};
+
+export type updateMaterialAdminStatusResponseSuccess = updateMaterialAdminStatusResponse200 & {
+  headers: Headers;
+};
+export type updateMaterialAdminStatusResponseError = (
+  | updateMaterialAdminStatusResponse400
+  | updateMaterialAdminStatusResponse401
+  | updateMaterialAdminStatusResponse403
+  | updateMaterialAdminStatusResponse404
+) & {
+  headers: Headers;
+};
+
+export const getUpdateMaterialAdminStatusUrl = ({
+  materialId,
+}: UpdateMaterialAdminStatusPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/materials/${materialId}/admin-status`;
+};
+
+export const updateMaterialAdminStatus = async (
+  { materialId }: UpdateMaterialAdminStatusPathParameters,
+  updateMaterialAdminStatusRequest: UpdateMaterialAdminStatusRequest,
+  options?: RequestInit,
+): Promise<updateMaterialAdminStatusResponseSuccess> => {
+  const res = await fetch(getUpdateMaterialAdminStatusUrl({ materialId }), {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updateMaterialAdminStatusRequest),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: updateMaterialAdminStatusResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: updateMaterialAdminStatusResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: updateMaterialAdminStatusResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as updateMaterialAdminStatusResponseSuccess;
+};
+
+/**
  * Назначает закреплённый материал для места. Операция доступна только администратору.
  * @summary Set pinned material for place
  */
 export type setPinnedMaterialResponse200 = {
-  data: PlaceDetail;
+  data: AdminPlaceDetail;
   status: 200;
 };
 
@@ -760,7 +2052,7 @@ export const setPinnedMaterial = async (
  * @summary Clear pinned material for place
  */
 export type clearPinnedMaterialResponse200 = {
-  data: PlaceDetail;
+  data: AdminPlaceDetail;
   status: 200;
 };
 
