@@ -19,6 +19,9 @@ const alertVariants = cva(
   },
 );
 
+/**
+ * Рендерит базовый alert/callout проекта.
+ */
 function Alert({
   className,
   variant,
@@ -34,6 +37,9 @@ function Alert({
   );
 }
 
+/**
+ * Рендерит заголовок alert/callout.
+ */
 function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -47,6 +53,9 @@ function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+/**
+ * Рендерит описание alert/callout.
+ */
 function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -60,6 +69,9 @@ function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) 
   );
 }
 
+/**
+ * Рендерит action slot alert/callout.
+ */
 function AlertAction({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div data-slot="alert-action" className={cn('absolute top-2 right-2', className)} {...props} />
