@@ -1,3 +1,4 @@
+export { Alert, AlertAction, AlertDescription, AlertTitle } from './alert';
 export { Button, ButtonLink, buttonVariants } from './button';
 export {
   Card,
