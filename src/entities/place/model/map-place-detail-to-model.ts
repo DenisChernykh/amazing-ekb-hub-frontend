@@ -36,6 +36,36 @@ function mapMaterialToModel(material: PublicMaterial): PlaceMaterialModel {
 }
 
 /**
+ * Это хелпер. Сортирует материалы от новых к старым со стабильным id tie-breaker.
+ */
+function compareMaterials(left: PublicMaterial, right: PublicMaterial): number {
+  const dateComparison = right.publishedAt.localeCompare(left.publishedAt);
+
+  return dateComparison || left.id.localeCompare(right.id);
+}
+
+/**
+ * Это хелпер. Дедуплицирует и нормализует материалы одной платформы.
+ */
+function normalizePlatformMaterials(
+  materials: PublicMaterial[],
+  pinnedMaterial: PublicMaterial | null,
+  platform: PlaceMaterialModel['platform'],
+): PlaceMaterialModel[] {
+  const uniqueMaterials = new Map(
+    materials
+      .filter((material) => material.platform === platform)
+      .map((material) => [material.id, material]),
+  );
+
+  if (pinnedMaterial?.platform === platform) {
+    uniqueMaterials.set(pinnedMaterial.id, pinnedMaterial);
+  }
+
+  return [...uniqueMaterials.values()].sort(compareMaterials).map(mapMaterialToModel);
+}
+
+/**
  * Это хелпер. Нормализует материалы по платформам в стабильный frontend contract.
  *
  * @param materialsByPlatform - Частично загруженные материалы по платформам.
@@ -43,11 +73,16 @@ function mapMaterialToModel(material: PublicMaterial): PlaceMaterialModel {
  */
 function normalizeMaterialsByPlatform(
   materialsByPlatform: PlaceMaterialsByPlatformInput,
+  pinnedMaterial: PublicMaterial | null,
 ): PlaceMaterialsByPlatform {
   return PLACE_PLATFORMS.reduce<PlaceMaterialsByPlatform>(
     (result, platform) => ({
       ...result,
-      [platform]: (materialsByPlatform[platform] ?? []).map(mapMaterialToModel),
+      [platform]: normalizePlatformMaterials(
+        materialsByPlatform[platform] ?? [],
+        pinnedMaterial,
+        platform,
+      ),
     }),
     {
       dzen: [],
@@ -77,6 +112,6 @@ export function mapPlaceDetailToModel(
     coverImageUrl: normalizeCoverImageUrl(place.coverImageUrl),
     platformCounters: place.counters,
     pinnedMaterial: place.pinnedMaterial ? mapMaterialToModel(place.pinnedMaterial) : null,
-    materialsByPlatform: normalizeMaterialsByPlatform(materialsByPlatform),
+    materialsByPlatform: normalizeMaterialsByPlatform(materialsByPlatform, place.pinnedMaterial),
   };
 }
