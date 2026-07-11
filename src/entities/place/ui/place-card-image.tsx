@@ -45,13 +45,8 @@ export function PlaceCardImage({ category, src, title }: Readonly<PlaceCardImage
 
       <PlaceCategoryBadge
         category={category}
-        sx={{
-          position: 'absolute',
-          top: 12,
-          left: 12,
-          zIndex: 1,
-          boxShadow: appStyleTokens.shadows.overlayBadge,
-        }}
+        className="absolute top-3 left-3 z-[1]"
+        style={{ boxShadow: appStyleTokens.shadows.overlayBadge }}
       />
     </Box>
   );

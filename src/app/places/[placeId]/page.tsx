@@ -2,6 +2,7 @@ import { ErrorState } from '@/shared/ui/error-state';
 import { PlaceDetail } from '@/widgets/place-detail';
 import { notFound } from 'next/navigation';
 import { getPlacePageData } from './_lib/get-place-page-data';
+import { placeDetailFontVariables } from './_lib/place-detail-fonts';
 
 interface PlacePageProps {
   params: Promise<{
@@ -21,5 +22,9 @@ export default async function PlacePage({ params }: PlacePageProps) {
     return <ErrorState title="Не удалось загрузить место" description={model.message} />;
   }
 
-  return <PlaceDetail place={model.place} />;
+  return (
+    <div className={placeDetailFontVariables}>
+      <PlaceDetail place={model.place} />
+    </div>
+  );
 }
