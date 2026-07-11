@@ -71,6 +71,52 @@ describe('getHomePageData', () => {
     await expect(homePageDataPromise).resolves.toMatchObject({ kind: 'ready' });
   });
 
+  it('assembles the ready catalog from results, controls, pagination, and links', async () => {
+    fetchPublicPlaceCategoriesMock.mockResolvedValueOnce({
+      kind: 'success',
+      data: { items: [FAMILY_SPA_CATEGORY] },
+    });
+    fetchPublicPlaceListMock.mockResolvedValueOnce({
+      kind: 'success',
+      data: {
+        items: [],
+        page: 2,
+        pageSize: 20,
+        total: 21,
+      },
+    });
+
+    await expect(
+      getHomePageData({
+        page: '2',
+        pageSize: '20',
+        search: 'spa',
+        category: 'family-spa',
+      }),
+    ).resolves.toEqual({
+      kind: 'ready',
+      catalog: {
+        results: {
+          items: [],
+          total: 21,
+        },
+        controls: {
+          categories: [FAMILY_SPA_CATEGORY],
+          search: 'spa',
+          activeCategorySlug: 'family-spa',
+        },
+        pagination: {
+          page: 2,
+          pageCount: 2,
+        },
+        links: {
+          resetFilters: '/?pageSize=20',
+          firstPage: '/?pageSize=20&search=spa&category=family-spa',
+        },
+      },
+    });
+  });
+
   it('maps public category slug to backend categoryId before loading places', async () => {
     const categoriesDeferred =
       createDeferred<Awaited<ReturnType<typeof fetchPublicPlaceCategories>>>();
@@ -90,8 +136,8 @@ describe('getHomePageData', () => {
     await expect(homePageDataPromise).resolves.toMatchObject({
       kind: 'ready',
       catalog: {
-        categories: [FAMILY_SPA_CATEGORY],
-        filters: {
+        controls: {
+          categories: [FAMILY_SPA_CATEGORY],
           activeCategorySlug: 'family-spa',
         },
       },
@@ -115,7 +161,7 @@ describe('getHomePageData', () => {
     await expect(getHomePageData({ category: 'unknown-spa' })).resolves.toMatchObject({
       kind: 'ready',
       catalog: {
-        filters: {
+        controls: {
           activeCategorySlug: undefined,
         },
       },
