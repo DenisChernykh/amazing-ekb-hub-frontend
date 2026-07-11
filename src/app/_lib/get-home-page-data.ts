@@ -35,7 +35,11 @@ export type HomePageModel =
  */
 export async function getHomePageData(rawSearchParams: RawSearchParams): Promise<HomePageModel> {
   const query = normalizeHomeSearchParams(rawSearchParams);
-  const categoriesResult = await fetchPublicPlaceCategories();
+  const categoriesPromise = fetchPublicPlaceCategories();
+  const unfilteredListPromise = query.category
+    ? undefined
+    : fetchPublicPlaceList(toListPlacesParams(query, undefined));
+  const categoriesResult = await categoriesPromise;
 
   if (categoriesResult.kind === 'unexpected_error') {
     return {
@@ -49,8 +53,8 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
   const activeCategory = query.category
     ? categories.find((category) => category.slug === query.category)
     : undefined;
-  const listQuery = toListPlacesParams(query, activeCategory?.id);
-  const result = await fetchPublicPlaceList(listQuery);
+  const result = await (unfilteredListPromise ??
+    fetchPublicPlaceList(toListPlacesParams(query, activeCategory?.id)));
 
   switch (result.kind) {
     case 'success': {
