@@ -1,11 +1,13 @@
 'use client';
 
 import { Pagination, Stack } from '@mui/material';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { buildPlacesPaginationHref } from '../lib/build-places-pagination-href';
 import type { PlacesPaginationModel } from '../model/types';
 
 interface PlacesPaginationProps {
   pagination: PlacesPaginationModel;
+  currentSearchParams: string;
 }
 
 /**
@@ -13,10 +15,12 @@ interface PlacesPaginationProps {
  *
  * @param props - Текущее состояние пагинации.
  */
-export function PlacesPagination({ pagination }: Readonly<PlacesPaginationProps>) {
+export function PlacesPagination({
+  pagination,
+  currentSearchParams,
+}: Readonly<PlacesPaginationProps>) {
   const { page, pageCount } = pagination;
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   if (pageCount <= 1) {
     return null;
@@ -29,17 +33,7 @@ export function PlacesPagination({ pagination }: Readonly<PlacesPaginationProps>
    * @param value - Выбранный номер страницы.
    */
   function handlePageChange(_event: React.ChangeEvent<unknown>, value: number) {
-    const nextSearchParams = new URLSearchParams(searchParams.toString());
-
-    if (value === 1) {
-      nextSearchParams.delete('page');
-    } else {
-      nextSearchParams.set('page', String(value));
-    }
-
-    const queryString = nextSearchParams.toString();
-
-    router.push(queryString ? `/?${queryString}` : '/');
+    router.push(buildPlacesPaginationHref({ currentSearchParams, page: value }));
   }
 
   return (

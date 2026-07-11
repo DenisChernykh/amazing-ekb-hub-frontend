@@ -110,8 +110,11 @@ describe('getHomePageData', () => {
           pageCount: 2,
         },
         links: {
-          resetFilters: '/?pageSize=20',
-          firstPage: '/?pageSize=20&search=spa&category=family-spa',
+          resetFilters: '/',
+          firstPage: '/?search=spa&category=family-spa',
+        },
+        navigation: {
+          currentSearchParams: 'search=spa&category=family-spa&page=2',
         },
       },
     });
@@ -170,6 +173,50 @@ describe('getHomePageData', () => {
     expect(fetchPublicPlaceListMock).toHaveBeenCalledWith({
       page: 1,
       pageSize: 20,
+      sort: 'popular',
+    });
+  });
+
+  it('builds API params and navigation from resolved state instead of noisy raw params', async () => {
+    fetchPublicPlaceCategoriesMock.mockResolvedValueOnce({
+      kind: 'success',
+      data: { items: [FAMILY_SPA_CATEGORY] },
+    });
+    fetchPublicPlaceListMock.mockResolvedValueOnce({
+      kind: 'success',
+      data: {
+        items: [],
+        page: 3,
+        pageSize: 20,
+        total: 0,
+      },
+    });
+
+    await expect(
+      getHomePageData({
+        page: ['3', '4'],
+        pageSize: '20',
+        search: ' spa ',
+        category: 'missing',
+        debug: '1',
+      }),
+    ).resolves.toMatchObject({
+      kind: 'ready',
+      catalog: {
+        links: {
+          resetFilters: '/',
+          firstPage: '/?search=spa',
+        },
+        navigation: {
+          currentSearchParams: 'search=spa&page=3',
+        },
+      },
+    });
+
+    expect(fetchPublicPlaceListMock).toHaveBeenCalledWith({
+      page: 3,
+      pageSize: 20,
+      search: 'spa',
       sort: 'popular',
     });
   });

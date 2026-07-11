@@ -16,7 +16,7 @@ interface PlacesCatalogProps {
  * @param props - Модель каталога мест.
  */
 export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
-  const { results, controls, pagination, links } = model;
+  const { results, controls, pagination, links, navigation } = model;
   const hasActiveFilters = Boolean(controls.search || controls.activeCategorySlug);
   const emptyState = getPlacesCatalogEmptyState({
     hasActiveFilters,
@@ -54,7 +54,7 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
         </Typography>
       </Stack>
 
-      <CatalogControls model={controls} />
+      <CatalogControls model={controls} currentSearchParams={navigation.currentSearchParams} />
 
       {results.items.length > 0 ? (
         <Grid aria-label="Список мест" container component="section" spacing={{ xs: 2, sm: 2.5 }}>
@@ -68,7 +68,10 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
         <PlacesCatalogEmpty {...emptyState} />
       )}
 
-      <PlacesPagination pagination={pagination} />
+      <PlacesPagination
+        pagination={pagination}
+        currentSearchParams={navigation.currentSearchParams}
+      />
     </Container>
   );
 }

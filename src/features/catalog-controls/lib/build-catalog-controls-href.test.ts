@@ -5,63 +5,54 @@ describe('buildCatalogControlsHref', () => {
   it('trims search, writes it to the URL, and resets pagination', () => {
     expect(
       buildCatalogControlsHref({
-        currentSearchParams: 'page=3&pageSize=40&category=spa',
+        currentSearchParams: 'category=spa&pageSize=40&page=3',
         next: { search: '  бассейн  ' },
       }),
-    ).toBe('/?pageSize=40&category=spa&search=%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD');
+    ).toBe('/?search=%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD&category=spa&pageSize=40');
   });
 
   it('removes search when the next search value is empty', () => {
     expect(
       buildCatalogControlsHref({
-        currentSearchParams: 'page=2&pageSize=40&search=spa&category=spa',
+        currentSearchParams: 'search=spa&category=spa&pageSize=40&page=2',
         next: { search: '   ' },
       }),
-    ).toBe('/?pageSize=40&category=spa');
+    ).toBe('/?category=spa&pageSize=40');
   });
 
   it('writes a category value and resets pagination', () => {
     expect(
       buildCatalogControlsHref({
-        currentSearchParams: 'page=4&pageSize=20&search=spa',
+        currentSearchParams: 'search=spa&sort=title_asc&pageSize=40&page=4',
         next: { category: 'family-spa' },
       }),
-    ).toBe('/?pageSize=20&search=spa&category=family-spa');
+    ).toBe('/?search=spa&category=family-spa&sort=title_asc&pageSize=40');
   });
 
   it('writes all as a real dynamic category slug', () => {
     expect(
       buildCatalogControlsHref({
-        currentSearchParams: 'page=4&pageSize=20&search=spa',
+        currentSearchParams: 'search=spa&page=4',
         next: { category: 'all' },
       }),
-    ).toBe('/?pageSize=20&search=spa&category=all');
+    ).toBe('/?search=spa&category=all');
   });
 
   it('removes category when the next category value is null', () => {
     expect(
       buildCatalogControlsHref({
-        currentSearchParams: 'page=4&pageSize=20&search=spa&category=family-spa',
+        currentSearchParams: 'search=spa&category=family-spa&page=4',
         next: { category: null },
       }),
-    ).toBe('/?pageSize=20&search=spa');
+    ).toBe('/?search=spa');
   });
 
   it('resets filters and preserves unrelated safe params', () => {
     expect(
       buildCatalogControlsHref({
-        currentSearchParams: 'page=5&pageSize=40&search=spa&category=spa&sort=popular',
+        currentSearchParams: 'search=spa&category=spa&sort=title_asc&pageSize=40&page=5',
         next: { reset: true },
       }),
-    ).toBe('/?pageSize=40&sort=popular');
-  });
-
-  it('moves to the first page while preserving active filters', () => {
-    expect(
-      buildCatalogControlsHref({
-        currentSearchParams: 'page=5&pageSize=40&search=spa&category=spa',
-        next: { page: 'first' },
-      }),
-    ).toBe('/?pageSize=40&search=spa&category=spa');
+    ).toBe('/?sort=title_asc&pageSize=40');
   });
 });

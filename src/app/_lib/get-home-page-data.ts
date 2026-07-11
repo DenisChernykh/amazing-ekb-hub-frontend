@@ -2,9 +2,12 @@ import { mapPlaceSummaryToCardModel } from '@/entities/place';
 import { fetchPublicPlaceCategories } from '@/entities/place/api/fetch-public-place-categories';
 import { fetchPublicPlaceList } from '@/entities/place/api/fetch-public-place-list';
 import { buildCatalogControlsHref } from '@/features/catalog-controls';
-import type { ListPlacesParams } from '@/shared/api/generated/operation/listPlacesParams';
+import { buildPlacesPaginationHref } from '@/features/places-pagination';
 import type { PlacesCatalogModel } from '@/widgets/places-catalog';
 import { normalizeHomeSearchParams, type HomeQuery } from './normalize-home-search-params';
+import { resolveCatalogState, type ResolvedCatalogState } from './resolve-catalog-state';
+import { serializeHomeSearchParams } from './serialize-home-search-params';
+import { toListPlacesParams } from './to-list-places-params';
 
 type RawSearchParams = Record<string, string | string[] | undefined>;
 type HomePageIssue = { path?: string; message: string };
@@ -36,9 +39,10 @@ export type HomePageModel =
 export async function getHomePageData(rawSearchParams: RawSearchParams): Promise<HomePageModel> {
   const query = normalizeHomeSearchParams(rawSearchParams);
   const categoriesPromise = fetchPublicPlaceCategories();
+  const unresolvedState: ResolvedCatalogState = { query };
   const unfilteredListPromise = query.category
     ? undefined
-    : fetchPublicPlaceList(toListPlacesParams(query, undefined));
+    : fetchPublicPlaceList(toListPlacesParams(unresolvedState));
   const categoriesResult = await categoriesPromise;
 
   if (categoriesResult.kind === 'unexpected_error') {
@@ -50,15 +54,14 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
   }
 
   const categories = categoriesResult.data.items;
-  const activeCategory = query.category
-    ? categories.find((category) => category.slug === query.category)
-    : undefined;
+  const resolvedState = resolveCatalogState(query, categories);
   const result = await (unfilteredListPromise ??
-    fetchPublicPlaceList(toListPlacesParams(query, activeCategory?.id)));
+    fetchPublicPlaceList(toListPlacesParams(resolvedState)));
 
   switch (result.kind) {
     case 'success': {
       const pageCount = Math.max(1, Math.ceil(result.data.total / result.data.pageSize));
+      const currentSearchParams = serializeHomeSearchParams(resolvedState);
 
       return {
         kind: 'ready',
@@ -69,23 +72,24 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
           },
           controls: {
             categories,
-            search: query.search,
-            activeCategorySlug: activeCategory?.slug,
+            search: resolvedState.query.search,
+            activeCategorySlug: resolvedState.query.category,
           },
           pagination: {
-            page: result.data.page,
+            page: resolvedState.query.page,
             pageCount,
           },
           links: {
             resetFilters: buildCatalogControlsHref({
-              currentSearchParams: buildRawSearchParamsString(rawSearchParams),
+              currentSearchParams,
               next: { reset: true },
             }),
-            firstPage: buildCatalogControlsHref({
-              currentSearchParams: buildRawSearchParamsString(rawSearchParams),
-              next: { page: 'first' },
+            firstPage: buildPlacesPaginationHref({
+              currentSearchParams,
+              page: 1,
             }),
           },
+          navigation: { currentSearchParams },
         },
       };
     }
@@ -93,7 +97,7 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
     case 'bad_request':
       return {
         kind: 'bad_request',
-        query,
+        query: resolvedState.query,
         title: getValidationErrorTitle(result.data.message),
         issues: mapValidationMessagesToIssues(result.data.message),
       };
@@ -101,7 +105,7 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
     case 'unexpected_error':
       return {
         kind: 'unexpected_error',
-        query,
+        query: resolvedState.query,
         message: result.message,
       };
   }
@@ -127,46 +131,4 @@ function mapValidationMessagesToIssues(message: string | string[]): HomePageIssu
   return (Array.isArray(message) ? message : [message]).map((issueMessage) => ({
     message: issueMessage,
   }));
-}
-
-/**
- * Это хелпер. Преобразует сырые route searchParams обратно в URLSearchParams string.
- *
- * @param rawSearchParams - Сырые query-параметры route entrypoint.
- * @returns Строка query-параметров для URL helper.
- */
-function buildRawSearchParamsString(rawSearchParams: RawSearchParams): string {
-  const params = new URLSearchParams();
-
-  Object.entries(rawSearchParams).forEach(([key, value]) => {
-    if (value === undefined) {
-      return;
-    }
-
-    if (Array.isArray(value)) {
-      value.forEach((item) => params.append(key, item));
-      return;
-    }
-
-    params.set(key, value);
-  });
-
-  return params.toString();
-}
-
-/**
- * Это хелпер. Преобразует публичный query главной страницы в API query списка мест.
- *
- * @param query - Нормализованный route query с category slug.
- * @param categoryId - Backend-идентификатор найденной категории.
- * @returns Query для generated `/places` client.
- */
-function toListPlacesParams(query: HomeQuery, categoryId: string | undefined): ListPlacesParams {
-  return {
-    page: query.page,
-    pageSize: query.pageSize,
-    sort: query.sort,
-    ...(query.search ? { search: query.search } : {}),
-    ...(categoryId ? { categoryId } : {}),
-  };
 }
