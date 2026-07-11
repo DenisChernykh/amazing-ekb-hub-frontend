@@ -1,19 +1,23 @@
-import type { PlaceCardModel, PlaceCategory } from '@/entities/place';
+import type { PlaceCardModel } from '@/entities/place';
+import type { CatalogControlsModel } from '@/features/catalog-controls';
 import type { PlacesPaginationModel } from '@/features/places-pagination';
+
+type PlacesCatalogResultsModel = {
+  items: PlaceCardModel[];
+  total: number;
+};
+
+type PlacesCatalogLinksModel = {
+  resetFilters: string;
+  firstPage: string;
+};
 
 /**
  * Модель виджета каталога мест.
  */
 export type PlacesCatalogModel = {
-  items: PlaceCardModel[];
-  categories: PlaceCategory[];
-  filters: {
-    search?: string;
-    activeCategorySlug?: string;
-    resetHref: string;
-    firstPageHref: string;
-  };
-  pagination: PlacesPaginationModel & {
-    total: number;
-  };
+  results: PlacesCatalogResultsModel;
+  controls: CatalogControlsModel;
+  pagination: PlacesPaginationModel;
+  links: PlacesCatalogLinksModel;
 };

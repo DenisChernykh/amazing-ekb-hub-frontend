@@ -1,28 +1,24 @@
 'use client';
 
-import { getPlaceCategoryDisplay, type PlaceCategory } from '@/entities/place';
+import { getPlaceCategoryDisplay } from '@/entities/place';
 import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { FormEvent } from 'react';
 import { buildCatalogControlsHref } from '../lib/build-catalog-controls-href';
 import { buildCatalogControlsInputKey } from '../lib/build-catalog-controls-input-key';
+import type { CatalogControlsModel } from '../model/types';
 
 interface CatalogControlsProps {
-  search?: string;
-  activeCategorySlug?: string;
-  categories: PlaceCategory[];
+  model: CatalogControlsModel;
 }
 
 /**
  * Рендерит URL-driven controls публичного каталога мест.
  *
- * @param props - Активные фильтры из нормализованного server-side query.
+ * @param props - Модель controls из server-side каталога.
  */
-export function CatalogControls({
-  search,
-  activeCategorySlug,
-  categories,
-}: Readonly<CatalogControlsProps>) {
+export function CatalogControls({ model }: Readonly<CatalogControlsProps>) {
+  const { search, activeCategorySlug, categories } = model;
   const router = useRouter();
   const searchParams = useSearchParams();
 

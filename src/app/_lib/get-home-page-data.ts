@@ -63,24 +63,28 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
       return {
         kind: 'ready',
         catalog: {
-          items: result.data.items.map(mapPlaceSummaryToCardModel),
-          categories,
-          filters: {
+          results: {
+            items: result.data.items.map(mapPlaceSummaryToCardModel),
+            total: result.data.total,
+          },
+          controls: {
+            categories,
             search: query.search,
             activeCategorySlug: activeCategory?.slug,
-            resetHref: buildCatalogControlsHref({
-              currentSearchParams: buildRawSearchParamsString(rawSearchParams),
-              next: { reset: true },
-            }),
-            firstPageHref: buildCatalogControlsHref({
-              currentSearchParams: buildRawSearchParamsString(rawSearchParams),
-              next: { page: 'first' },
-            }),
           },
           pagination: {
             page: result.data.page,
             pageCount,
-            total: result.data.total,
+          },
+          links: {
+            resetFilters: buildCatalogControlsHref({
+              currentSearchParams: buildRawSearchParamsString(rawSearchParams),
+              next: { reset: true },
+            }),
+            firstPage: buildCatalogControlsHref({
+              currentSearchParams: buildRawSearchParamsString(rawSearchParams),
+              next: { page: 'first' },
+            }),
           },
         },
       };

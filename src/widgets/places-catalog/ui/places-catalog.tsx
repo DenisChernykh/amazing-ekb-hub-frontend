@@ -16,13 +16,13 @@ interface PlacesCatalogProps {
  * @param props - Модель каталога мест.
  */
 export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
-  const { items, categories, filters, pagination } = model;
-  const hasActiveFilters = Boolean(filters.search || filters.activeCategorySlug);
+  const { results, controls, pagination, links } = model;
+  const hasActiveFilters = Boolean(controls.search || controls.activeCategorySlug);
   const emptyState = getPlacesCatalogEmptyState({
     hasActiveFilters,
-    total: pagination.total,
-    resetHref: filters.resetHref,
-    firstPageHref: filters.firstPageHref,
+    total: results.total,
+    resetHref: links.resetFilters,
+    firstPageHref: links.firstPage,
   });
 
   return (
@@ -46,7 +46,7 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
           <Typography color="text.primary" component="h1" variant="h1">
             Места
           </Typography>
-          <Typography color="text.secondary">Найдено: {pagination.total}</Typography>
+          <Typography color="text.secondary">Найдено: {results.total}</Typography>
         </Stack>
 
         <Typography color="text.secondary" mb={{ xs: 0, sm: 0.75 }} whiteSpace="nowrap">
@@ -54,15 +54,11 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
         </Typography>
       </Stack>
 
-      <CatalogControls
-        search={filters.search}
-        activeCategorySlug={filters.activeCategorySlug}
-        categories={categories}
-      />
+      <CatalogControls model={controls} />
 
-      {items.length > 0 ? (
+      {results.items.length > 0 ? (
         <Grid aria-label="Список мест" container component="section" spacing={{ xs: 2, sm: 2.5 }}>
-          {items.map((place) => (
+          {results.items.map((place) => (
             <Grid key={place.id} size={{ xs: 12, md: 6, lg: 4 }}>
               <PlaceCard place={place} />
             </Grid>
