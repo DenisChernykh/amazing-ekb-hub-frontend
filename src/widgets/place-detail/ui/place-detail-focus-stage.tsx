@@ -24,15 +24,17 @@ export function PlaceDetailFocusStage({
       className="relative hidden h-screen overflow-hidden bg-[#101211] text-[#f0ece4] lg:sticky lg:top-0 lg:block"
       data-focus-stage="true"
     >
-      <Image
-        alt=""
-        className="object-cover opacity-75 grayscale-[22%]"
-        fill
-        priority
-        sizes="(min-width: 1024px) 42vw, 1px"
-        src={coverImageUrl}
-        unoptimized
-      />
+      <div className="absolute inset-0">
+        <Image
+          alt=""
+          className="object-cover opacity-75 grayscale-[22%]"
+          fill
+          priority
+          sizes="(min-width: 1024px) 42vw, 1px"
+          src={coverImageUrl}
+          unoptimized
+        />
+      </div>
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,18,17,0.16)_0%,rgba(16,18,17,0.42)_42%,rgba(16,18,17,0.94)_100%)]" />
       <div className="absolute inset-x-0 bottom-0 p-10 xl:p-14">
         <MotionConfig reducedMotion="user">

@@ -51,21 +51,25 @@ export function PlaceDetailPlatformNavigation({
           }
         });
 
-        const nextActivePlatform = platforms.reduce<Platform | null>((active, item) => {
-          if (!active) {
-            return visibilityByPlatform.current.get(item.platform) ? item.platform : null;
-          }
+        const isPageBottom =
+          window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 1;
+        const nextActivePlatform = isPageBottom
+          ? (platforms.at(-1)?.platform ?? null)
+          : platforms.reduce<Platform | null>((active, item) => {
+              if (!active) {
+                return visibilityByPlatform.current.get(item.platform) ? item.platform : null;
+              }
 
-          const activeVisibility = visibilityByPlatform.current.get(active) ?? 0;
-          const itemVisibility = visibilityByPlatform.current.get(item.platform) ?? 0;
-          return itemVisibility > activeVisibility ? item.platform : active;
-        }, null);
+              const activeVisibility = visibilityByPlatform.current.get(active) ?? 0;
+              const itemVisibility = visibilityByPlatform.current.get(item.platform) ?? 0;
+              return itemVisibility > activeVisibility ? item.platform : active;
+            }, null);
 
         if (nextActivePlatform) {
           setActivePlatform(nextActivePlatform);
         }
       },
-      { rootMargin: '-15% 0px -55% 0px', threshold: [0, 0.2, 0.45, 0.7] },
+      { rootMargin: '-15% 0px -15% 0px', threshold: [0, 0.2, 0.45, 0.7] },
     );
 
     sections.forEach((section) => observer.observe(section));
@@ -80,7 +84,7 @@ export function PlaceDetailPlatformNavigation({
     <MotionConfig reducedMotion="user">
       <nav
         aria-label="Платформы"
-        className="sticky top-0 z-20 flex overflow-x-auto border-t border-white/10 bg-[#151816] px-4 lg:absolute lg:right-1/2 lg:bottom-24 lg:top-auto lg:translate-x-1/2 lg:overflow-visible lg:border-t-0 lg:px-0"
+        className="sticky top-0 z-20 flex overflow-x-auto border-t border-white/10 bg-[#151816] px-4 lg:absolute lg:right-0 lg:bottom-4 lg:left-0 lg:top-auto lg:w-full lg:flex-col lg:items-stretch lg:overflow-visible lg:border-t-0 lg:px-3"
       >
         {platforms.map((platform) => {
           const isActive = platform.platform === activePlatform;
@@ -88,13 +92,13 @@ export function PlaceDetailPlatformNavigation({
           return (
             <a
               aria-current={isActive ? 'location' : undefined}
-              className="relative flex min-h-12 shrink-0 items-center gap-2 px-3 text-xs font-semibold tracking-[0.08em] text-[#f0ece4] uppercase focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#b99a64] lg:min-h-0 lg:flex-col lg:px-2 lg:py-2 lg:[writing-mode:vertical-rl] lg:rotate-180"
+              className="relative flex min-h-12 shrink-0 items-center gap-2 px-3 text-xs font-semibold tracking-[0.08em] text-[#f0ece4] uppercase focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#b99a64] lg:min-h-9 lg:w-full lg:flex-row lg:justify-between lg:px-0 lg:py-2 lg:[writing-mode:horizontal-tb] lg:rotate-0"
               href={`#${platform.anchor}`}
               key={platform.platform}
             >
               {isActive && (
                 <motion.span
-                  className="absolute right-3 bottom-0 left-3 h-px bg-[#b99a64] lg:top-1 lg:right-auto lg:bottom-1 lg:left-0 lg:h-auto lg:w-px"
+                  className="absolute right-3 bottom-0 left-3 h-px bg-[#b99a64] lg:top-1 lg:right-auto lg:bottom-1 lg:left-[-0.45rem] lg:h-auto lg:w-px"
                   layoutId="place-detail-active-platform"
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 />

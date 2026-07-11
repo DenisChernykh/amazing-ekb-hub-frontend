@@ -23,12 +23,12 @@ export function PlaceDetailSpine({
   totalCount,
 }: Readonly<PlaceDetailSpineProps>) {
   return (
-    <header className="relative overflow-hidden bg-[#151816] text-[#f0ece4] lg:min-h-screen">
+    <header className="relative overflow-hidden bg-[#151816] text-[#f0ece4] lg:sticky lg:top-0 lg:h-screen lg:min-h-0 lg:self-start">
       <div className="grid gap-6 px-5 pt-6 pb-7 sm:grid-cols-[minmax(0,1fr)_12rem] sm:px-8 lg:contents">
         <div className="flex min-w-0 flex-col justify-between gap-8 lg:contents">
           <PlaceCategoryBadge
             category={category}
-            className="h-6 px-2.5 lg:absolute lg:top-8 lg:left-1/2 lg:max-w-[6.5rem] lg:-translate-x-1/2"
+            className="h-auto px-2.5 py-1.5 text-center leading-tight whitespace-normal lg:absolute lg:top-5 lg:left-1/2 lg:max-w-[6.5rem] lg:-translate-x-1/2"
           />
           <div className="lg:contents">
             <h1 className="[font-family:var(--font-place-display)] text-[clamp(2.35rem,9vw,4.5rem)] leading-[0.98] font-medium text-balance lg:sr-only">
@@ -58,7 +58,7 @@ export function PlaceDetailSpine({
       >
         {title}
       </p>
-      <p className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 text-center text-[0.62rem] font-semibold tracking-[0.16em] text-[#b99a64] uppercase [writing-mode:vertical-rl] rotate-180 lg:block">
+      <p className="absolute top-28 left-1/2 hidden -translate-x-1/2 text-center text-[0.6rem] font-semibold tracking-[0.12em] whitespace-nowrap text-[#b99a64] uppercase lg:block">
         {formatMaterialsCount(totalCount)}
       </p>
     </header>
