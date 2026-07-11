@@ -98,6 +98,14 @@ Migrate the most visible user surfaces last:
 3. Place detail hero.
 4. Pinned material and materials-by-platform sections.
 
+Completed slice:
+
+- Place detail is migrated as the explicitly approved **Archive Spine × Focus Mode** redesign. This is a documented exception to visual parity, not a precedent for silently redesigning other migration slices.
+- `src/widgets/place-detail` and `PlaceCategoryBadge` no longer import MUI; the complete publication index, anchors, redirect links, headings, and empty state remain server-rendered.
+- Focus preview and platform scrollspy are isolated client enhancements. The page requires no client-side data fetch and keeps usable anchors and material links without JavaScript.
+- Literata and Manrope are loaded through `next/font` and scoped to the ready place-detail route. Legacy pages keep the existing Roboto setup.
+- MUI/Emotion providers and packages remain in the root bridge because catalog, auth, and other unmigrated surfaces still depend on them.
+
 Exit criteria:
 
 - The catalog and detail pages preserve the existing look unless a redesign ADR exists.
@@ -144,3 +152,18 @@ It validates the foundation because it exercises:
 - action link rendering through the shared button contract.
 
 Do not use this slice as permission for mass conversion. Each next slice should be small enough to review visually and mechanically.
+
+## Completed High-visibility Slice
+
+The place-detail redesign is specified in
+`docs/superpowers/specs/2026-07-11-place-detail-archive-focus-design.md` and implemented through the matching execution plan.
+
+Its verification contract includes:
+
+- deterministic material ordering, deduplication, and pinned injection in the entity mapper;
+- one pinned row, followed by nonempty platform sections in stable platform order;
+- safe same-origin backend redirect links as the only row actions;
+- a decorative, non-interactive Focus Stage with reduced-motion support;
+- desktop Archive Spine and a one-tap mobile index without the Focus Stage;
+- pinned, no-pinned, unavailable-link, placeholder-cover, long-title, empty-platform, and no-material states;
+- desktop/mobile checks of the redesigned route plus a legacy catalog smoke check.
