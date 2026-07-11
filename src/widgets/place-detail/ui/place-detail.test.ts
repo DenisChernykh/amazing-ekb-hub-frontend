@@ -72,6 +72,13 @@ describe('PlaceDetail', () => {
     expect(html).not.toContain(`href="${DIRECT_DZEN_MATERIAL_URL}"`);
     expect(html).toContain('Dzen shorts walkthrough');
     expect(html).toContain('Видео');
+    expect(html).toContain('<main');
+    expect(html).toContain('<h1');
+    expect(html).toContain('href="#materials-telegram"');
+    expect(html).toContain('data-material-id="material_dzen_001"');
+    expect(html).not.toContain('Mui');
+    expect(html).not.toContain('Thermal complex with spa zone.');
+    expect(html).not.toContain('aria-label="Теги места"');
   });
 
   it('does not render an empty pinned material block when pinned material is missing', () => {
@@ -82,7 +89,7 @@ describe('PlaceDetail', () => {
     );
 
     expect(html).not.toContain('Закрепленный материал пока не назначен.');
-    expect(html).toContain('Материалы по платформам');
+    expect(html).toContain('Публикации о месте');
     expect(html).toContain('Telegram guide');
   });
 

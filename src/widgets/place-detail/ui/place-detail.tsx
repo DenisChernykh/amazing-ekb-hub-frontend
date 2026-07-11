@@ -1,10 +1,8 @@
 import type { PlaceDetailModel } from '@/entities/place';
-import { Container, Grid } from '@mui/material';
-import { PinnedMaterial } from './pinned-material';
-import { PlaceCoverImage } from './place-cover-image';
-import { PlaceDetailHero } from './place-detail-hero';
-import { MaterialsByPlatform } from './place-materials-by-platform';
-import { PlatformCounters } from './platform-counters';
+import { buildPlaceDetailViewModel } from '../model/build-place-detail-view-model';
+import type { PlaceDetailPlatformSection } from '../model/types';
+import { PlaceDetailMaterialIndex } from './place-detail-material-index';
+import { PlaceDetailSpine } from './place-detail-spine';
 
 interface PlaceDetailProps {
   place: PlaceDetailModel;
@@ -16,34 +14,44 @@ interface PlaceDetailProps {
  * @param props - Frontend contract detail-страницы места.
  */
 export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
-  const pinnedMaterial = place.pinnedMaterial;
-  const materialsGridSize = pinnedMaterial ? { xs: 12, md: 7 } : { xs: 12 };
+  const model = buildPlaceDetailViewModel(place);
+  const navigation = <PlaceDetailNavigation platforms={model.platforms} />;
 
   return (
-    <Container component="main" maxWidth="lg" sx={{ py: { xs: 3.75, sm: 6 }, pb: 8 }}>
-      <Grid container spacing={{ xs: 2.5, md: 3 }}>
-        <Grid size={{ xs: 12, md: 7 }}>
-          <PlaceDetailHero place={place} />
-        </Grid>
+    <main className="min-h-screen bg-[#f0ece4] [font-family:var(--font-place-ui)] text-[#101211]">
+      <div className="lg:grid lg:grid-cols-[7.5rem_minmax(0,1fr)]">
+        <PlaceDetailSpine
+          category={model.category}
+          coverImageUrl={model.coverImageUrl}
+          navigation={navigation}
+          title={model.title}
+          totalCount={model.totalCount}
+        />
+        <PlaceDetailMaterialIndex pinned={model.pinned} platforms={model.platforms} />
+      </div>
+    </main>
+  );
+}
 
-        <Grid size={{ xs: 12, md: 5 }}>
-          <PlaceCoverImage place={place} />
-        </Grid>
-
-        <Grid size={{ xs: 12 }}>
-          <PlatformCounters counters={place.platformCounters} />
-        </Grid>
-
-        {pinnedMaterial && (
-          <Grid size={{ xs: 12, md: 5 }}>
-            <PinnedMaterial material={pinnedMaterial} />
-          </Grid>
-        )}
-
-        <Grid size={materialsGridSize}>
-          <MaterialsByPlatform materialsByPlatform={place.materialsByPlatform} />
-        </Grid>
-      </Grid>
-    </Container>
+/** Рендерит SSR-якоря платформ до появления scrollspy enhancement. */
+function PlaceDetailNavigation({
+  platforms,
+}: Readonly<{ platforms: PlaceDetailPlatformSection[] }>) {
+  return (
+    <nav
+      aria-label="Платформы"
+      className="sticky top-0 z-20 flex overflow-x-auto border-t border-white/10 bg-[#151816] px-4 lg:absolute lg:right-1/2 lg:bottom-24 lg:top-auto lg:translate-x-1/2 lg:overflow-visible lg:border-t-0 lg:px-0"
+    >
+      {platforms.map((platform) => (
+        <a
+          className="flex min-h-12 shrink-0 items-center gap-2 px-3 text-xs font-semibold tracking-[0.08em] text-[#f0ece4] uppercase focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#b99a64] lg:min-h-0 lg:flex-col lg:px-2 lg:py-2 lg:[writing-mode:vertical-rl] lg:rotate-180"
+          href={`#${platform.anchor}`}
+          key={platform.platform}
+        >
+          <span>{platform.label}</span>
+          <span className="text-[#b99a64]">{platform.count}</span>
+        </a>
+      ))}
+    </nav>
   );
 }
