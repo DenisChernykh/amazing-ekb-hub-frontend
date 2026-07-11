@@ -116,6 +116,8 @@ describe('PlaceDetail', () => {
     expect(html).toContain('Закрепленный материал');
     expect(html).toContain('Assigned pinned material without URL');
     expect(html).not.toContain('Открыть материал');
+    expect(html).toMatch(/<div[^>]+data-material-id="material_pinned_001"/);
+    expect(html).not.toMatch(/<a[^>]+data-material-id="material_pinned_001"/);
   });
 
   it('renders pinned material CTA through backend redirect link', () => {
@@ -140,5 +142,55 @@ describe('PlaceDetail', () => {
     expect(html).toContain('target="_blank"');
     expect(html).toContain('rel="noopener noreferrer"');
     expect(html).not.toContain(`href="${DIRECT_DZEN_MATERIAL_URL}"`);
+  });
+
+  it('renders one place-level empty state without navigation or focus stage', () => {
+    const html = renderToStaticMarkup(
+      createElement(PlaceDetail, {
+        place: {
+          ...PLACE_DETAIL_WITHOUT_PINNED_MATERIAL,
+          materialsByPlatform: {
+            dzen: [],
+            instagram: [],
+            telegram: [],
+          },
+          platformCounters: {
+            dzen: 0,
+            instagram: 0,
+            telegram: 0,
+          },
+        },
+      }),
+    );
+
+    expect(html).toContain('Публикаций пока нет');
+    expect(html).toContain('/images/places/place-placeholder.webp');
+    expect(html).not.toContain('aria-label="Платформы"');
+    expect(html).not.toContain('data-focus-stage="true"');
+  });
+
+  it('omits empty platforms and keeps a long material title complete', () => {
+    const longTitle =
+      'Очень длинный заголовок авторского материала о месте, который визуально ограничен, но остаётся полным для доступности';
+    const html = renderToStaticMarkup(
+      createElement(PlaceDetail, {
+        place: {
+          ...PLACE_DETAIL_WITHOUT_PINNED_MATERIAL,
+          materialsByPlatform: {
+            ...PLACE_DETAIL_WITHOUT_PINNED_MATERIAL.materialsByPlatform,
+            dzen: [
+              {
+                ...PLACE_DETAIL_WITHOUT_PINNED_MATERIAL.materialsByPlatform.dzen[0]!,
+                title: longTitle,
+              },
+            ],
+          },
+        },
+      }),
+    );
+
+    expect(html).toContain(longTitle);
+    expect(html).not.toContain('href="#materials-instagram"');
+    expect(html).not.toContain('id="materials-instagram"');
   });
 });
