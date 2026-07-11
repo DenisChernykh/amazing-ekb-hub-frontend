@@ -39,6 +39,7 @@ const BASE_DZEN_MATERIAL: PublicMaterial = {
   redirectUrl: DZEN_REDIRECT_URL,
 };
 
+/** Создаёт Telegram-материал для сценариев нормализации mapper-а. */
 function createTelegramMaterial(
   overrides: Partial<PublicMaterial> & Pick<PublicMaterial, 'id' | 'publishedAt'>,
 ): PublicMaterial {

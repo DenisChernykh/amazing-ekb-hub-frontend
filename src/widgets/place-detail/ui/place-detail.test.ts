@@ -76,6 +76,8 @@ describe('PlaceDetail', () => {
     expect(html).toContain('<h1');
     expect(html).toContain('href="#materials-telegram"');
     expect(html).toContain('data-material-id="material_dzen_001"');
+    expect(html).toContain('data-focus-stage="true"');
+    expect(html).toContain('aria-hidden="true"');
     expect(html).not.toContain('Mui');
     expect(html).not.toContain('Thermal complex with spa zone.');
     expect(html).not.toContain('aria-label="Теги места"');
