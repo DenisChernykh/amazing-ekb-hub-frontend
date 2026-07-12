@@ -1,10 +1,9 @@
 import type { PlaceDetailModel } from '@/entities/place';
-import { Container, Grid } from '@mui/material';
-import { PinnedMaterial } from './pinned-material';
-import { PlaceCoverImage } from './place-cover-image';
-import { PlaceDetailHero } from './place-detail-hero';
-import { MaterialsByPlatform } from './place-materials-by-platform';
-import { PlatformCounters } from './platform-counters';
+import { buildPlaceDetailViewModel } from '../model/build-place-detail-view-model';
+import { PlaceDetailEmptyState } from './place-detail-empty-state';
+import { PlaceDetailExperience } from './place-detail-experience';
+import { PlaceDetailMaterialIndex } from './place-detail-material-index';
+import { PlaceDetailSpine } from './place-detail-spine';
 
 interface PlaceDetailProps {
   place: PlaceDetailModel;
@@ -16,34 +15,48 @@ interface PlaceDetailProps {
  * @param props - Frontend contract detail-страницы места.
  */
 export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
-  const pinnedMaterial = place.pinnedMaterial;
-  const materialsGridSize = pinnedMaterial ? { xs: 12, md: 7 } : { xs: 12 };
+  const model = buildPlaceDetailViewModel(place);
+  const spine = (
+    <PlaceDetailSpine
+      category={model.category}
+      coverImageUrl={model.coverImageUrl}
+      title={model.title}
+      totalCount={model.totalCount}
+    />
+  );
+  const index = <PlaceDetailMaterialIndex pinned={model.pinned} platforms={model.platforms} />;
+
+  if (!model.initialPreview) {
+    return (
+      <main className="min-h-screen bg-[#f0ece4] [font-family:var(--font-place-ui)] text-[#101211]">
+        <div className="lg:grid lg:grid-cols-[7.5rem_minmax(0,1fr)]">
+          <PlaceDetailSpine
+            category={model.category}
+            coverImageUrl={model.coverImageUrl}
+            title={model.title}
+            totalCount={model.totalCount}
+          />
+          <PlaceDetailEmptyState coverImageUrl={model.coverImageUrl} title={model.title} />
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <Container component="main" maxWidth="lg" sx={{ py: { xs: 3.75, sm: 6 }, pb: 8 }}>
-      <Grid container spacing={{ xs: 2.5, md: 3 }}>
-        <Grid size={{ xs: 12, md: 7 }}>
-          <PlaceDetailHero place={place} />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 5 }}>
-          <PlaceCoverImage place={place} />
-        </Grid>
-
-        <Grid size={{ xs: 12 }}>
-          <PlatformCounters counters={place.platformCounters} />
-        </Grid>
-
-        {pinnedMaterial && (
-          <Grid size={{ xs: 12, md: 5 }}>
-            <PinnedMaterial material={pinnedMaterial} />
-          </Grid>
-        )}
-
-        <Grid size={materialsGridSize}>
-          <MaterialsByPlatform materialsByPlatform={place.materialsByPlatform} />
-        </Grid>
-      </Grid>
-    </Container>
+    <main className="min-h-screen bg-[#f0ece4] [font-family:var(--font-place-ui)] text-[#101211]">
+      <PlaceDetailExperience
+        coverImageUrl={model.coverImageUrl}
+        index={index}
+        initialPreview={model.initialPreview}
+        platforms={model.platforms.map(({ anchor, count, label, platform }) => ({
+          anchor,
+          count,
+          label,
+          platform,
+        }))}
+        previewsById={model.previewsById}
+        spine={spine}
+      />
+    </main>
   );
 }

@@ -1,11 +1,13 @@
-import { Chip, type ChipProps } from '@mui/material';
+import { cn } from '@/shared/lib/utils';
+import { Badge } from '@/shared/ui';
+import type { CSSProperties } from 'react';
 import { getPlaceCategoryDisplay } from '../model/place-display';
 import type { PlaceCategory } from '../model/types';
 
 interface PlaceCategoryBadgeProps {
   category: PlaceCategory;
-  size?: ChipProps['size'];
-  sx?: ChipProps['sx'];
+  className?: string;
+  style?: CSSProperties;
 }
 
 /**
@@ -15,23 +17,21 @@ interface PlaceCategoryBadgeProps {
  */
 export function PlaceCategoryBadge({
   category,
-  size = 'small',
-  sx,
+  className,
+  style,
 }: Readonly<PlaceCategoryBadgeProps>) {
   const categoryDisplay = getPlaceCategoryDisplay(category);
 
   return (
-    <Chip
-      label={categoryDisplay.label}
-      size={size}
-      sx={[
-        {
-          bgcolor: categoryDisplay.backgroundColor,
-          color: categoryDisplay.color,
-          fontWeight: 700,
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
-    />
+    <Badge
+      className={cn('border-transparent font-bold', className)}
+      style={{
+        backgroundColor: categoryDisplay.backgroundColor,
+        color: categoryDisplay.color,
+        ...style,
+      }}
+    >
+      {categoryDisplay.label}
+    </Badge>
   );
 }

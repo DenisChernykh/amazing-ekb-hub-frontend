@@ -39,6 +39,20 @@ const BASE_DZEN_MATERIAL: PublicMaterial = {
   redirectUrl: DZEN_REDIRECT_URL,
 };
 
+/** Создаёт Telegram-материал для сценариев нормализации mapper-а. */
+function createTelegramMaterial(
+  overrides: Partial<PublicMaterial> & Pick<PublicMaterial, 'id' | 'publishedAt'>,
+): PublicMaterial {
+  return {
+    ...BASE_DZEN_MATERIAL,
+    platform: 'telegram',
+    type: 'post',
+    durationSec: null,
+    redirectUrl: `/v1/materials/${overrides.id}/go`,
+    ...overrides,
+  };
+}
+
 describe('mapPlaceDetailToModel', () => {
   it('maps backend redirectUrl and does not expose the direct external material URL', () => {
     const place = mapPlaceDetailToModel(BASE_PLACE_DETAIL, {
@@ -83,5 +97,39 @@ describe('mapPlaceDetailToModel', () => {
     });
 
     expect(place.materialsByPlatform.dzen[0]?.title).toBe('Без названия');
+  });
+
+  it('deduplicates, injects pinned material, and sorts each platform deterministically', () => {
+    const pinnedMaterial = createTelegramMaterial({
+      id: 'material_pinned',
+      publishedAt: '2026-03-22',
+      title: 'Pinned material',
+    });
+    const materialA = createTelegramMaterial({
+      id: 'material_a',
+      publishedAt: '2026-03-20',
+      title: 'Material A',
+    });
+    const materialB = createTelegramMaterial({
+      id: 'material_b',
+      publishedAt: '2026-03-20',
+      title: 'Material B',
+    });
+
+    const place = mapPlaceDetailToModel(
+      {
+        ...BASE_PLACE_DETAIL,
+        pinnedMaterial,
+      },
+      {
+        telegram: [materialB, materialA, materialA],
+      },
+    );
+
+    expect(place.materialsByPlatform.telegram.map(({ id }) => id)).toEqual([
+      'material_pinned',
+      'material_a',
+      'material_b',
+    ]);
   });
 });
