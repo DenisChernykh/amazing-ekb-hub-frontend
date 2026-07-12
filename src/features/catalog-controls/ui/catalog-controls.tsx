@@ -2,7 +2,7 @@
 
 import { getPlaceCategoryDisplay } from '@/entities/place';
 import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import type { FormEvent } from 'react';
 import { buildCatalogControlsHref } from '../lib/build-catalog-controls-href';
 import { buildCatalogControlsInputKey } from '../lib/build-catalog-controls-input-key';
@@ -10,6 +10,7 @@ import type { CatalogControlsModel } from '../model/types';
 
 interface CatalogControlsProps {
   model: CatalogControlsModel;
+  currentSearchParams: string;
 }
 
 /**
@@ -17,10 +18,9 @@ interface CatalogControlsProps {
  *
  * @param props - Модель controls из server-side каталога.
  */
-export function CatalogControls({ model }: Readonly<CatalogControlsProps>) {
+export function CatalogControls({ model, currentSearchParams }: Readonly<CatalogControlsProps>) {
   const { search, activeCategorySlug, categories } = model;
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   /**
    * Это хелпер. Навигирует каталог к следующему URL-состоянию controls.
@@ -30,7 +30,7 @@ export function CatalogControls({ model }: Readonly<CatalogControlsProps>) {
   function navigate(next: Parameters<typeof buildCatalogControlsHref>[0]['next']) {
     router.push(
       buildCatalogControlsHref({
-        currentSearchParams: searchParams.toString(),
+        currentSearchParams,
         next,
       }),
     );

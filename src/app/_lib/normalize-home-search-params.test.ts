@@ -10,11 +10,86 @@ describe('normalizeHomeSearchParams', () => {
     });
   });
 
-  it('falls back when pageSize is oversized', () => {
-    expect(normalizeHomeSearchParams({ pageSize: '10000' })).toMatchObject({
+  it('falls back oversized page without dropping other valid fields', () => {
+    expect(
+      normalizeHomeSearchParams({
+        page: '1001',
+        search: 'spa',
+        sort: 'title_asc',
+        category: 'family-spa',
+      }),
+    ).toEqual({
       page: 1,
       pageSize: 20,
+      search: 'spa',
+      sort: 'title_asc',
+      category: 'family-spa',
+    });
+  });
+
+  it('falls back oversized pageSize without dropping other valid fields', () => {
+    expect(
+      normalizeHomeSearchParams({
+        page: '2',
+        pageSize: '10000',
+        search: 'spa',
+        sort: 'title_asc',
+        category: 'family-spa',
+      }),
+    ).toEqual({
+      page: 2,
+      pageSize: 20,
+      search: 'spa',
+      sort: 'title_asc',
+      category: 'family-spa',
+    });
+  });
+
+  it('falls back invalid sort without dropping other valid fields', () => {
+    expect(
+      normalizeHomeSearchParams({
+        page: '2',
+        search: 'spa',
+        sort: 'newest',
+        category: 'family-spa',
+      }),
+    ).toEqual({
+      page: 2,
+      pageSize: 20,
+      search: 'spa',
       sort: 'popular',
+      category: 'family-spa',
+    });
+  });
+
+  it('drops oversized search without resetting other valid fields', () => {
+    expect(
+      normalizeHomeSearchParams({
+        page: '2',
+        pageSize: '40',
+        search: 's'.repeat(101),
+        sort: 'title_asc',
+        category: 'family-spa',
+      }),
+    ).toEqual({
+      page: 2,
+      pageSize: 40,
+      sort: 'title_asc',
+      category: 'family-spa',
+    });
+  });
+
+  it('uses the first value when Next provides repeated parameters', () => {
+    expect(
+      normalizeHomeSearchParams({
+        page: ['3', '4'],
+        search: ['spa', 'pool'],
+        category: ['family-spa', 'sauna'],
+      }),
+    ).toMatchObject({
+      page: 3,
+      search: 'spa',
+      category: 'family-spa',
     });
   });
 

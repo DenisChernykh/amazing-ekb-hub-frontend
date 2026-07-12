@@ -12,6 +12,10 @@ type PlacesCatalogLinksModel = {
   firstPage: string;
 };
 
+type PlacesCatalogNavigationModel = {
+  currentSearchParams: string;
+};
+
 /**
  * Модель виджета каталога мест.
  */
@@ -20,4 +24,5 @@ export type PlacesCatalogModel = {
   controls: CatalogControlsModel;
   pagination: PlacesPaginationModel;
   links: PlacesCatalogLinksModel;
+  navigation: PlacesCatalogNavigationModel;
 };

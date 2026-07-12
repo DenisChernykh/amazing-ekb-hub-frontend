@@ -1,8 +1,9 @@
 import {
-  ListPlacesQueryParams,
   listPlacesQueryPageDefault,
+  listPlacesQueryPageMax,
   listPlacesQueryPageSizeDefault,
   listPlacesQueryPageSizeMax,
+  listPlacesQuerySearchMax,
   listPlacesQuerySortDefault,
 } from '@/shared/api/generated-zod/places/places.zod';
 
@@ -58,7 +59,7 @@ function toBoundedInt(
  */
 function toTrimmedString(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
-  return trimmed ? trimmed : undefined;
+  return trimmed && trimmed.length <= listPlacesQuerySearchMax ? trimmed : undefined;
 }
 
 function toEnumValue<T extends string>(
@@ -93,6 +94,7 @@ export function normalizeHomeSearchParams(raw: RawSearchParams): HomeQuery {
     page: toBoundedInt(pickFirst(raw.page), {
       fallback: listPlacesQueryPageDefault,
       min: 1,
+      max: listPlacesQueryPageMax,
     }),
     pageSize: toBoundedInt(pickFirst(raw.pageSize), {
       fallback: listPlacesQueryPageSizeDefault,
@@ -111,21 +113,6 @@ export function normalizeHomeSearchParams(raw: RawSearchParams): HomeQuery {
 
   if (category) {
     query.category = category;
-  }
-
-  const parsed = ListPlacesQueryParams.safeParse({
-    page: query.page,
-    pageSize: query.pageSize,
-    search: query.search,
-    sort: query.sort,
-  });
-
-  if (!parsed.success) {
-    return {
-      page: listPlacesQueryPageDefault,
-      pageSize: listPlacesQueryPageSizeDefault,
-      sort: listPlacesQuerySortDefault,
-    };
   }
 
   return query;

@@ -1,7 +1,8 @@
+import { buildPathnameHref } from '@/shared/lib/routing';
+
 type CatalogControlsNextState = {
   search?: string;
   category?: string | null;
-  page?: 'first';
   reset?: boolean;
 };
 
@@ -28,7 +29,7 @@ export function buildCatalogControlsHref({
     params.delete('search');
     params.delete('category');
 
-    return buildHomeHref(params);
+    return buildPathnameHref('/', toCanonicalCatalogParams(params));
   }
 
   if (next.search !== undefined) {
@@ -49,17 +50,22 @@ export function buildCatalogControlsHref({
     }
   }
 
-  return buildHomeHref(params);
+  return buildPathnameHref('/', toCanonicalCatalogParams(params));
 }
 
 /**
- * Это хелпер. Превращает query-параметры в относительный href главной страницы.
+ * Это хелпер. Восстанавливает стабильный порядок canonical catalog query.
  *
- * @param params - Подготовленные query-параметры.
- * @returns `/?query` или `/`, если query пустой.
+ * @param params - Изменённый canonical query snapshot.
+ * @returns Query-параметры в canonical порядке.
  */
-function buildHomeHref(params: URLSearchParams): string {
-  const queryString = params.toString();
+function toCanonicalCatalogParams(params: URLSearchParams): URLSearchParams {
+  const canonicalParams = new URLSearchParams();
 
-  return queryString ? `/?${queryString}` : '/';
+  ['search', 'category', 'sort', 'pageSize', 'page'].forEach((key) => {
+    const value = params.get(key);
+    if (value !== null) canonicalParams.set(key, value);
+  });
+
+  return canonicalParams;
 }
