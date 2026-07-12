@@ -22,6 +22,12 @@ export type PlaceDetailPlatformSection = {
   materials: PlaceDetailPreview[];
 };
 
+/** Сериализуемые данные одной ссылки платформенной навигации. */
+export type PlaceDetailPlatformNavigationItem = Pick<
+  PlaceDetailPlatformSection,
+  'anchor' | 'count' | 'label' | 'platform'
+>;
+
 /** Server-owned модель детальной страницы места. */
 export type PlaceDetailViewModel = {
   title: string;

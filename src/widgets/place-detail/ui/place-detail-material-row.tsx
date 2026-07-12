@@ -70,7 +70,7 @@ export function PlaceDetailMaterialRow(props: Readonly<PlaceDetailMaterialRowPro
           <MaterialRowContent {...props} />
         </a>
       ) : (
-        <div className={className} data-material-id={material.id}>
+        <div className={className}>
           <MaterialRowContent {...props} />
         </div>
       )}

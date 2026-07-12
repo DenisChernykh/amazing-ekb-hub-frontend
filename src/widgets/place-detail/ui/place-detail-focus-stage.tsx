@@ -1,7 +1,8 @@
 'use client';
 
-import { AnimatePresence, MotionConfig, motion } from 'motion/react';
+import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'motion/react';
 import Image from 'next/image';
+import { buildFocusStageTransition } from '../lib/build-focus-stage-transition';
 import type { PlaceDetailPreview } from '../model/types';
 
 interface PlaceDetailFocusStageProps {
@@ -18,10 +19,12 @@ export function PlaceDetailFocusStage({
   coverImageUrl,
   preview,
 }: Readonly<PlaceDetailFocusStageProps>) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <aside
       aria-hidden="true"
-      className="relative hidden h-screen overflow-hidden bg-[#101211] text-[#f0ece4] lg:sticky lg:top-0 lg:block"
+      className="relative hidden h-screen overflow-hidden bg-[#101211] text-[#f0ece4] lg:col-start-3 lg:row-start-1 lg:block"
       data-focus-stage="true"
     >
       <div className="absolute inset-0">
@@ -46,7 +49,7 @@ export function PlaceDetailFocusStage({
                 exit={{ opacity: 0, y: -10 }}
                 initial={{ opacity: 0, y: 14 }}
                 key={preview.id}
-                transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                transition={buildFocusStageTransition(Boolean(shouldReduceMotion))}
               >
                 <p className="mb-5 flex flex-wrap gap-x-3 gap-y-1 text-[0.68rem] font-semibold tracking-[0.16em] text-[#d9c8aa] uppercase">
                   <span>{preview.platformLabel}</span>

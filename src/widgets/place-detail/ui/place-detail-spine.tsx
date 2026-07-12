@@ -1,11 +1,9 @@
 import { PlaceCategoryBadge, formatMaterialsCount } from '@/entities/place';
 import Image from 'next/image';
-import type { ReactNode } from 'react';
 
 interface PlaceDetailSpineProps {
   category: Parameters<typeof PlaceCategoryBadge>[0]['category'];
   coverImageUrl: string;
-  navigation: ReactNode;
   title: string;
   totalCount: number;
 }
@@ -18,12 +16,11 @@ interface PlaceDetailSpineProps {
 export function PlaceDetailSpine({
   category,
   coverImageUrl,
-  navigation,
   title,
   totalCount,
 }: Readonly<PlaceDetailSpineProps>) {
   return (
-    <header className="relative overflow-hidden bg-[#151816] text-[#f0ece4] lg:sticky lg:top-0 lg:h-screen lg:min-h-0 lg:self-start">
+    <header className="relative overflow-hidden bg-[#151816] text-[#f0ece4] lg:col-start-1 lg:row-start-1 lg:h-screen lg:min-h-0">
       <div className="grid gap-6 px-5 pt-6 pb-7 sm:grid-cols-[minmax(0,1fr)_12rem] sm:px-8 lg:contents">
         <div className="flex min-w-0 flex-col justify-between gap-8 lg:contents">
           <PlaceCategoryBadge
@@ -51,7 +48,6 @@ export function PlaceDetailSpine({
           />
         </div>
       </div>
-      {navigation}
       <p
         aria-hidden="true"
         className="[font-family:var(--font-place-display)] absolute top-1/2 left-1/2 hidden max-h-[55vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden text-3xl leading-none font-medium tracking-[-0.02em] whitespace-nowrap [writing-mode:vertical-rl] rotate-180 lg:block"

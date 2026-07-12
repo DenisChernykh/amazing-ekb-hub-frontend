@@ -1,17 +1,13 @@
 'use client';
 
-import type { Platform } from '@/shared/api/generated/model/platform';
 import { MotionConfig, motion } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
-import type { PlaceDetailPlatformSection } from '../model/types';
-
-type PlatformNavigationItem = Pick<
-  PlaceDetailPlatformSection,
-  'anchor' | 'count' | 'label' | 'platform'
->;
+import type { RefObject } from 'react';
+import { usePlaceDetailPlatformScrollspy } from '../lib/use-place-detail-platform-scrollspy';
+import type { PlaceDetailPlatformNavigationItem } from '../model/types';
 
 interface PlaceDetailPlatformNavigationProps {
-  platforms: PlatformNavigationItem[];
+  platforms: PlaceDetailPlatformNavigationItem[];
+  scrollContainerRef: RefObject<HTMLDivElement | null>;
 }
 
 /**
@@ -21,60 +17,9 @@ interface PlaceDetailPlatformNavigationProps {
  */
 export function PlaceDetailPlatformNavigation({
   platforms,
+  scrollContainerRef,
 }: Readonly<PlaceDetailPlatformNavigationProps>) {
-  const [activePlatform, setActivePlatform] = useState<Platform | null>(
-    platforms[0]?.platform ?? null,
-  );
-  const visibilityByPlatform = useRef(new Map<Platform, number>());
-
-  useEffect(() => {
-    const platformByAnchor = new Map(platforms.map((item) => [item.anchor, item.platform]));
-    const sections = platforms.flatMap((item) => {
-      const section = document.getElementById(item.anchor);
-      return section ? [section] : [];
-    });
-
-    if (sections.length === 0) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const platform = platformByAnchor.get(entry.target.id);
-
-          if (platform) {
-            visibilityByPlatform.current.set(
-              platform,
-              entry.isIntersecting ? entry.intersectionRatio : 0,
-            );
-          }
-        });
-
-        const isPageBottom =
-          window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 1;
-        const nextActivePlatform = isPageBottom
-          ? (platforms.at(-1)?.platform ?? null)
-          : platforms.reduce<Platform | null>((active, item) => {
-              if (!active) {
-                return visibilityByPlatform.current.get(item.platform) ? item.platform : null;
-              }
-
-              const activeVisibility = visibilityByPlatform.current.get(active) ?? 0;
-              const itemVisibility = visibilityByPlatform.current.get(item.platform) ?? 0;
-              return itemVisibility > activeVisibility ? item.platform : active;
-            }, null);
-
-        if (nextActivePlatform) {
-          setActivePlatform(nextActivePlatform);
-        }
-      },
-      { rootMargin: '-15% 0px -15% 0px', threshold: [0, 0.2, 0.45, 0.7] },
-    );
-
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
-  }, [platforms]);
+  const activePlatform = usePlaceDetailPlatformScrollspy(platforms, scrollContainerRef);
 
   if (platforms.length === 0) {
     return null;
@@ -84,7 +29,7 @@ export function PlaceDetailPlatformNavigation({
     <MotionConfig reducedMotion="user">
       <nav
         aria-label="Платформы"
-        className="sticky top-0 z-20 flex overflow-x-auto border-t border-white/10 bg-[#151816] px-4 lg:absolute lg:right-0 lg:bottom-4 lg:left-0 lg:top-auto lg:w-full lg:flex-col lg:items-stretch lg:overflow-visible lg:border-t-0 lg:px-3"
+        className="sticky top-0 z-20 flex overflow-x-auto border-t border-white/10 bg-[#151816] px-4 lg:col-start-1 lg:row-start-1 lg:h-screen lg:flex-col lg:items-stretch lg:justify-end lg:overflow-visible lg:border-t-0 lg:bg-transparent lg:px-3 lg:pb-4"
       >
         {platforms.map((platform) => {
           const isActive = platform.platform === activePlatform;

@@ -116,8 +116,24 @@ describe('PlaceDetail', () => {
     expect(html).toContain('Закрепленный материал');
     expect(html).toContain('Assigned pinned material without URL');
     expect(html).not.toContain('Открыть материал');
-    expect(html).toMatch(/<div[^>]+data-material-id="material_pinned_001"/);
+    expect(html).not.toContain('data-material-id="material_pinned_001"');
     expect(html).not.toMatch(/<a[^>]+data-material-id="material_pinned_001"/);
+  });
+
+  it('keeps mobile navigation outside the header and exposes a desktop scroll container', () => {
+    const html = renderToStaticMarkup(
+      createElement(PlaceDetail, {
+        place: PLACE_DETAIL_WITHOUT_PINNED_MATERIAL,
+      }),
+    );
+
+    const headerEndIndex = html.indexOf('</header>');
+    const navigationIndex = html.indexOf('aria-label="Платформы"');
+
+    expect(headerEndIndex).toBeGreaterThanOrEqual(0);
+    expect(navigationIndex).toBeGreaterThan(headerEndIndex);
+    expect(html).toContain('data-material-index-scroll-container="true"');
+    expect(html).toContain('lg:h-screen lg:overflow-y-auto');
   });
 
   it('renders pinned material CTA through backend redirect link', () => {
