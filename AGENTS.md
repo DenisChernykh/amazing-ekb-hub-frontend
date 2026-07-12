@@ -135,12 +135,12 @@ Helpers должны быть маленькими, pure и жить рядом 
 
 Целевая история:
 
-1. `linear + squash`.
-2. Conventional Commits: `type(scope): subject`.
-3. Feature-ветки: `<type>/<short-name>`, старт от `stage`.
-4. В `stage` — только squash merge через PR.
-5. В `main` — fast-forward от `stage`.
-6. Не переписывать исторические merge-коммиты.
+1. Feature-ветки попадают в `stage` через обычный merge PR без squash.
+2. `main` продвигается из `stage` только fast-forward, без release merge-коммита.
+3. Conventional Commits: `type(scope): subject`.
+4. Feature-ветки: `<type>/<short-name>`, старт от актуального `stage`.
+5. При невозможности fast-forward операция должна завершиться ошибкой; дополнительный merge для исправления истории не создаётся.
+6. Исторические merge-коммиты не переписываются.
 
 Коммиты делать логическими группами:
 
