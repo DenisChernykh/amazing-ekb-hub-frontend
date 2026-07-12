@@ -231,7 +231,7 @@ describe('getHomePageData', () => {
 
     await expect(getHomePageData({})).resolves.toEqual({
       kind: 'unexpected_error',
-      query: {
+      urlState: {
         page: 1,
         pageSize: 20,
         sort: 'popular',
@@ -258,7 +258,7 @@ describe('getHomePageData', () => {
 
     await expect(getHomePageData({})).resolves.toEqual({
       kind: 'bad_request',
-      query: {
+      urlState: {
         page: 1,
         pageSize: 20,
         sort: 'popular',
@@ -280,7 +280,7 @@ describe('getHomePageData', () => {
 
     await expect(getHomePageData({})).resolves.toEqual({
       kind: 'unexpected_error',
-      query: {
+      urlState: {
         page: 1,
         pageSize: 20,
         sort: 'popular',

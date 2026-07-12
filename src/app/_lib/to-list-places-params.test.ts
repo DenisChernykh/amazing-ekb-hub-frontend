@@ -5,7 +5,7 @@ describe('toListPlacesParams', () => {
   it('maps resolved public state to the backend query without the category slug', () => {
     expect(
       toListPlacesParams({
-        query: {
+        urlState: {
           page: 3,
           pageSize: 40,
           search: 'spa',

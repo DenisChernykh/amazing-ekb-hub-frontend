@@ -5,7 +5,7 @@ describe('serializeHomeSearchParams', () => {
   it('omits default values', () => {
     expect(
       serializeHomeSearchParams({
-        query: {
+        urlState: {
           page: 1,
           pageSize: 20,
           sort: 'popular',
@@ -17,7 +17,7 @@ describe('serializeHomeSearchParams', () => {
   it('serializes public fields in stable order without the backend category id', () => {
     expect(
       serializeHomeSearchParams({
-        query: {
+        urlState: {
           page: 3,
           pageSize: 40,
           search: 'family spa',

@@ -1,37 +1,37 @@
 import type { PlaceCategory } from '@/entities/place';
-import type { HomeQuery } from './normalize-home-search-params';
+import type { CatalogUrlState } from './normalize-home-search-params';
 
 export type ResolvedCatalogState = {
-  query: HomeQuery;
+  urlState: CatalogUrlState;
   categoryId?: string;
 };
 
 /**
  * Это хелпер. Сверяет публичный category slug с backend-справочником.
  *
- * @param query - Нормализованное публичное состояние каталога.
+ * @param urlState - Нормализованное публичное URL-состояние каталога.
  * @param categories - Категории из backend-справочника.
  * @returns Согласованное URL-состояние и backend category id.
  */
 export function resolveCatalogState(
-  query: HomeQuery,
+  urlState: CatalogUrlState,
   categories: PlaceCategory[],
 ): ResolvedCatalogState {
-  if (!query.category) {
-    return { query };
+  if (!urlState.category) {
+    return { urlState };
   }
 
-  const activeCategory = categories.find((category) => category.slug === query.category);
+  const activeCategory = categories.find((category) => category.slug === urlState.category);
 
   if (activeCategory) {
     return {
-      query: { ...query, category: activeCategory.slug },
+      urlState: { ...urlState, category: activeCategory.slug },
       categoryId: activeCategory.id,
     };
   }
 
-  const resolvedQuery = { ...query };
-  delete resolvedQuery.category;
+  const resolvedUrlState = { ...urlState };
+  delete resolvedUrlState.category;
 
-  return { query: resolvedQuery };
+  return { urlState: resolvedUrlState };
 }
