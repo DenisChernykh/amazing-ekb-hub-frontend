@@ -1,24 +1,31 @@
-# Git Workflow: Linear + Squash
+# Git Workflow: PR Merge to Stage + Fast-Forward to Main
 
 ## 1. Цель
 
 Сделать историю изменений предсказуемой и читаемой:
 
-- линейная история в `stage` и `main`,
-- один чистый коммит на каждую фичу в `stage`,
-- безопасный релиз в `main` через PR из `stage` без merge-коммитов.
+- feature-ветки попадают в `stage` обычным merge через PR;
+- история `stage` сохраняет merge-коммиты PR и логические коммиты feature-веток;
+- `main` продвигается из `stage` только fast-forward, без отдельного release merge-коммита;
+- production deploy запускается только после проверок и берёт явно проверенный ref.
 
 ## 2. Базовые правила
 
 1. Ветки проекта:
-   - `main` — релизная ветка.
+   - `main` — релизная ветка;
    - `stage` — интеграционная ветка.
-2. Рабочая ветка создаётся только от `stage`.
+2. Рабочая ветка создаётся только от актуального `stage`.
 3. Нейминг рабочей ветки: `<type>/<short-name>`.
-4. Merge `<type>/<short-name> -> stage` только через **Squash and merge**.
-5. Продвижение `stage -> main` только через release PR `stage -> main`.
-   Direct push в `main` не является стандартным release path при включенной branch protection.
-6. Сообщения коммитов: Conventional Commits.
+4. Merge `<type>/<short-name> -> stage` выполняется через обычный PR merge, без squash.
+5. Продвижение `stage -> main` выполняется только fast-forward:
+
+   ```bash
+   git merge --ff-only stage
+   ```
+
+6. Обычный merge-коммит для release PR в `main` запрещён.
+7. Исторические merge-коммиты не переписываются; правило применяется к новым изменениям.
+8. Сообщения коммитов соответствуют Conventional Commits.
 
 ## 3. Conventional Commits
 
@@ -33,108 +40,168 @@
 
 Рекомендуемые `type`:
 
-- `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `perf`, `build`, `ci`, `revert`, `style`
+- `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `perf`, `build`, `ci`, `revert`, `style`.
 
-## 4. Операционный чеклист (с командами, рисками и проверкой)
+## 4. Операционный чеклист
 
 ### 4.1 Начало работы над задачей
 
 1. `git switch stage`
-   Цель: перейти в интеграционную ветку как базу для новой работы.
-   Риск: если есть незакоммиченные изменения, переход может быть заблокирован или привести к путанице.
-   Проверка: `git branch --show-current` должен вернуть `stage`.
+
+   Цель: перейти на интеграционную ветку как на базу для новой работы.
+
+   Проверка:
+
+   ```bash
+   git branch --show-current
+   git status -sb
+   ```
+
 2. `git pull --ff-only origin stage`
-   Цель: синхронизировать `stage` без создания merge-коммитов.
-   Риск: команда завершится ошибкой, если нужен merge/rebase.
-   Проверка: `git status -sb` и `git log --oneline -n 1`.
+
+   Цель: синхронизировать `stage` без создания merge-коммита.
+
+   Если команда завершается ошибкой, сначала нужно разобраться с расхождением веток.
+
 3. `git switch -c <type>/<short-name>`
-   Цель: создать рабочую ветку с валидным именем.
-   Риск: неверный шаблон имени ветки будет заблокирован проверками на push/CI.
-   Проверка: `git branch --show-current`.
+
+   Цель: создать рабочую ветку от проверенного `stage`.
 
 ### 4.2 Синхронизация рабочей ветки с актуальным `stage`
 
-1. `git fetch origin`
-   Цель: получить свежие удалённые ссылки и коммиты.
-   Риск: отсутствует, не меняет рабочие файлы.
-   Проверка: `git branch -r | rg origin/stage`.
-2. `git rebase origin/stage`
-   Цель: наложить вашу работу поверх актуального `stage` и сохранить линейность.
-   Риск: возможны конфликты.
-   Проверка: `git log --graph --oneline --decorate -n 20`.
-3. Если rebase нужно отменить: `git rebase --abort`
-   Цель: безопасно вернуть состояние до начала rebase.
-   Проверка: `git status`.
+1. `git fetch --prune origin`
 
-### 4.3 Публикация ветки и PR
+   Цель: получить свежие удалённые refs. Команда не меняет рабочие файлы.
+
+2. `git rebase origin/stage`
+
+   Цель: наложить работу поверх актуального `stage` и заранее увидеть конфликты.
+
+   Отмена rebase:
+
+   ```bash
+   git rebase --abort
+   ```
+
+3. Проверить историю:
+
+   ```bash
+   git log --graph --oneline --decorate -n 20
+   ```
+
+### 4.3 Публикация ветки и PR в `stage`
 
 1. `git push -u origin <type>/<short-name>`
-   Цель: опубликовать ветку и установить upstream.
-   Риск: pre-push проверки остановят push при нарушениях (это ожидаемо).
-   Проверка: `git branch -vv`.
-2. Создать PR `<type>/<short-name> -> stage` в интерфейсе хостинга и выбрать **Squash and merge**.
 
-### 4.4 Релиз из `stage` в `main` через protected PR
+   Перед push должны пройти локальные pre-push проверки.
 
-1. `git switch stage`
-   Цель: перейти на интеграционную ветку, из которой будет открыт release PR.
-   Проверка: `git branch --show-current` должен вернуть `stage`.
-2. `git pull --ff-only origin stage`
-   Цель: убедиться, что локальный `stage` совпадает с удалённой интеграционной веткой.
-   Проверка: `git status -sb` не показывает отставание.
-3. `git switch main`
-   Цель: проверить текущую release-базу.
-   Проверка: `git branch --show-current` должен вернуть `main`.
-4. `git pull --ff-only origin main`
-   Цель: убедиться, что локальный `main` совпадает с удалённой release-веткой.
-   Проверка: `git status -sb` не показывает отставание.
-5. Открыть PR `stage -> main`.
-   Цель: пройти branch protection, review gates и CI перед релизом.
-   Риск: если `main` требует PR, direct push или локальный `git merge --ff-only stage && git push origin main` будет отклонён.
-   Проверка: PR base — `main`, head — `stage`.
-6. Смержить release PR только способом, который сохраняет линейную историю и не создаёт merge-коммит.
-   Цель: сохранить политику linear history для release branch.
-   Проверка: `git log --graph --oneline --decorate -n 30` после `git pull --ff-only origin main` не содержит нового merge-коммита release PR.
+2. Создать PR `<type>/<short-name> -> stage`.
+
+3. После зелёного CI выбрать обычный merge commit (`Create a merge commit` / `Merge pull request`), не squash.
+
+Так `stage` сохраняет полный контекст feature-ветки. Это разрешённые merge-коммиты интеграционной ветки, а не release merge-коммиты в `main`.
+
+### 4.4 Релиз из `stage` в `main`: только fast-forward
+
+1. Обновить refs и проверить предка:
+
+   ```bash
+   git fetch --prune origin
+   git merge-base --is-ancestor origin/main origin/stage
+   ```
+
+   Код возврата `0` означает, что `main` можно продвинуть до `stage` fast-forward.
+
+2. Синхронизировать локальные ветки:
+
+   ```bash
+   git switch stage
+   git pull --ff-only origin stage
+   git switch main
+   git pull --ff-only origin main
+   ```
+
+3. Продвинуть `main` без merge-коммита:
+
+   ```bash
+   git merge --ff-only stage
+   git push origin main
+   ```
+
+4. Проверить результат:
+
+   ```bash
+   git rev-parse main stage
+   git rev-list --left-right --count main...stage
+   git log --graph --oneline --decorate -n 30
+   ```
+
+   После успешного fast-forward `main` и `stage` указывают на один commit, а `git rev-list --left-right --count main...stage` возвращает `0 0`.
+
+Если branch protection запрещает прямой push в `main`, release automation должна выполнить тот же fast-forward под контролируемыми правами. В интерфейсе GitHub нельзя выбирать обычный `Merge pull request` для release PR.
+
+### 4.5 Прямой production deploy проверенного `stage`
+
+Обычный production workflow запускается при push в `main`, но также поддерживает `workflow_dispatch`.
+
+Если нужно выкатить именно текущий `stage` без изменения `main`:
+
+1. Обновить `origin/stage` и проверить commit.
+2. В GitHub Actions открыть `deploy-production`.
+3. Нажать `Run workflow` и выбрать ref `stage`.
+4. Дождаться jobs `quality`, `build-image` и `deploy`.
+5. Проверить frontend URL и API proxy `/v1/health/live`.
+
+Такой режим является прямым production deploy из `stage`, а не release в `main`; его нужно использовать осознанно.
 
 ## 5. Политика pull request и release
 
 1. `stage` обновляется только через PR.
-2. `main` обновляется только через PR из `stage` после зелёного CI.
-3. Для `stage` и `main` нужно включить branch protection (если хостинг поддерживает):
-   - Require pull request before merging.
-   - Require status checks to pass.
-   - Disallow merge commits.
-   - Allow squash merge для feature PR в `stage`.
-   - Allow rebase/linear merge для release PR `stage -> main`.
-4. CI дополнительно валидирует направление PR:
-   - в `stage` можно только из `<type>/<short-name>`,
+2. Для PR в `stage` разрешён обычный merge commit; squash не используется.
+3. `main` обновляется только из `stage` после зелёного CI.
+4. Обычные merge-коммиты в `main` запрещены.
+5. В `main` нельзя направлять feature PR напрямую; release source — только `stage`.
+6. Branch protection должна:
+   - требовать PR и обязательные status checks для `stage`;
+   - разрешать merge commits в `stage`;
+   - запрещать squash для feature PR в `stage`;
+   - запрещать обычные merge-коммиты в `main`;
+   - разрешать только fast-forward/линейный release-путь из `stage`.
+7. CI дополнительно проверяет направление PR:
+   - в `stage` можно только из `<type>/<short-name>`;
    - в `main` можно только из `stage`.
-5. Исторические merge-коммиты не переписываются; стандарт применяется к новым изменениям.
 
 ## 6. Проверки, которые должны проходить
 
 1. `commit-msg` hook проверяет Conventional Commit.
-2. `pre-commit` hook запускает `lint-staged` и форматирует staged-файлы через Prettier.
-3. `pre-push` проверяет:
-   - имя ветки;
-   - `pnpm format:check`;
-   - `pnpm lint:strict`;
-   - `pnpm test:unit`;
-   - `pnpm typecheck`;
-   - `pnpm build`.
-4. CI на PR в `stage` и `main` должен воспроизводить те же обязательные проверки и дополнительно валидировать PR flow:
-   - в `stage` можно только из `<type>/<short-name>`;
-   - в `main` можно только из `stage`.
-5. Команда `test:unit` уже внедрена и обязательна для pre-push/CI.
-6. Команды `test:e2e` и `test:coverage` являются целевым состоянием frontend и становятся обязательными только после их реального добавления в репозиторий.
-7. После внедрения e2e/component tooling полный набор CI должен включать frontend unit/component и e2e-сценарии по `docs/testing/test-strategy.md`.
+2. `pre-commit` запускает `lint-staged` и форматирует staged-файлы.
+3. `pre-push` проверяет имя ветки, форматирование, lint, unit-тесты, typecheck и build.
+4. Полный frontend-набор:
+
+   ```bash
+   pnpm run format:check
+   pnpm run lint:strict
+   pnpm run test:unit
+   pnpm run typecheck
+   pnpm run build
+   ```
+
+   `typecheck` и `build` запускаются последовательно, потому что используют артефакты `.next`.
+
+5. CI на PR в `stage` и `main` воспроизводит этот набор и проверяет направление PR.
 
 ## 7. Быстрая диагностика истории
 
-Команда:
-`git log --graph --oneline --decorate --all`
+```bash
+git log --graph --oneline --decorate --all
+git rev-list --left-right --count origin/main...origin/stage
+git merge-base --is-ancestor origin/main origin/stage
+git log --merges origin/main..origin/stage
+```
 
-Признак корректного процесса:
+Корректное состояние release-пути:
 
-- в новых изменениях для `stage/main` нет новых merge-узлов от feature-веток,
-- каждый PR в `stage` превращается в один squash-коммит.
+- `origin/main` является предком `origin/stage` перед fast-forward release;
+- после release refs `main` и `stage` совпадают;
+- новые merge-коммиты допустимы внутри `stage`, но не добавляются поверх `stage` в `main`;
+- если fast-forward невозможен, команда завершается ошибкой, а историю не нужно исправлять дополнительным merge.
