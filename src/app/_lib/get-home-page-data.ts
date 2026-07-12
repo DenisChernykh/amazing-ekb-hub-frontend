@@ -4,8 +4,8 @@ import { fetchPublicPlaceList } from '@/entities/place/api/fetch-public-place-li
 import { buildCatalogControlsHref } from '@/features/catalog-controls';
 import { buildPlacesPaginationHref } from '@/features/places-pagination';
 import type { PlacesCatalogModel } from '@/widgets/places-catalog';
-import { normalizeHomeSearchParams, type HomeQuery } from './normalize-home-search-params';
-import { resolveCatalogState, type ResolvedCatalogState } from './resolve-catalog-state';
+import { normalizeHomeSearchParams, type CatalogUrlState } from './normalize-home-search-params';
+import { resolveCatalogState } from './resolve-catalog-state';
 import { serializeHomeSearchParams } from './serialize-home-search-params';
 import { toListPlacesParams } from './to-list-places-params';
 
@@ -19,14 +19,14 @@ export type HomePageModel =
     }
   | {
       kind: 'bad_request';
-      query: HomeQuery;
+      urlState: CatalogUrlState;
       title: string;
       issues: HomePageIssue[];
       requestId?: string;
     }
   | {
       kind: 'unexpected_error';
-      query: HomeQuery;
+      urlState: CatalogUrlState;
       message: string;
     };
 
@@ -37,24 +37,23 @@ export type HomePageModel =
  * @returns Модель success- или error-состояния страницы.
  */
 export async function getHomePageData(rawSearchParams: RawSearchParams): Promise<HomePageModel> {
-  const query = normalizeHomeSearchParams(rawSearchParams);
+  const urlState = normalizeHomeSearchParams(rawSearchParams);
   const categoriesPromise = fetchPublicPlaceCategories();
-  const unresolvedState: ResolvedCatalogState = { query };
-  const unfilteredListPromise = query.category
+  const unfilteredListPromise = urlState.category
     ? undefined
-    : fetchPublicPlaceList(toListPlacesParams(unresolvedState));
+    : fetchPublicPlaceList(toListPlacesParams({ urlState }));
   const categoriesResult = await categoriesPromise;
 
   if (categoriesResult.kind === 'unexpected_error') {
     return {
       kind: 'unexpected_error',
-      query,
+      urlState,
       message: categoriesResult.message,
     };
   }
 
   const categories = categoriesResult.data.items;
-  const resolvedState = resolveCatalogState(query, categories);
+  const resolvedState = resolveCatalogState(urlState, categories);
   const result = await (unfilteredListPromise ??
     fetchPublicPlaceList(toListPlacesParams(resolvedState)));
 
@@ -72,11 +71,11 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
           },
           controls: {
             categories,
-            search: resolvedState.query.search,
-            activeCategorySlug: resolvedState.query.category,
+            search: resolvedState.urlState.search,
+            activeCategorySlug: resolvedState.urlState.category,
           },
           pagination: {
-            page: resolvedState.query.page,
+            page: resolvedState.urlState.page,
             pageCount,
           },
           links: {
@@ -97,7 +96,7 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
     case 'bad_request':
       return {
         kind: 'bad_request',
-        query: resolvedState.query,
+        urlState: resolvedState.urlState,
         title: getValidationErrorTitle(result.data.message),
         issues: mapValidationMessagesToIssues(result.data.message),
       };
@@ -105,7 +104,7 @@ export async function getHomePageData(rawSearchParams: RawSearchParams): Promise
     case 'unexpected_error':
       return {
         kind: 'unexpected_error',
-        query: resolvedState.query,
+        urlState: resolvedState.urlState,
         message: result.message,
       };
   }

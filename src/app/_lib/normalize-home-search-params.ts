@@ -9,7 +9,7 @@ import {
 
 type RawSearchParams = Record<string, string | string[] | undefined>;
 
-export type HomeQuery = {
+export type CatalogUrlState = {
   page: number;
   pageSize: number;
   search?: string;
@@ -87,10 +87,10 @@ function toCategorySlug(value: string | undefined): string | undefined {
  * Нормализует query-параметры главной страницы каталога с runtime-ограничениями API-контракта.
  *
  * @param raw - Сырые query-параметры из Next App Router.
- * @returns Безопасные параметры запроса списка мест.
+ * @returns Безопасное публичное URL-состояние каталога.
  */
-export function normalizeHomeSearchParams(raw: RawSearchParams): HomeQuery {
-  const query: HomeQuery = {
+export function normalizeHomeSearchParams(raw: RawSearchParams): CatalogUrlState {
+  const urlState: CatalogUrlState = {
     page: toBoundedInt(pickFirst(raw.page), {
       fallback: listPlacesQueryPageDefault,
       min: 1,
@@ -108,12 +108,12 @@ export function normalizeHomeSearchParams(raw: RawSearchParams): HomeQuery {
   const category = toCategorySlug(pickFirst(raw.category));
 
   if (search) {
-    query.search = search;
+    urlState.search = search;
   }
 
   if (category) {
-    query.category = category;
+    urlState.category = category;
   }
 
-  return query;
+  return urlState;
 }

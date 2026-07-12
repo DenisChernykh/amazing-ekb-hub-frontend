@@ -22,7 +22,7 @@ describe('resolveCatalogState', () => {
         [FAMILY_SPA_CATEGORY],
       ),
     ).toEqual({
-      query: {
+      urlState: {
         page: 2,
         pageSize: 20,
         search: 'spa',
@@ -46,7 +46,7 @@ describe('resolveCatalogState', () => {
         [FAMILY_SPA_CATEGORY],
       ),
     ).toEqual({
-      query: {
+      urlState: {
         page: 3,
         pageSize: 40,
         search: 'spa',

@@ -8,13 +8,13 @@ import type { ResolvedCatalogState } from './resolve-catalog-state';
  * @returns Параметры запроса списка мест.
  */
 export function toListPlacesParams(state: ResolvedCatalogState): ListPlacesParams {
-  const { query, categoryId } = state;
+  const { urlState, categoryId } = state;
 
   return {
-    page: query.page,
-    pageSize: query.pageSize,
-    sort: query.sort,
-    ...(query.search ? { search: query.search } : {}),
+    page: urlState.page,
+    pageSize: urlState.pageSize,
+    sort: urlState.sort,
+    ...(urlState.search ? { search: urlState.search } : {}),
     ...(categoryId ? { categoryId } : {}),
   };
 }
