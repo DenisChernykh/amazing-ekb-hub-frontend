@@ -28,6 +28,12 @@ describe('PlaceCard', () => {
     expect(html).toContain('motion-safe:transition-[transform,translate,box-shadow]');
   });
 
+  it('keeps the stronger focus shadow when hover and focus-within are active together', () => {
+    const html = renderToStaticMarkup(createElement(PlaceCard, { place: PLACE }));
+
+    expect(html).toContain('hover:focus-within:shadow-app-card-focus');
+  });
+
   it('server-renders the complete card with separate semantic links and no MUI markup', () => {
     const html = renderToStaticMarkup(createElement(PlaceCard, { place: PLACE }));
     const anchorFragments = html.match(/<a\b[^>]*>[\s\S]*?<\/a>/g) ?? [];
