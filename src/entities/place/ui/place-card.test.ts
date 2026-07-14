@@ -22,6 +22,12 @@ const PLACE: PlaceCardModel = {
 };
 
 describe('PlaceCard', () => {
+  it('transitions the Tailwind individual translate property for card lift', () => {
+    const html = renderToStaticMarkup(createElement(PlaceCard, { place: PLACE }));
+
+    expect(html).toContain('motion-safe:transition-[transform,translate,box-shadow]');
+  });
+
   it('server-renders the complete card with separate semantic links and no MUI markup', () => {
     const html = renderToStaticMarkup(createElement(PlaceCard, { place: PLACE }));
     const anchorFragments = html.match(/<a\b[^>]*>[\s\S]*?<\/a>/g) ?? [];
