@@ -262,9 +262,21 @@ const PLACE: PlaceCardModel = {
 };
 
 describe('PlaceCard', () => {
+  it('transitions the Tailwind individual translate property for card lift', () => {
+    const html = renderToStaticMarkup(createElement(PlaceCard, { place: PLACE }));
+
+    expect(html).toContain('motion-safe:transition-[transform,translate,box-shadow]');
+  });
+
+  it('keeps the stronger focus shadow when hover and focus-within are active together', () => {
+    const html = renderToStaticMarkup(createElement(PlaceCard, { place: PLACE }));
+
+    expect(html).toContain('hover:focus-within:shadow-app-card-focus');
+  });
+
   it('server-renders the complete card with separate semantic links and no MUI markup', () => {
     const html = renderToStaticMarkup(createElement(PlaceCard, { place: PLACE }));
-    const anchorFragments = html.match(/<a\b[^>]*>.*?<\/a>/gs) ?? [];
+    const anchorFragments = html.match(/<a\b[^>]*>[\s\S]*?<\/a>/g) ?? [];
 
     expect(html).toContain('data-slot="card"');
     expect(html).toContain('data-slot="card-content"');
@@ -335,7 +347,7 @@ export function PlaceCard({ place }: Readonly<PlaceCardProps>) {
   const placeHref = buildPlaceHref(place.id);
 
   return (
-    <Card className="h-full gap-0 py-0 shadow-app-card hover:ring-primary/35 hover:shadow-app-card-hover focus-within:ring-primary/35 focus-within:shadow-app-card-focus motion-safe:transition-[transform,box-shadow] motion-safe:duration-[180ms] motion-safe:ease-out motion-safe:hover:-translate-y-1 motion-safe:focus-within:-translate-y-1">
+    <Card className="h-full gap-0 py-0 shadow-app-card hover:ring-primary/35 hover:shadow-app-card-hover focus-within:ring-primary/35 focus-within:shadow-app-card-focus hover:focus-within:shadow-app-card-focus motion-safe:transition-[transform,translate,box-shadow] motion-safe:duration-[180ms] motion-safe:ease-out motion-safe:hover:-translate-y-1 motion-safe:focus-within:-translate-y-1">
       <Link
         href={placeHref}
         className="block focus-visible:z-[1] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-inset"
@@ -427,7 +439,7 @@ Run:
 pnpm exec vitest run src/entities/place/ui/place-card.test.ts src/entities/place/ui/place-card-badges.test.ts
 ```
 
-Expected: two test files pass with four passing tests.
+Expected: two test files pass with six passing tests.
 
 - [ ] **Step 8: Run focused static checks**
 
@@ -556,7 +568,7 @@ pnpm exec vitest run src/entities/place/ui/place-card.test.ts src/entities/place
 pnpm run test:unit
 ```
 
-Expected: the focused two files pass with four tests, then the full suite exits 0 with no failed tests.
+Expected: the focused two files pass with six tests, then the full suite exits 0 with no failed tests.
 
 - [ ] **Step 3: Run repository quality gates**
 
