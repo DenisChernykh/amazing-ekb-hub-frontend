@@ -55,14 +55,20 @@ Exit criteria:
 - Tests cover visible copy, semantic landmarks/headings, and action links/buttons.
 - Legacy MUI pages still pass representative desktop/mobile visual checks.
 
-### Phase 2: Small Display Primitives
+### Phase 2: Display Primitives and Entity Cards
+
+Status: in progress.
 
 Migrate reusable display components:
 
 1. Category badges/chips.
 2. Material metadata badges.
 3. Platform counters.
-4. Simple card sections that do not depend on MUI `CardActionArea`.
+4. Reusable entity cards built on stable shared primitives.
+
+Completed slice:
+
+- The complete place-card entity slice (`PlaceCard`, `PlaceCardImage`, and `PlaceCardBadges`) now uses the shared shadcn `Card` and `Badge` contracts, keeps its image, title, and platform links server-rendered, and no longer imports MUI or requires a client boundary.
 
 Exit criteria:
 
@@ -91,12 +97,11 @@ Exit criteria:
 
 ### Phase 4: High-visibility Pages
 
-Migrate the most visible user surfaces last:
+Migrate the most visible page-level surfaces last:
 
-1. Place cards.
-2. Places catalog layout.
-3. Place detail hero.
-4. Pinned material and materials-by-platform sections.
+1. Places catalog layout.
+2. Place detail hero.
+3. Pinned material and materials-by-platform sections.
 
 Completed slice:
 

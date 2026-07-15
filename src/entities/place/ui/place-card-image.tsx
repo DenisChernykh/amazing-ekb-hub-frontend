@@ -1,5 +1,4 @@
-import { appStyleTokens } from '@/shared/ui/theme';
-import { Box, CardMedia } from '@mui/material';
+import Image from 'next/image';
 import type { PlaceCardModel } from '../model/types';
 import { PlaceCategoryBadge } from './place-category-badge';
 
@@ -20,34 +19,21 @@ export function PlaceCardImage({ category, src, title }: Readonly<PlaceCardImage
   const imageSrc = src?.trim() ? src : PLACE_PLACEHOLDER_IMAGE_SRC;
 
   return (
-    <Box
-      sx={{
-        position: 'relative',
-        overflow: 'hidden',
-        width: '100%',
-        aspectRatio: '4 / 3',
-        bgcolor: appStyleTokens.palette.imagePlaceholder,
-      }}
-    >
-      <CardMedia
-        component="img"
+    <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+      <Image
+        fill
+        unoptimized
         src={imageSrc}
         alt={`Фото места ${title}`}
-        className="place-card-image"
         loading="lazy"
-        sx={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          transition: 'transform 260ms ease',
-        }}
+        sizes="(max-width: 899px) calc(100vw - 32px), (max-width: 1199px) calc((100vw - 64px) / 2), 384px"
+        className="object-cover motion-safe:transition-transform motion-safe:duration-[260ms] motion-safe:ease-out motion-safe:group-hover/card:scale-[1.035] motion-safe:group-focus-within/card:scale-[1.035]"
       />
 
       <PlaceCategoryBadge
         category={category}
-        className="absolute top-3 left-3 z-[1]"
-        style={{ boxShadow: appStyleTokens.shadows.overlayBadge }}
+        className="absolute top-3 left-3 z-[1] shadow-[0_8px_20px_rgb(15_23_42/14%)]"
       />
-    </Box>
+    </div>
   );
 }

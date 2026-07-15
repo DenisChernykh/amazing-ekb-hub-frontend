@@ -1,7 +1,4 @@
-'use client';
-
-import { appStyleTokens } from '@/shared/ui/theme';
-import { Card, CardActionArea, CardContent, Link as MuiLink, Typography } from '@mui/material';
+import { Card, CardContent } from '@/shared/ui';
 import Link from 'next/link';
 import { buildPlaceHref } from '../lib/build-place-href';
 import type { PlaceCardModel } from '../model/types';
@@ -18,72 +15,26 @@ interface PlaceCardProps {
  * @param props - Данные карточки места.
  */
 export function PlaceCard({ place }: Readonly<PlaceCardProps>) {
+  const placeHref = buildPlaceHref(place.id);
+
   return (
-    <Card
-      sx={{
-        display: 'flex',
-        height: '100%',
-        flexDirection: 'column',
-        '&:hover .place-card-image, &:focus-within .place-card-image': {
-          transform: 'scale(1.035)',
-        },
-        '@media (prefers-reduced-motion: reduce)': {
-          transition: 'none',
-          '& .place-card-image': {
-            transition: 'none',
-          },
-        },
-      }}
-    >
-      <CardActionArea
-        component={Link}
-        href={buildPlaceHref(place.id)}
-        sx={{
-          display: 'block',
-        }}
+    <Card className="h-full gap-0 py-0 shadow-app-card hover:ring-primary/35 hover:shadow-app-card-hover focus-within:ring-primary/35 focus-within:shadow-app-card-focus hover:focus-within:shadow-app-card-focus motion-safe:transition-[transform,translate,box-shadow] motion-safe:duration-[180ms] motion-safe:ease-out motion-safe:hover:-translate-y-1 motion-safe:focus-within:-translate-y-1">
+      <Link
+        href={placeHref}
+        className="block focus-visible:z-[1] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-inset"
       >
         <PlaceCardImage category={place.category} src={place.coverImageUrl} title={place.title} />
-      </CardActionArea>
+      </Link>
 
-      <CardContent
-        sx={{
-          display: 'flex',
-          width: '100%',
-          minHeight: 112,
-          p: 1.75,
-          gap: 1.25,
-          flexDirection: 'column',
-          '&:last-child': {
-            pb: 1.75,
-          },
-        }}
-      >
-        <Typography
-          color="text.primary"
-          sx={{
-            display: '-webkit-box',
-            overflow: 'hidden',
-            WebkitBoxOrient: 'vertical',
-            WebkitLineClamp: 2,
-            ...appStyleTokens.typography.cardTitle,
-          }}
-        >
-          <MuiLink
-            component={Link}
-            href={buildPlaceHref(place.id)}
-            underline="none"
-            sx={{
-              color: 'inherit',
-              '&:focus-visible': {
-                borderRadius: 0.5,
-                outline: `3px solid ${appStyleTokens.palette.focusRing}`,
-                outlineOffset: 2,
-              },
-            }}
+      <CardContent className="flex min-h-28 w-full flex-col gap-2.5 p-3.5">
+        <p className="line-clamp-2 text-[clamp(1.05rem,0.9rem+0.45vw,1.28rem)] leading-[1.18] font-bold text-card-foreground">
+          <Link
+            href={placeHref}
+            className="rounded-sm text-inherit no-underline focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
           >
             {place.title}
-          </MuiLink>
-        </Typography>
+          </Link>
+        </p>
         <PlaceCardBadges place={place} />
       </CardContent>
     </Card>
