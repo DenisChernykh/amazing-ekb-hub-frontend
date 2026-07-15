@@ -269,7 +269,7 @@ Expected: the commit contains exactly five new shared UI files plus the public i
 
 **Interfaces:**
 
-- Consumes: the validated invariant `1 <= page <= pageCount` from `PlacesPaginationModel`.
+- Consumes: valid-domain input `1 <= page <= pageCount` for the pure builder. `PlacesPagination` separately preserves MUI next/last boundary behavior for reachable `page > pageCount`; URL clamping or redirect policy remains outside this slice.
 - Produces: `buildPlacesPaginationItems({ page, pageCount }): PlacesPaginationItem[]`, where an item is `{ type: 'page'; page: number }` or `{ type: 'ellipsis'; key: 'start' | 'end' }`.
 
 - [ ] **Step 1: Write the failing range-builder test**

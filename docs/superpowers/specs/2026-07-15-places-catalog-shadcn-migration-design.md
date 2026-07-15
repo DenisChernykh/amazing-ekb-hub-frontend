@@ -90,7 +90,7 @@ Follow test-driven development:
 
 1. Add failing tests for the desired semantic markup before replacing MUI in each component.
 2. Add focused tests for the pure pagination item builder before implementing it.
-3. Cover small page counts, first/middle/last pages, large page counts, ellipses, and no duplicates. The builder accepts the already-validated widget invariant `1 <= page <= pageCount`; changing invalid pagination handling is outside this migration.
+3. Cover small page counts, first/middle/last pages, large page counts, ellipses, and no duplicates. The pure builder assumes valid-domain input `1 <= page <= pageCount`; the pagination consumer must still preserve MUI boundary behavior for reachable `page > pageCount`, while URL clamping or redirect policy remains outside this migration.
 4. Cover the shared text field's label association, placeholder, default value, maximum length, and absence of MUI markup.
 5. Cover search input/button markup, category order, active/inactive states, dynamic category colors, and button semantics.
 6. Cover catalog title/result/page copy, populated grid semantics, empty-state composition, pagination presence, and the absence of `Mui*` classes in migrated markup.
