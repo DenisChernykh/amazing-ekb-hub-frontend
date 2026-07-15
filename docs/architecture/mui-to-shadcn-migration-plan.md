@@ -78,12 +78,17 @@ Exit criteria:
 
 ### Phase 3: Forms and Controls
 
-Migrate interaction-heavy features after shared primitives are stable:
+Status: in progress.
 
-1. Catalog controls.
-2. Login form.
-3. Pagination.
-4. Auth lab/debug surfaces if they are still useful.
+Completed slice:
+
+- `CatalogControls` now uses the project-owned shadcn `TextField`, `Button`, and `Badge` contracts while preserving submit-only search, category colors, canonical URL transitions, and leaf client ownership.
+- `PlacesPagination` now uses the shared shadcn pagination composition with a tested compact range, responsive mobile controls, explicit accessible labels, and the existing canonical href transition.
+
+Remaining work:
+
+1. Login form.
+2. Auth lab/debug surfaces if they are still useful.
 
 Special rule:
 
@@ -97,19 +102,16 @@ Exit criteria:
 
 ### Phase 4: High-visibility Pages
 
-Migrate the most visible page-level surfaces last:
+Status: completed.
 
-1. Places catalog layout.
-2. Place detail hero.
-3. Pinned material and materials-by-platform sections.
+Completed slices:
 
-Completed slice:
-
+- The complete public places catalog now uses semantic HTML, Tailwind layout, shared shadcn controls, and the migrated place-card entity slice. Its server/client boundaries, canonical URL behavior, empty states, 600px/900px/1200px responsive layout, and desktop/mobile visual language remain intact.
 - Place detail is migrated as the explicitly approved **Archive Spine × Focus Mode** redesign. This is a documented exception to visual parity, not a precedent for silently redesigning other migration slices.
 - `src/widgets/place-detail` and `PlaceCategoryBadge` no longer import MUI; the complete publication index, anchors, redirect links, headings, and empty state remain server-rendered.
 - Focus preview and platform scrollspy are isolated client enhancements. The page requires no client-side data fetch and keeps usable anchors and material links without JavaScript.
 - Literata and Manrope are loaded through `next/font` and scoped to the ready place-detail route. Legacy pages keep the existing Roboto setup.
-- MUI/Emotion providers and packages remain in the root bridge because catalog, auth, and other unmigrated surfaces still depend on them.
+- MUI/Emotion providers and packages remain in the root bridge because auth and debug surfaces still depend on them.
 
 Exit criteria:
 
