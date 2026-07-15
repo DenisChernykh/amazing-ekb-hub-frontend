@@ -69,4 +69,19 @@ describe('PlaceCard', () => {
     expect(html).toContain('/images/places/place-placeholder.webp');
     expect(html).toContain('alt="Фото места Баден-Баден Уктус"');
   });
+
+  it('renders an absolute cover URL without the Next.js image optimizer', () => {
+    const coverImageUrl = 'https://api.example.com/v1/places/place_ekb_001/photo';
+    const html = renderToStaticMarkup(
+      createElement(PlaceCard, {
+        place: {
+          ...PLACE,
+          coverImageUrl,
+        },
+      }),
+    );
+
+    expect(html).toContain(`src="${coverImageUrl}"`);
+    expect(html).not.toContain('/_next/image');
+  });
 });
