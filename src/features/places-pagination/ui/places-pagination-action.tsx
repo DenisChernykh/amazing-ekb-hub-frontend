@@ -87,7 +87,8 @@ export function PlacesPaginationAction({
       data-page={page}
       href={href}
       isActive={isActive}
-      onClick={(event) => onNavigate(event, page)}
+      onClick={disabled ? undefined : (event) => onNavigate(event, page)}
+      role={disabled ? 'link' : undefined}
       size="icon-sm"
       tabIndex={disabled ? -1 : undefined}
     >

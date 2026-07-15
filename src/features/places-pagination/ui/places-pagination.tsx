@@ -36,7 +36,7 @@ export function PlacesPagination({
 
   const items = buildPlacesPaginationItems({ page, pageCount });
   const isFirstPage = page === 1;
-  const isLastPage = page === pageCount;
+  const isLastPage = page >= pageCount;
 
   /**
    * Это хелпер. Переводит pagination action в canonical URL каталога.
