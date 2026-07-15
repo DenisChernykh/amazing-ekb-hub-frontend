@@ -3,6 +3,19 @@ import { PaginationLink } from '@/shared/ui';
 import type { MouseEvent, ReactNode } from 'react';
 import { buildPlacesPaginationHref } from '../lib/build-places-pagination-href';
 
+type PlacesPaginationClickEvent = Pick<
+  MouseEvent<HTMLAnchorElement>,
+  'altKey' | 'button' | 'ctrlKey' | 'defaultPrevented' | 'metaKey' | 'preventDefault' | 'shiftKey'
+>;
+
+interface HandlePlacesPaginationClickOptions {
+  currentPage: number;
+  currentSearchParams: string;
+  event: PlacesPaginationClickEvent;
+  nextPage: number;
+  push: (href: string) => void;
+}
+
 interface PlacesPaginationActionProps {
   ariaLabel: string;
   children: ReactNode;
@@ -11,6 +24,38 @@ interface PlacesPaginationActionProps {
   isActive?: boolean;
   onNavigate: (event: MouseEvent<HTMLAnchorElement>, page: number) => void;
   page: number;
+}
+
+/**
+ * Это хелпер. Перехватывает обычный primary click для client-side навигации.
+ *
+ * @param options - Click event, состояние страниц и router callback.
+ */
+export function handlePlacesPaginationClick({
+  currentPage,
+  currentSearchParams,
+  event,
+  nextPage,
+  push,
+}: HandlePlacesPaginationClickOptions) {
+  if (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+
+  if (nextPage === currentPage) {
+    return;
+  }
+
+  push(buildPlacesPaginationHref({ currentSearchParams, page: nextPage }));
 }
 
 /**

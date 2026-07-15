@@ -1,13 +1,40 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PlacesPagination } from './places-pagination';
+import { handlePlacesPaginationClick } from './places-pagination-action';
 
 const { push } = vi.hoisted(() => ({ push: vi.fn() }));
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push }),
 }));
+
+type PaginationClickEvent = Parameters<typeof handlePlacesPaginationClick>[0]['event'];
+
+/**
+ * Это хелпер. Создаёт минимальный mouse event для проверки link interception.
+ *
+ * @param overrides - Переопределения состояния клика.
+ * @returns Event contract и spy метода preventDefault.
+ */
+function createClickEvent(overrides: Partial<PaginationClickEvent> = {}) {
+  const preventDefault = vi.fn();
+
+  return {
+    event: {
+      altKey: false,
+      button: 0,
+      ctrlKey: false,
+      defaultPrevented: false,
+      metaKey: false,
+      preventDefault,
+      shiftKey: false,
+      ...overrides,
+    },
+    preventDefault,
+  };
+}
 
 /**
  * Это хелпер. Рендерит пагинацию в статическую HTML-разметку.
@@ -24,6 +51,65 @@ function renderPagination(page: number, pageCount: number): string {
     }),
   );
 }
+
+describe('handlePlacesPaginationClick', () => {
+  beforeEach(() => {
+    push.mockReset();
+  });
+
+  it.each([
+    ['already prevented', { defaultPrevented: true }],
+    ['meta-modified', { metaKey: true }],
+    ['control-modified', { ctrlKey: true }],
+    ['shift-modified', { shiftKey: true }],
+    ['alt-modified', { altKey: true }],
+    ['non-primary', { button: 1 }],
+  ])('leaves %s clicks to the browser', (_label, overrides) => {
+    const { event, preventDefault } = createClickEvent(overrides);
+
+    handlePlacesPaginationClick({
+      currentPage: 2,
+      currentSearchParams: 'search=spa&page=2',
+      event,
+      nextPage: 3,
+      push,
+    });
+
+    expect(preventDefault).not.toHaveBeenCalled();
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it('intercepts an unmodified primary click and pushes one canonical href', () => {
+    const { event, preventDefault } = createClickEvent();
+
+    handlePlacesPaginationClick({
+      currentPage: 2,
+      currentSearchParams: 'search=spa&page=2',
+      event,
+      nextPage: 1,
+      push,
+    });
+
+    expect(preventDefault).toHaveBeenCalledOnce();
+    expect(push).toHaveBeenCalledOnce();
+    expect(push).toHaveBeenCalledWith('/?search=spa');
+  });
+
+  it('prevents an unmodified primary click on the current page without pushing', () => {
+    const { event, preventDefault } = createClickEvent();
+
+    handlePlacesPaginationClick({
+      currentPage: 2,
+      currentSearchParams: 'search=spa&page=2',
+      event,
+      nextPage: 2,
+      push,
+    });
+
+    expect(preventDefault).toHaveBeenCalledOnce();
+    expect(push).not.toHaveBeenCalled();
+  });
+});
 
 describe('PlacesPagination', () => {
   it('renders nothing for a single page', () => {

@@ -9,10 +9,9 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { MouseEvent } from 'react';
-import { buildPlacesPaginationHref } from '../lib/build-places-pagination-href';
 import { buildPlacesPaginationItems } from '../lib/build-places-pagination-items';
 import type { PlacesPaginationModel } from '../model/types';
-import { PlacesPaginationAction } from './places-pagination-action';
+import { handlePlacesPaginationClick, PlacesPaginationAction } from './places-pagination-action';
 
 interface PlacesPaginationProps {
   pagination: PlacesPaginationModel;
@@ -46,13 +45,13 @@ export function PlacesPagination({
    * @param nextPage - Выбранный номер страницы.
    */
   function handlePageChange(event: MouseEvent<HTMLAnchorElement>, nextPage: number) {
-    event.preventDefault();
-
-    if (nextPage === page) {
-      return;
-    }
-
-    router.push(buildPlacesPaginationHref({ currentSearchParams, page: nextPage }));
+    handlePlacesPaginationClick({
+      currentPage: page,
+      currentSearchParams,
+      event,
+      nextPage,
+      push: router.push,
+    });
   }
 
   return (
