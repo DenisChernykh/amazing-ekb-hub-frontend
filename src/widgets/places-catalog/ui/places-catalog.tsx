@@ -1,7 +1,6 @@
 import { PlaceCard } from '@/entities/place';
 import { CatalogControls } from '@/features/catalog-controls';
 import { PlacesPagination } from '@/features/places-pagination';
-import { Container, Grid, Stack, Typography } from '@mui/material';
 import { getPlacesCatalogEmptyState } from '../model/get-places-catalog-empty-state';
 import type { PlacesCatalogModel } from '../model/types';
 import { PlacesCatalogEmpty } from './places-catalog-empty';
@@ -26,44 +25,31 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
   });
 
   return (
-    <Container
-      component="main"
-      maxWidth="lg"
-      sx={{
-        py: { xs: 3.75, sm: 6 },
-        pb: 8,
-      }}
-    >
-      <Stack
-        component="header"
-        direction={{ xs: 'column', sm: 'row' }}
-        justifyContent="space-between"
-        alignItems={{ xs: 'flex-start', sm: 'flex-end' }}
-        gap={2.25}
-        mb={3.5}
-      >
-        <Stack spacing={1.25}>
-          <Typography color="text.primary" component="h1" variant="h1">
+    <main className="mx-auto w-full max-w-[1200px] px-4 pt-[30px] pb-16 min-[600px]:px-6 min-[600px]:pt-12">
+      <header className="mb-7 flex flex-col items-start justify-between gap-[18px] min-[600px]:flex-row min-[600px]:items-end">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="text-[clamp(2rem,1.4rem+2vw,3.4rem)] leading-[1.04] font-bold tracking-normal text-foreground">
             Места
-          </Typography>
-          <Typography color="text.secondary">Найдено: {results.total}</Typography>
-        </Stack>
+          </h1>
+          <p className="leading-[1.55] text-muted-foreground">Найдено: {results.total}</p>
+        </div>
 
-        <Typography color="text.secondary" mb={{ xs: 0, sm: 0.75 }} whiteSpace="nowrap">
+        <p className="leading-[1.55] whitespace-nowrap text-muted-foreground min-[600px]:mb-1.5">
           Страница {pagination.page} из {pagination.pageCount}
-        </Typography>
-      </Stack>
+        </p>
+      </header>
 
       <CatalogControls model={controls} currentSearchParams={navigation.currentSearchParams} />
 
       {results.items.length > 0 ? (
-        <Grid aria-label="Список мест" container component="section" spacing={{ xs: 2, sm: 2.5 }}>
+        <section
+          aria-label="Список мест"
+          className="grid grid-cols-1 gap-4 min-[600px]:gap-5 min-[900px]:grid-cols-2 min-[1200px]:grid-cols-3"
+        >
           {results.items.map((place) => (
-            <Grid key={place.id} size={{ xs: 12, md: 6, lg: 4 }}>
-              <PlaceCard place={place} />
-            </Grid>
+            <PlaceCard key={place.id} place={place} />
           ))}
-        </Grid>
+        </section>
       ) : (
         <PlacesCatalogEmpty {...emptyState} />
       )}
@@ -72,6 +58,6 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
         pagination={pagination}
         currentSearchParams={navigation.currentSearchParams}
       />
-    </Container>
+    </main>
   );
 }
