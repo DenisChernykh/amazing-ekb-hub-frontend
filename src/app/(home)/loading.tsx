@@ -1,4 +1,4 @@
-import { Skeleton } from '@/shared/ui';
+import { Container, Skeleton } from '@/shared/ui';
 
 const categoryChipWidths = ['w-12', 'w-20', 'w-24', 'w-16', 'w-28', 'w-20'] as const;
 
@@ -13,7 +13,7 @@ const placeCardSkeletons = [
 
 export default function HomeLoading() {
   return (
-    <main aria-busy="true" className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <Container as="main" aria-busy="true" className="py-8 sm:py-12">
       <section aria-label="Загрузка каталога" aria-live="polite" className="w-full" role="status">
         <span className="sr-only">Загрузка...</span>
 
@@ -82,6 +82,6 @@ export default function HomeLoading() {
           </div>
         </div>
       </section>
-    </main>
+    </Container>
   );
 }

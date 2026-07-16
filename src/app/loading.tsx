@@ -1,11 +1,8 @@
-import { Skeleton } from '@/shared/ui';
+import { Container, Skeleton } from '@/shared/ui';
 
 export default function Loading() {
   return (
-    <main
-      aria-busy="true"
-      className="mx-auto flex w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8"
-    >
+    <Container as="main" aria-busy="true" className="flex py-8 sm:py-12">
       <section
         aria-label="Загрузка"
         aria-live="polite"
@@ -18,6 +15,6 @@ export default function Loading() {
           <span className="text-sm text-muted-foreground">Загрузка...</span>
         </div>
       </section>
-    </main>
+    </Container>
   );
 }

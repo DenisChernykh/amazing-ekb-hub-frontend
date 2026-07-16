@@ -10,6 +10,7 @@ describe('HomeLoading', () => {
 
     expect(html).toContain('aria-busy="true"');
     expect(html).toContain('aria-label="Загрузка каталога"');
+    expect(html).toContain('data-slot="container"');
     expect(html).toContain('data-slot="skeleton"');
     expect(html.match(/<article/g) ?? []).toHaveLength(6);
     expect(html).toContain('Загрузка...');
