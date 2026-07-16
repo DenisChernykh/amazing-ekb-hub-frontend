@@ -1,12 +1,12 @@
 'use client';
 
-import { getPlaceCategoryDisplay } from '@/entities/place';
-import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
+import { Button, TextField } from '@/shared/ui';
 import { useRouter } from 'next/navigation';
 import type { FormEvent } from 'react';
 import { buildCatalogControlsHref } from '../lib/build-catalog-controls-href';
 import { buildCatalogControlsInputKey } from '../lib/build-catalog-controls-input-key';
 import type { CatalogControlsModel } from '../model/types';
+import { CatalogCategoryFilters } from './catalog-category-filters';
 
 interface CatalogControlsProps {
   model: CatalogControlsModel;
@@ -51,66 +51,34 @@ export function CatalogControls({ model, currentSearchParams }: Readonly<Catalog
   }
 
   return (
-    <Stack component="section" aria-label="Фильтры каталога" spacing={2.25} mb={3.5}>
-      <Stack
-        component="form"
+    <section aria-label="Фильтры каталога" className="mb-7 flex flex-col gap-[18px]">
+      <form
+        className="flex flex-col items-stretch gap-2.5 min-[600px]:flex-row min-[600px]:items-start"
         onSubmit={handleSearchSubmit}
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={1.25}
-        alignItems={{ xs: 'stretch', sm: 'flex-start' }}
       >
         <TextField
           key={buildCatalogControlsInputKey({ search, category: activeCategorySlug })}
-          fullWidth
+          containerClassName="min-w-0 flex-1"
           defaultValue={search ?? ''}
+          id="catalog-search"
           label="Поиск"
+          maxLength={100}
           name="search"
-          slotProps={{ htmlInput: { maxLength: 100 } }}
           placeholder="Название или описание места"
-          size="small"
         />
-        <Button type="submit" variant="contained" sx={{ minWidth: { sm: 128 } }}>
+        <Button className="h-10 w-full min-[600px]:w-auto min-[600px]:min-w-32" type="submit">
           Найти
         </Button>
-      </Stack>
+      </form>
 
-      <Stack spacing={1}>
-        <Typography color="text.secondary" component="h2" variant="subtitle2">
-          Категории
-        </Typography>
-        <Stack direction="row" flexWrap="wrap" gap={1}>
-          <Chip
-            color={activeCategorySlug ? 'default' : 'primary'}
-            label="Все"
-            onClick={() => navigate({ category: null })}
-            variant={activeCategorySlug ? 'outlined' : 'filled'}
-          />
-
-          {categories.map((placeCategory) => {
-            const display = getPlaceCategoryDisplay(placeCategory);
-            const isActive = activeCategorySlug === placeCategory.slug;
-
-            return (
-              <Chip
-                key={placeCategory.id}
-                color={isActive ? 'primary' : 'default'}
-                label={display.label}
-                onClick={() => navigate({ category: placeCategory.slug })}
-                sx={
-                  isActive
-                    ? {
-                        bgcolor: display.backgroundColor,
-                        color: display.color,
-                        fontWeight: 700,
-                      }
-                    : undefined
-                }
-                variant={isActive ? 'filled' : 'outlined'}
-              />
-            );
-          })}
-        </Stack>
-      </Stack>
-    </Stack>
+      <div className="flex flex-col gap-2">
+        <h2 className="text-sm leading-[1.55] font-medium text-muted-foreground">Категории</h2>
+        <CatalogCategoryFilters
+          activeCategorySlug={activeCategorySlug}
+          categories={categories}
+          onCategoryChange={(category) => navigate({ category })}
+        />
+      </div>
+    </section>
   );
 }
