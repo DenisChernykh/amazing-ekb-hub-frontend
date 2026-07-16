@@ -10,6 +10,7 @@ import {
   Input,
 } from '@/shared/ui';
 import { CircleAlertIcon } from 'lucide-react';
+import { buildLoginEmailInputKey } from '../lib/build-login-email-input-key';
 
 interface LoginFormFieldsProps {
   redirectTo: string;
@@ -44,6 +45,7 @@ export function LoginFormFields({ redirectTo, state }: Readonly<LoginFormFieldsP
         <Field data-invalid={Boolean(emailError)}>
           <FieldLabel htmlFor={EMAIL_ID}>Email</FieldLabel>
           <Input
+            key={buildLoginEmailInputKey(state.values.email)}
             id={EMAIL_ID}
             aria-describedby={emailError ? EMAIL_ERROR_ID : undefined}
             aria-invalid={emailError ? true : undefined}
