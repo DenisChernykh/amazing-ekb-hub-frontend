@@ -11,6 +11,7 @@ describe('Loading', () => {
     expect(html).toContain('aria-busy="true"');
     expect(html).toContain('role="status"');
     expect(html).toContain('aria-label="Загрузка"');
+    expect(html).toContain('data-slot="container"');
     expect(html).toContain('Загрузка...');
     expect(html).toContain('data-slot="skeleton"');
     expect(html).not.toContain('CircularProgress');
