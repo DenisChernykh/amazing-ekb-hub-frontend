@@ -1,6 +1,7 @@
 import { PlaceCard } from '@/entities/place';
 import { CatalogControls } from '@/features/catalog-controls';
 import { PlacesPagination } from '@/features/places-pagination';
+import { Container } from '@/shared/ui';
 import { getPlacesCatalogEmptyState } from '../model/get-places-catalog-empty-state';
 import type { PlacesCatalogModel } from '../model/types';
 import { PlacesCatalogEmpty } from './places-catalog-empty';
@@ -25,7 +26,7 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
   });
 
   return (
-    <main className="mx-auto w-full max-w-[1200px] px-4 pt-[30px] pb-16 min-[600px]:px-6 min-[600px]:pt-12">
+    <Container as="main" className="pt-[30px] pb-16 min-[600px]:pt-12">
       <header className="mb-7 flex flex-col items-start justify-between gap-[18px] min-[600px]:flex-row min-[600px]:items-end">
         <div className="flex flex-col gap-2.5">
           <h1 className="text-[clamp(2rem,1.4rem+2vw,3.4rem)] leading-[1.04] font-bold tracking-normal text-foreground">
@@ -58,6 +59,6 @@ export function PlacesCatalog({ model }: Readonly<PlacesCatalogProps>) {
         pagination={pagination}
         currentSearchParams={navigation.currentSearchParams}
       />
-    </main>
+    </Container>
   );
 }

@@ -58,6 +58,10 @@ describe('PlacesCatalog', () => {
     const html = renderToStaticMarkup(createElement(PlacesCatalog, { model: MODEL }));
 
     expect(html).toContain('<main');
+    expect(html).toContain('data-slot="container"');
+    expect(html).toContain('pt-[30px]');
+    expect(html).toContain('pb-16');
+    expect(html).not.toContain('max-w-[1200px]');
     expect(html).toContain('<h1');
     expect(html).toContain('>Места</h1>');
     expect(html).toContain('Найдено: 1');
