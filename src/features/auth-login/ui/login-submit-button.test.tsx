@@ -16,7 +16,7 @@ describe('LoginSubmitButtonView', () => {
   it('disables submit and renders a reduced-motion-safe spinner while pending', () => {
     const html = renderToStaticMarkup(createElement(LoginSubmitButtonView, { pending: true }));
 
-    expect(html).toContain('disabled');
+    expect(html).toMatch(/<button[^>]*\sdisabled(?:=|>|\s)/);
     expect(html).toContain('data-slot="login-submit-spinner"');
     expect(html).toContain('motion-safe:animate-spin');
     expect(html).toContain('aria-hidden="true"');
