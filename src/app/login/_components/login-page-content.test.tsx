@@ -21,7 +21,7 @@ describe('LoginPageContent', () => {
       createElement(LoginPageContent, { redirectTo: '/auth-lab/protected' }),
     );
 
-    expect(html).toContain('<main');
+    expect(html.match(/<main\b/g)).toHaveLength(1);
     expect(html).toContain('data-slot="container"');
     expect(html.match(/<h1\b/g)).toHaveLength(1);
     expect(html).toContain('С возвращением');
