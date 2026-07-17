@@ -84,11 +84,12 @@ Completed slice:
 
 - `CatalogControls` now uses the project-owned shadcn `TextField`, `Button`, and `Badge` contracts while preserving submit-only search, category colors, canonical URL transitions, and leaf client ownership.
 - `PlacesPagination` now uses the shared shadcn pagination composition with a tested compact range, responsive mobile controls, explicit accessible labels, and the existing canonical href transition.
+- Production login now uses the shared shadcn `Field`, `Input`, `Alert`, and `Button` contracts while preserving the existing server action, credential safety, validation, and redirect flow.
+- Login uses the explicitly approved editorial desktop/form-first mobile redesign. Field errors combine visible text, invalid styling, and explicit accessible associations; pending submit keeps the stable `Войти` label and adds a reduced-motion-safe spinner.
 
 Remaining work:
 
-1. Login form.
-2. Auth lab/debug surfaces if they are still useful.
+1. Auth lab/debug surfaces if they are still useful.
 
 Special rule:
 
