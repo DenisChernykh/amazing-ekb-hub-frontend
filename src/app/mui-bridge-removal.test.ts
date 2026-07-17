@@ -22,4 +22,21 @@ describe('completed MUI bridge removal', () => {
     expect(globalCss).not.toContain('@layer theme, base, mui, components, utilities;');
     expect(globalCss).not.toContain('.MuiInputBase-input');
   });
+
+  it('has no direct MUI or Emotion dependencies', () => {
+    const packageJson = JSON.parse(readProjectFile('package.json')) as {
+      dependencies?: Record<string, string>;
+    };
+    const dependencies = packageJson.dependencies ?? {};
+
+    for (const dependency of [
+      '@emotion/cache',
+      '@emotion/react',
+      '@emotion/styled',
+      '@mui/material',
+      '@mui/material-nextjs',
+    ]) {
+      expect(dependencies).not.toHaveProperty(dependency);
+    }
+  });
 });
