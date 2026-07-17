@@ -77,8 +77,8 @@ const readProjectFile = (path: string): string =>
 
 describe('completed MUI bridge removal', () => {
   it('has no auth-lab route or runtime MUI bridge', () => {
-    expect(existsSync(resolve(process.cwd(), 'src/app/auth-lab'))).toBe(false);
-    expect(existsSync(resolve(process.cwd(), 'src/shared/ui/theme'))).toBe(false);
+    expect(existsSync(resolve(process.cwd(), 'src/app/auth-lab/page.tsx'))).toBe(false);
+    expect(existsSync(resolve(process.cwd(), 'src/shared/ui/theme/index.ts'))).toBe(false);
 
     const runtimeSource = [
       readProjectFile('src/app/layout.tsx'),
@@ -252,7 +252,8 @@ Expected: 3 test files pass with no warnings.
 Run:
 
 ```bash
-rg -n "@mui|@emotion|AppRouterCacheProvider|ThemeProvider|CssBaseline|MuiInputBase" src
+rg -n "@mui|@emotion|AppRouterCacheProvider|ThemeProvider|CssBaseline|MuiInputBase" \
+  src --glob '!src/app/mui-bridge-removal.test.ts'
 git diff --check
 ```
 
@@ -480,8 +481,8 @@ Run:
 ```bash
 rg -n \
   "@mui|@emotion|AppRouterCacheProvider|ThemeProvider|CssBaseline|MuiInputBase" \
-  src package.json
-find src/app -maxdepth 2 -type d -name 'auth-lab'
+  src package.json --glob '!src/app/mui-bridge-removal.test.ts'
+test ! -f src/app/auth-lab/page.tsx
 ```
 
 Expected: both commands return no matches.

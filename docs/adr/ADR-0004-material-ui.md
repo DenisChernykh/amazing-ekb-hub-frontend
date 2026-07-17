@@ -2,7 +2,7 @@
 
 ## Status
 
-Superseded for new and migrated UI by ADR-0006. Material UI remains a legacy bridge until the migration is complete.
+Superseded by [ADR-0006](./ADR-0006-tailwind-shadcn-ui-migration.md).
 
 ## Decision
 

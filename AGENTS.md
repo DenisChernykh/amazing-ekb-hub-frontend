@@ -25,9 +25,10 @@
 
 ## Архитектурный стиль
 
-Целевой frontend-подход для нового и мигрированного UI: Next.js App Router + FSD + Tailwind CSS + shadcn/ui.
+Текущий frontend-подход: Next.js App Router + FSD + Tailwind CSS + shadcn/ui.
 
-Material UI остаётся legacy bridge на время постепенной миграции. Не удалять `ThemeProvider`, `CssBaseline`, Emotion и `@mui/*`, пока в проекте остаются MUI-компоненты.
+Миграция с Material UI завершена. Не добавлять MUI, Emotion или MUI provider/theme
+infrastructure обратно без отдельного ADR.
 
 `src/app` — только framework/route слой:
 
@@ -73,31 +74,16 @@ Material UI остаётся legacy bridge на время постепенно�
 6. Слои импортируются через public API (`index.ts`), если компонент/тип предназначен для внешнего использования.
 7. Внутри одного slice допустимы локальные relative imports.
 
-## Material UI rules
-
-Эти правила действуют для ещё не мигрированных MUI-участков.
-
-1. По умолчанию использовать нативные MUI-компоненты, а не собирать аналоги вручную.
-2. Для карточек использовать `Card`, `CardActionArea`, `CardContent`, `CardMedia`.
-3. Для пагинации использовать `Pagination`.
-4. Для сеток использовать `Container` и `Grid`.
-5. Для состояний использовать `Alert`, `Paper`, `CircularProgress`, `Skeleton`, `Typography`.
-6. Для метаданных использовать `Chip`, `Avatar`, `Badge` по смыслу.
-7. `Box` и `Stack` использовать как layout primitives, а не как замену готовым компонентам.
-8. Если MUI-компоненту нужно передать function component через `component={...}`, этот leaf-компонент должен быть client component (`'use client'`).
-9. Не передавать функции в Client Components из Server Components.
-10. CSS Modules не использовать для нового UI без отдельной причины.
-
-## Tailwind и shadcn/ui migration rules
+## Tailwind и shadcn/ui rules
 
 1. shadcn/ui добавлять через CLI, не копировать registry-файлы вручную.
-2. Не выполнять массовый `shadcn add --all`; добавлять только компоненты текущего migration slice.
+2. Не выполнять массовый `shadcn add --all`; добавлять только компоненты текущей задачи.
 3. Project-owned shadcn components держать в `src/shared/ui`, generic helpers — в `src/shared/lib`.
 4. Tailwind tokens в `src/app/globals.css` должны сохранять текущие app-level цвета, радиусы, тени и типографику, пока отдельно не принято решение о redesign.
-5. Новый UI не импортирует MUI. MUI допустим только в legacy-файлах, которые ещё не мигрированы.
+5. UI не импортирует MUI или Emotion. Их повторное добавление требует отдельного архитектурного решения.
 6. Повторяемые состояния loading, empty, error, disabled, focus и confirmation оформлять через shared UI contracts, а не локальными ad-hoc решениями.
-7. Для каждого migration slice сохранять desktop/mobile visual check для затронутых состояний.
-8. Tailwind preflight включён глобально на bridge-период; порядок cascade layers `theme, base, mui, components, utilities` не менять без отдельной визуальной проверки legacy MUI-страниц.
+7. Для каждого заметного UI-изменения сохранять desktop/mobile visual check для затронутых состояний.
+8. Tailwind preflight включён глобально; порядок cascade layers `theme, base, components, utilities` не менять без отдельной визуальной проверки.
 
 ## Component structure
 
