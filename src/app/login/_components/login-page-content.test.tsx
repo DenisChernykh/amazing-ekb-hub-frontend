@@ -18,7 +18,7 @@ vi.mock('@/features/auth-login', async () => {
 describe('LoginPageContent', () => {
   it('server-renders the editorial desktop and form-first mobile contracts', () => {
     const html = renderToStaticMarkup(
-      createElement(LoginPageContent, { redirectTo: '/auth-lab/protected' }),
+      createElement(LoginPageContent, { redirectTo: '/places/example-place' }),
     );
 
     expect(html.match(/<main\b/g)).toHaveLength(1);
@@ -32,7 +32,7 @@ describe('LoginPageContent', () => {
     expect(html).toContain('hidden');
     expect(html).toContain('lg:flex');
     expect(html).toContain('lg:hidden');
-    expect(html).toContain('data-redirect-to="/auth-lab/protected"');
+    expect(html).toContain('data-redirect-to="/places/example-place"');
     expect(html).not.toContain('Mui');
   });
 });

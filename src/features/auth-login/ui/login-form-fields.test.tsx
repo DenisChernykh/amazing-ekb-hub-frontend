@@ -20,13 +20,13 @@ describe('LoginFormFields', () => {
   it('associates server field errors and restores only the email value', () => {
     const html = renderToStaticMarkup(
       createElement(LoginFormFields, {
-        redirectTo: '/auth-lab/protected',
+        redirectTo: '/places/example-place',
         state: VALIDATION_STATE,
       }),
     );
 
     expect(html).toContain('name="redirectTo"');
-    expect(html).toContain('value="/auth-lab/protected"');
+    expect(html).toContain('value="/places/example-place"');
     expect(html).toContain('id="login-email"');
     expect(html).toContain('value="wrong-email"');
     expect(html).toContain('aria-describedby="login-email-error"');

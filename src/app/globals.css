@@ -1,4 +1,4 @@
-@layer theme, base, mui, components, utilities;
+@layer theme, base, components, utilities;
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -136,10 +136,6 @@
   *::before,
   *::after {
     box-sizing: inherit;
-  }
-
-  .MuiInputBase-input {
-    box-sizing: content-box;
   }
 
   body {
