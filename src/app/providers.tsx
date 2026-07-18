@@ -1,9 +1,6 @@
 'use client';
 
 import { SessionProvider, type SessionState } from '@/entities/session';
-import { appTheme } from '@/shared/ui/theme';
-import { CssBaseline } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
 
 interface ProvidersProps {
   initialSession: SessionState;
@@ -34,15 +31,8 @@ function getSessionBoundaryKey(session: SessionState): string {
  */
 export function Providers({ children, initialSession }: Readonly<ProvidersProps>) {
   return (
-    <ThemeProvider theme={appTheme}>
-      <CssBaseline>
-        <SessionProvider
-          key={getSessionBoundaryKey(initialSession)}
-          initialSession={initialSession}
-        >
-          {children}
-        </SessionProvider>
-      </CssBaseline>
-    </ThemeProvider>
+    <SessionProvider key={getSessionBoundaryKey(initialSession)} initialSession={initialSession}>
+      {children}
+    </SessionProvider>
   );
 }

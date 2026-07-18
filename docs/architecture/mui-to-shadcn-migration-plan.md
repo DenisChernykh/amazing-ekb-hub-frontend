@@ -2,7 +2,7 @@
 
 ## Goal
 
-Gradually migrate the public frontend UI from Material UI to Tailwind CSS + shadcn/ui without changing the current visual language or rewriting all screens at once.
+Record the completed migration of the public frontend UI from Material UI to Tailwind CSS + shadcn/ui.
 
 The target stack is:
 
@@ -10,23 +10,23 @@ The target stack is:
 - FSD layers;
 - Tailwind CSS as the everyday styling language;
 - shadcn/ui source components in `src/shared/ui`;
-- MUI kept only as a legacy bridge until no MUI imports remain.
+- application-owned runtime providers without a UI toolkit bridge.
 
 ## Guardrails
 
 1. Do not run `shadcn add --all`.
-2. Do not remove `ThemeProvider`, `CssBaseline`, Emotion, `AppRouterCacheProvider`, or `@mui/*` while any MUI component remains.
-3. New migrated UI must not import MUI.
-4. Each migration slice must keep the existing copy, layout intent, colors, radii, focus behavior, and responsive states unless a separate redesign decision exists.
-5. Tailwind preflight is enabled globally during the bridge period; keep cascade layer order `theme, base, mui, components, utilities`.
-6. For every slice, keep desktop and mobile visual checks for affected states plus representative legacy MUI pages.
+2. Do not reintroduce MUI, Emotion, or their provider/theme infrastructure without a new ADR.
+3. UI imports shared shadcn components and Tailwind contracts instead of a parallel toolkit.
+4. UI changes keep the existing copy, layout intent, colors, radii, focus behavior, and responsive states unless a separate redesign decision exists.
+5. Tailwind preflight is enabled globally; keep cascade layer order `theme, base, components, utilities`.
+6. For visible UI changes, keep desktop and mobile visual checks for affected states.
 7. Repeated loading, empty, error, disabled, focus, and confirmation behavior belongs in shared UI contracts, not local JSX copies.
 
 ## Phases
 
 ### Phase 0: Foundation
 
-Status: in progress.
+Status: completed.
 
 - Add Tailwind CSS, shadcn/ui config, PostCSS config, and shared `cn`.
 - Add only the first needed shadcn components to `src/shared/ui`.
@@ -41,6 +41,8 @@ Exit criteria:
 - A first low-risk component is migrated and verified.
 
 ### Phase 1: Low-risk Shared States
+
+Status: completed.
 
 Migrate small, visually bounded states first:
 
@@ -57,7 +59,7 @@ Exit criteria:
 
 ### Phase 2: Display Primitives and Entity Cards
 
-Status: in progress.
+Status: completed.
 
 Migrate reusable display components:
 
@@ -78,7 +80,7 @@ Exit criteria:
 
 ### Phase 3: Forms and Controls
 
-Status: in progress.
+Status: completed.
 
 Completed slice:
 
@@ -86,10 +88,6 @@ Completed slice:
 - `PlacesPagination` now uses the shared shadcn pagination composition with a tested compact range, responsive mobile controls, explicit accessible labels, and the existing canonical href transition.
 - Production login now uses the shared shadcn `Field`, `Input`, `Alert`, and `Button` contracts while preserving the existing server action, credential safety, validation, and redirect flow.
 - Login uses the explicitly approved editorial desktop/form-first mobile redesign. Field errors combine visible text, invalid styling, and explicit accessible associations; pending submit keeps the stable `Войти` label and adds a reduced-motion-safe spinner.
-
-Remaining work:
-
-1. Auth lab/debug surfaces if they are still useful.
 
 Special rule:
 
@@ -112,7 +110,7 @@ Completed slices:
 - `src/widgets/place-detail` and `PlaceCategoryBadge` no longer import MUI; the complete publication index, anchors, redirect links, headings, and empty state remain server-rendered.
 - Focus preview and platform scrollspy are isolated client enhancements. The page requires no client-side data fetch and keeps usable anchors and material links without JavaScript.
 - Literata and Manrope are loaded through `next/font` and scoped to the ready place-detail route. Legacy pages keep the existing Roboto setup.
-- MUI/Emotion providers and packages remain in the root bridge because auth and debug surfaces still depend on them.
+- The production login and public routes use the same Tailwind/shadcn foundation without a root UI toolkit bridge.
 
 Exit criteria:
 
@@ -122,13 +120,16 @@ Exit criteria:
 
 ### Phase 5: Remove MUI Bridge
 
-Start only when `rg "@mui|@emotion|AppRouterCacheProvider|ThemeProvider|CssBaseline" src package.json` shows no remaining UI dependency need.
+Status: completed.
 
-- Remove MUI providers from root layout/provider wiring.
-- Remove MUI and Emotion packages.
-- Delete `src/shared/ui/theme`.
-- Remove MUI-specific CSS exceptions from `globals.css`.
-- Update stale MUI docs and ADRs as superseded.
+Completed outcomes:
+
+- The internal `auth-lab` debug routes were deleted.
+- `AppRouterCacheProvider`, MUI `ThemeProvider`, and `CssBaseline` were removed from root wiring.
+- `SessionProvider` remains as the application-owned client context boundary.
+- Direct MUI and Emotion dependencies and `src/shared/ui/theme` were removed.
+- The `mui` cascade layer and MUI-specific CSS exception were removed from `globals.css`.
+- ADR-0004 was superseded and current contributor guidance records the final stack.
 
 Exit criteria:
 
@@ -142,12 +143,12 @@ Exit criteria:
 2. `pnpm exec tsc --noEmit --pretty false --incremental false`
 3. Relevant unit/component tests.
 4. Desktop and mobile visual check for affected states.
-5. Smoke check for at least one legacy MUI page while MUI bridge is active.
+5. Smoke check for representative public and authenticated routes.
 6. `git diff --check`
 
 Use full `pnpm lint:strict`, `pnpm test:unit`, and `pnpm build` before merging larger slices or removing bridge pieces.
 
-## Current First Slice
+## Initial Slice
 
 The first slice is `src/widgets/places-catalog/ui/places-catalog-empty.tsx`.
 
@@ -174,4 +175,4 @@ Its verification contract includes:
 - a decorative, non-interactive Focus Stage with reduced-motion support;
 - desktop Archive Spine and a one-tap mobile index without the Focus Stage;
 - pinned, no-pinned, unavailable-link, placeholder-cover, long-title, empty-platform, and no-material states;
-- desktop/mobile checks of the redesigned route plus a legacy catalog smoke check.
+- desktop/mobile checks of the redesigned route plus a catalog smoke check.

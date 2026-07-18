@@ -3,7 +3,6 @@ import { Roboto } from 'next/font/google';
 import { Providers } from './providers';
 
 import { getCurrentSession } from '@/entities/session/server';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import './globals.css';
 
 const roboto = Roboto({
@@ -28,9 +27,7 @@ export default async function RootLayout({
   return (
     <html lang="ru" className={roboto.variable}>
       <body>
-        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-          <Providers initialSession={initialSession}>{children}</Providers>
-        </AppRouterCacheProvider>
+        <Providers initialSession={initialSession}>{children}</Providers>
       </body>
     </html>
   );
