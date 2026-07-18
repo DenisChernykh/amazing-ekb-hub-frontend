@@ -8,7 +8,6 @@ describe('serializeHomeSearchParams', () => {
         urlState: {
           page: 1,
           pageSize: 20,
-          sort: 'popular',
         },
       }),
     ).toBe('');
@@ -21,11 +20,10 @@ describe('serializeHomeSearchParams', () => {
           page: 3,
           pageSize: 40,
           search: 'family spa',
-          sort: 'title_asc',
           category: 'family-spa',
         },
         categoryId: 'category_family_spa',
       }),
-    ).toBe('search=family+spa&category=family-spa&sort=title_asc&pageSize=40&page=3');
+    ).toBe('search=family+spa&category=family-spa&pageSize=40&page=3');
   });
 });

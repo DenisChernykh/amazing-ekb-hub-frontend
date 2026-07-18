@@ -10,6 +10,7 @@ const PINNED_DZEN_REDIRECT_URL = '/v1/materials/material_pinned_001/go';
 
 const PLACE_DETAIL_WITHOUT_PINNED_MATERIAL: PlaceDetailModel = {
   id: 'place_ekb_001',
+  slug: 'baden-baden-uktus',
   title: 'Baden-Baden Uktus',
   summary: 'Thermal complex with spa zone.',
   tags: ['spa'],
@@ -17,7 +18,6 @@ const PLACE_DETAIL_WITHOUT_PINNED_MATERIAL: PlaceDetailModel = {
     id: 'category_spa',
     slug: 'spa',
     title: 'SPA',
-    badgeBackgroundColor: '#faf0ed',
   },
   coverImageUrl: null,
   platformCounters: {

@@ -19,12 +19,12 @@ export type FetchPublicPlaceMaterialsResult =
 /**
  * Загружает материалы места по платформе и приводит ответ API к controlled union.
  *
- * @param placeId - Идентификатор места.
+ * @param placeSlug - Публичный slug места.
  * @param platform - Платформа, по которой нужно получить материалы.
  * @returns Результат загрузки материалов со штатными error-ветками.
  */
 export async function fetchPublicPlaceMaterials(
-  placeId: string,
+  placeSlug: string,
   platform: Platform,
 ): Promise<FetchPublicPlaceMaterialsResult> {
   const query: ListPlaceMaterialsParams = {
@@ -32,7 +32,7 @@ export async function fetchPublicPlaceMaterials(
   };
 
   try {
-    const response = await listPlaceMaterials({ placeId }, query, {
+    const response = await listPlaceMaterials({ placeSlug }, query, {
       cache: 'no-store',
     });
 

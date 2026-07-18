@@ -38,6 +38,7 @@ function normalizePlatformCounters(
 export function mapPlaceSummaryToCardModel(place: PlaceSummaryCardFields): PlaceCardModel {
   return {
     id: place.id,
+    slug: place.slug,
     title: place.title,
     category: place.category,
     coverImageUrl: normalizeCoverImageUrl(place.coverImageUrl),

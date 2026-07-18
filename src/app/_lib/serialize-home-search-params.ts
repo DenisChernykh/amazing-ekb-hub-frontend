@@ -1,7 +1,6 @@
 import {
   listPlacesQueryPageDefault,
   listPlacesQueryPageSizeDefault,
-  listPlacesQuerySortDefault,
 } from '@/shared/api/generated-zod/places/places.zod';
 import type { ResolvedCatalogState } from './resolve-catalog-state';
 
@@ -17,7 +16,6 @@ export function serializeHomeSearchParams(state: ResolvedCatalogState): string {
 
   if (urlState.search) params.set('search', urlState.search);
   if (urlState.category) params.set('category', urlState.category);
-  if (urlState.sort !== listPlacesQuerySortDefault) params.set('sort', urlState.sort);
   if (urlState.pageSize !== listPlacesQueryPageSizeDefault) {
     params.set('pageSize', String(urlState.pageSize));
   }

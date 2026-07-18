@@ -13,7 +13,6 @@ export function toListPlacesParams(state: ResolvedCatalogState): ListPlacesParam
   return {
     page: urlState.page,
     pageSize: urlState.pageSize,
-    sort: urlState.sort,
     ...(urlState.search ? { search: urlState.search } : {}),
     ...(categoryId ? { categoryId } : {}),
   };

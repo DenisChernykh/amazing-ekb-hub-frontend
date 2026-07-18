@@ -5,13 +5,13 @@ import type { PlaceCardModel } from '../model/types';
 import { PlaceCard } from './place-card';
 
 const PLACE: PlaceCardModel = {
-  id: 'place ekb/001',
+  id: 'place_ekb_001',
+  slug: 'baden-baden-uktus',
   title: 'Баден-Баден Уктус',
   category: {
     id: 'category_spa',
     slug: 'spa',
     title: 'SPA',
-    badgeBackgroundColor: '#faf0ed',
   },
   coverImageUrl: '/images/places/baden.webp',
   platformCounters: {
@@ -40,9 +40,9 @@ describe('PlaceCard', () => {
 
     expect(html).toContain('data-slot="card"');
     expect(html).toContain('data-slot="card-content"');
-    expect(html.match(/href="\/places\/place%20ekb%2F001"/g)).toHaveLength(2);
-    expect(html).toContain('href="/places/place%20ekb%2F001#materials-dzen"');
-    expect(html).toContain('href="/places/place%20ekb%2F001#materials-telegram"');
+    expect(html.match(/href="\/places\/baden-baden-uktus"/g)).toHaveLength(2);
+    expect(html).toContain('href="/places/baden-baden-uktus#materials-dzen"');
+    expect(html).toContain('href="/places/baden-baden-uktus#materials-telegram"');
     expect(html).toContain('Баден-Баден Уктус');
     expect(html).toContain('alt="Фото места Баден-Баден Уктус"');
     expect(html).toContain('/images/places/baden.webp');

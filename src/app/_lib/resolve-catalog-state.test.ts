@@ -5,7 +5,6 @@ const FAMILY_SPA_CATEGORY = {
   id: 'category_family_spa',
   slug: 'family-spa',
   title: 'Family SPA',
-  badgeBackgroundColor: '#faf0ed',
 };
 
 describe('resolveCatalogState', () => {
@@ -16,7 +15,6 @@ describe('resolveCatalogState', () => {
           page: 2,
           pageSize: 20,
           search: 'spa',
-          sort: 'popular',
           category: 'family-spa',
         },
         [FAMILY_SPA_CATEGORY],
@@ -26,7 +24,6 @@ describe('resolveCatalogState', () => {
         page: 2,
         pageSize: 20,
         search: 'spa',
-        sort: 'popular',
         category: 'family-spa',
       },
       categoryId: 'category_family_spa',
@@ -40,7 +37,6 @@ describe('resolveCatalogState', () => {
           page: 3,
           pageSize: 40,
           search: 'spa',
-          sort: 'title_asc',
           category: 'missing',
         },
         [FAMILY_SPA_CATEGORY],
@@ -50,7 +46,6 @@ describe('resolveCatalogState', () => {
         page: 3,
         pageSize: 40,
         search: 'spa',
-        sort: 'title_asc',
       },
     });
   });

@@ -18,7 +18,6 @@ const FAMILY_SPA_CATEGORY = {
   id: 'category_family_spa',
   slug: 'family-spa',
   title: 'Family SPA',
-  badgeBackgroundColor: '#faf0ed',
 };
 
 const EMPTY_PLACE_LIST = {
@@ -59,7 +58,6 @@ describe('getHomePageData', () => {
     expect(fetchPublicPlaceListMock).toHaveBeenCalledWith({
       page: 1,
       pageSize: 20,
-      sort: 'popular',
     });
 
     categoriesDeferred.resolve({
@@ -149,7 +147,6 @@ describe('getHomePageData', () => {
     expect(fetchPublicPlaceListMock).toHaveBeenCalledWith({
       page: 1,
       pageSize: 20,
-      sort: 'popular',
       categoryId: 'category_family_spa',
     });
   });
@@ -173,7 +170,6 @@ describe('getHomePageData', () => {
     expect(fetchPublicPlaceListMock).toHaveBeenCalledWith({
       page: 1,
       pageSize: 20,
-      sort: 'popular',
     });
   });
 
@@ -217,7 +213,6 @@ describe('getHomePageData', () => {
       page: 3,
       pageSize: 20,
       search: 'spa',
-      sort: 'popular',
     });
   });
 
@@ -234,7 +229,6 @@ describe('getHomePageData', () => {
       urlState: {
         page: 1,
         pageSize: 20,
-        sort: 'popular',
       },
       message: 'Не удалось загрузить категории мест.',
     });
@@ -261,7 +255,6 @@ describe('getHomePageData', () => {
       urlState: {
         page: 1,
         pageSize: 20,
-        sort: 'popular',
       },
       title: 'Некорректные параметры запроса.',
       issues: [{ message: 'page must be a positive number' }],
@@ -283,7 +276,6 @@ describe('getHomePageData', () => {
       urlState: {
         page: 1,
         pageSize: 20,
-        sort: 'popular',
       },
       message: 'Не удалось загрузить список мест.',
     });

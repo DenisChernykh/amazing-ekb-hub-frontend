@@ -20,13 +20,13 @@ function createMaterial(overrides: Partial<PlaceMaterialModel> = {}): PlaceMater
 function createPlace(overrides: Partial<PlaceDetailModel> = {}): PlaceDetailModel {
   return {
     category: {
-      badgeBackgroundColor: '#faf0ed',
       id: 'category_spa',
       slug: 'spa',
       title: 'SPA',
     },
     coverImageUrl: null,
     id: 'place_ekb_001',
+    slug: 'baden-baden-uktus',
     materialsByPlatform: {
       dzen: [],
       instagram: [],

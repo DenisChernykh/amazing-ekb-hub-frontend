@@ -6,7 +6,6 @@ describe('normalizeHomeSearchParams', () => {
     expect(normalizeHomeSearchParams({ page: '0' })).toMatchObject({
       page: 1,
       pageSize: 20,
-      sort: 'popular',
     });
   });
 
@@ -15,14 +14,12 @@ describe('normalizeHomeSearchParams', () => {
       normalizeHomeSearchParams({
         page: '1001',
         search: 'spa',
-        sort: 'title_asc',
         category: 'family-spa',
       }),
     ).toEqual({
       page: 1,
       pageSize: 20,
       search: 'spa',
-      sort: 'title_asc',
       category: 'family-spa',
     });
   });
@@ -33,19 +30,17 @@ describe('normalizeHomeSearchParams', () => {
         page: '2',
         pageSize: '10000',
         search: 'spa',
-        sort: 'title_asc',
         category: 'family-spa',
       }),
     ).toEqual({
       page: 2,
       pageSize: 20,
       search: 'spa',
-      sort: 'title_asc',
       category: 'family-spa',
     });
   });
 
-  it('falls back invalid sort without dropping other valid fields', () => {
+  it('drops a retired sort parameter without dropping other valid fields', () => {
     expect(
       normalizeHomeSearchParams({
         page: '2',
@@ -57,7 +52,6 @@ describe('normalizeHomeSearchParams', () => {
       page: 2,
       pageSize: 20,
       search: 'spa',
-      sort: 'popular',
       category: 'family-spa',
     });
   });
@@ -68,13 +62,11 @@ describe('normalizeHomeSearchParams', () => {
         page: '2',
         pageSize: '40',
         search: 's'.repeat(101),
-        sort: 'title_asc',
         category: 'family-spa',
       }),
     ).toEqual({
       page: 2,
       pageSize: 40,
-      sort: 'title_asc',
       category: 'family-spa',
     });
   });
@@ -97,7 +89,6 @@ describe('normalizeHomeSearchParams', () => {
     expect(normalizeHomeSearchParams({ category: 'spa/../../admin' })).toEqual({
       page: 1,
       pageSize: 20,
-      sort: 'popular',
     });
   });
 
@@ -113,14 +104,12 @@ describe('normalizeHomeSearchParams', () => {
         page: '2',
         pageSize: '40',
         search: '  spa  ',
-        sort: 'popular',
         category: 'spa',
       }),
     ).toEqual({
       page: 2,
       pageSize: 40,
       search: 'spa',
-      sort: 'popular',
       category: 'spa',
     });
   });

@@ -11,8 +11,8 @@ describe('buildPlaceMaterialsHref', () => {
   });
 
   it('builds place detail href with material section hash', () => {
-    expect(buildPlaceMaterialsHref('place ekb/001', 'telegram')).toBe(
-      '/places/place%20ekb%2F001#materials-telegram',
+    expect(buildPlaceMaterialsHref('baden-baden-uktus', 'telegram')).toBe(
+      '/places/baden-baden-uktus#materials-telegram',
     );
   });
 });

@@ -6,13 +6,13 @@ import { placeDetailFontVariables } from './_lib/place-detail-fonts';
 
 interface PlacePageProps {
   params: Promise<{
-    placeId: string;
+    placeSlug: string;
   }>;
 }
 
 export default async function PlacePage({ params }: PlacePageProps) {
-  const { placeId } = await params;
-  const model = await getPlacePageData(placeId);
+  const { placeSlug } = await params;
+  const model = await getPlacePageData(placeSlug);
 
   if (model.kind === 'not_found') {
     notFound();

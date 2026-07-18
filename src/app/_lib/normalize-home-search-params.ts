@@ -4,7 +4,6 @@ import {
   listPlacesQueryPageSizeDefault,
   listPlacesQueryPageSizeMax,
   listPlacesQuerySearchMax,
-  listPlacesQuerySortDefault,
 } from '@/shared/api/generated-zod/places/places.zod';
 
 type RawSearchParams = Record<string, string | string[] | undefined>;
@@ -13,7 +12,6 @@ export type CatalogUrlState = {
   page: number;
   pageSize: number;
   search?: string;
-  sort: 'popular' | 'title_asc';
   category?: string;
 };
 
@@ -62,14 +60,6 @@ function toTrimmedString(value: string | undefined): string | undefined {
   return trimmed && trimmed.length <= listPlacesQuerySearchMax ? trimmed : undefined;
 }
 
-function toEnumValue<T extends string>(
-  value: string | undefined,
-  allowed: readonly T[],
-): T | undefined {
-  if (!value) return undefined;
-  return allowed.includes(value as T) ? (value as T) : undefined;
-}
-
 /**
  * Это хелпер. Проверяет публичный slug категории из URL.
  *
@@ -101,7 +91,6 @@ export function normalizeHomeSearchParams(raw: RawSearchParams): CatalogUrlState
       min: 1,
       max: listPlacesQueryPageSizeMax,
     }),
-    sort: toEnumValue(pickFirst(raw.sort), ['popular', 'title_asc']) ?? listPlacesQuerySortDefault,
   };
 
   const search = toTrimmedString(pickFirst(raw.search));
