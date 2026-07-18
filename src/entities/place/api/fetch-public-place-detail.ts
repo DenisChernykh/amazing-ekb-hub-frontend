@@ -16,15 +16,15 @@ export type FetchPublicPlaceDetailResult =
 /**
  * Загружает публичную detail-карточку места и приводит ответ API к controlled union.
  *
- * @param placeId - Идентификатор места.
+ * @param placeSlug - Публичный slug места.
  * @returns Результат загрузки со штатными ветками `success`, `not_found` или `unexpected_error`.
  */
 export async function fetchPublicPlaceDetail(
-  placeId: string,
+  placeSlug: string,
 ): Promise<FetchPublicPlaceDetailResult> {
   try {
     const response = await getPlaceDetail(
-      { placeId },
+      { placeSlug },
       {
         cache: 'no-store',
       },

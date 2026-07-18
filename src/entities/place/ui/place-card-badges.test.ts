@@ -5,13 +5,13 @@ import type { PlaceCardModel } from '../model/types';
 import { PlaceCardBadges } from './place-card-badges';
 
 const PLACE: PlaceCardModel = {
-  id: 'place ekb/001',
+  id: 'place_ekb_001',
+  slug: 'baden-baden-uktus',
   title: 'Баден-Баден Уктус',
   category: {
     id: 'category_spa',
     slug: 'spa',
     title: 'SPA',
-    badgeBackgroundColor: '#faf0ed',
   },
   coverImageUrl: null,
   platformCounters: {
@@ -29,8 +29,8 @@ describe('PlaceCardBadges', () => {
     expect(html).toContain('aria-label="Категория и материалы"');
     expect(html).toContain('class="flex min-h-7 flex-wrap gap-1.5"');
     expect(html.match(/data-slot="badge"/g)).toHaveLength(2);
-    expect(html).toContain('href="/places/place%20ekb%2F001#materials-dzen"');
-    expect(html).toContain('href="/places/place%20ekb%2F001#materials-telegram"');
+    expect(html).toContain('href="/places/baden-baden-uktus#materials-dzen"');
+    expect(html).toContain('href="/places/baden-baden-uktus#materials-telegram"');
     expect(html.indexOf('materials-dzen')).toBeLessThan(html.indexOf('materials-telegram'));
     expect(html).not.toContain('materials-instagram');
     expect(html).toContain('>12<');

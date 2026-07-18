@@ -62,7 +62,7 @@ export function buildCatalogControlsHref({
 function toCanonicalCatalogParams(params: URLSearchParams): URLSearchParams {
   const canonicalParams = new URLSearchParams();
 
-  ['search', 'category', 'sort', 'pageSize', 'page'].forEach((key) => {
+  ['search', 'category', 'pageSize', 'page'].forEach((key) => {
     const value = params.get(key);
     if (value !== null) canonicalParams.set(key, value);
   });

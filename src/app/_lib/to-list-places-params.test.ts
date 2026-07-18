@@ -9,7 +9,6 @@ describe('toListPlacesParams', () => {
           page: 3,
           pageSize: 40,
           search: 'spa',
-          sort: 'title_asc',
           category: 'family-spa',
         },
         categoryId: 'category_family_spa',
@@ -18,7 +17,6 @@ describe('toListPlacesParams', () => {
       page: 3,
       pageSize: 40,
       search: 'spa',
-      sort: 'title_asc',
       categoryId: 'category_family_spa',
     });
   });

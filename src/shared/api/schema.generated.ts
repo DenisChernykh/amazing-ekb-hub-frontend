@@ -144,6 +144,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/categories/{categorySlug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get place category
+     * @description Возвращает публичную категорию места по её slug.
+     */
+    get: operations['getPlaceCategory'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/places': {
     parameters: {
       query?: never;
@@ -153,7 +173,7 @@ export interface paths {
     };
     /**
      * List places
-     * @description Возвращает публичный список мест с пагинацией, поиском и фильтрацией по категории.
+     * @description Возвращает публичный список мест с пагинацией, поиском и фильтрацией по категории в стабильном порядке `title ASC, id ASC`.
      */
     get: operations['listPlaces'];
     put?: never;
@@ -164,7 +184,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/places/{placeId}': {
+  '/places/{placeSlug}': {
     parameters: {
       query?: never;
       header?: never;
@@ -173,7 +193,7 @@ export interface paths {
     };
     /**
      * Get place details
-     * @description Возвращает детальную карточку публичного места по его идентификатору.
+     * @description Возвращает детальную карточку публичного места по его slug.
      */
     get: operations['getPlaceDetail'];
     put?: never;
@@ -184,7 +204,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/places/{placeId}/photo': {
+  '/places/{placeSlug}/photo': {
     parameters: {
       query?: never;
       header?: never;
@@ -204,7 +224,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/places/{placeId}/materials': {
+  '/places/{placeSlug}/materials': {
     parameters: {
       query?: never;
       header?: never;
@@ -702,7 +722,7 @@ export interface components {
      * @enum {string}
      */
     Role: 'admin' | 'user';
-    /** @description Публичная категория места для фильтров и бейджей. */
+    /** @description Публичная категория места для фильтров. */
     PlaceCategory: {
       /**
        * @description Идентификатор категории.
@@ -719,11 +739,6 @@ export interface components {
        * @example SPA
        */
       title: string;
-      /**
-       * @description Цвет фона бейджа категории в HEX-формате.
-       * @example #faf0ed
-       */
-      badgeBackgroundColor: string;
     };
     AdminPlaceCategory: components['schemas']['PlaceCategory'] & {
       /**
@@ -850,6 +865,11 @@ export interface components {
        */
       id: string;
       /**
+       * @description Публичный slug места.
+       * @example baden-baden-uktus
+       */
+      slug: string;
+      /**
        * @description Название места.
        * @example Bаден-Баден Уктус
        */
@@ -871,13 +891,8 @@ export interface components {
       category: components['schemas']['PlaceCategory'];
       status: components['schemas']['PlaceStatus'];
       /**
-       * @description Вес популярности для сортировки.
-       * @example 95
-       */
-      popularityWeight: number;
-      /**
        * @description Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.
-       * @example /v1/places/place_ekb_001/photo
+       * @example /v1/places/baden-baden-uktus/photo
        */
       coverImageUrl: string | null;
     };
@@ -889,6 +904,11 @@ export interface components {
        */
       id: string;
       /**
+       * @description Публичный slug места.
+       * @example baden-baden-uktus
+       */
+      slug: string;
+      /**
        * @description Название места.
        * @example Bаден-Баден Уктус
        */
@@ -910,13 +930,8 @@ export interface components {
       category: components['schemas']['PlaceCategory'];
       status: components['schemas']['PlaceStatus'];
       /**
-       * @description Вес популярности для сортировки.
-       * @example 95
-       */
-      popularityWeight: number;
-      /**
        * @description Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.
-       * @example /v1/places/place_ekb_001/photo
+       * @example /v1/places/baden-baden-uktus/photo
        */
       coverImageUrl: string | null;
       /** @description Количество материалов по платформам. */
@@ -1250,6 +1265,11 @@ export interface components {
        */
       id: string;
       /**
+       * @description Публичный slug места.
+       * @example baden-baden-uktus
+       */
+      slug: string;
+      /**
        * @description Название места.
        * @example Bаден-Баден Уктус
        */
@@ -1271,13 +1291,8 @@ export interface components {
       category: components['schemas']['PlaceCategory'];
       status: components['schemas']['PlaceStatus'];
       /**
-       * @description Вес популярности для сортировки.
-       * @example 95
-       */
-      popularityWeight: number;
-      /**
        * @description Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.
-       * @example /v1/places/place_ekb_001/photo
+       * @example /v1/places/baden-baden-uktus/photo
        */
       coverImageUrl: string | null;
       /** @description Количество материалов по платформам. */
@@ -1342,6 +1357,11 @@ export interface components {
     /** @description Payload создания нового места. */
     CreatePlaceRequest: {
       /**
+       * @description Необязательный ручной slug. Если поле отсутствует, backend генерирует slug из title.
+       * @example baden-baden-uktus
+       */
+      slug?: string;
+      /**
        * @description Название места.
        * @example Bаден-Баден Уктус
        */
@@ -1365,14 +1385,14 @@ export interface components {
        * @example category_spa
        */
       categoryId: string;
-      /**
-       * @description Начальный вес популярности. Если поле не передано, backend сохранит 0.
-       * @example 95
-       */
-      popularityWeight?: number;
     };
     /** @description Payload частичного обновления места. */
     UpdatePlaceRequest: {
+      /**
+       * @description Новый публичный slug места.
+       * @example baden-baden-uktus-premium
+       */
+      slug?: string;
       /**
        * @description Новое название места.
        * @example Bаден-Баден Уктус Premium
@@ -1396,11 +1416,6 @@ export interface components {
        * @example category_spa
        */
       categoryId?: string;
-      /**
-       * @description Новый вес популярности.
-       * @example 99
-       */
-      popularityWeight?: number;
     };
     /** @description Payload создания категории места. */
     CreatePlaceCategoryRequest: {
@@ -1414,11 +1429,6 @@ export interface components {
        * @example Family SPA
        */
       title: string;
-      /**
-       * @description Цвет фона бейджа. Backend сохраняет значение в lowercase.
-       * @example #FAF0ED
-       */
-      badgeBackgroundColor: string;
     };
     /** @description Payload частичного обновления категории места. */
     UpdatePlaceCategoryRequest: {
@@ -1432,11 +1442,6 @@ export interface components {
        * @example Family SPA
        */
       title?: string;
-      /**
-       * @description Новый цвет фона бейджа. Backend сохраняет значение в lowercase.
-       * @example #DBEAFE
-       */
-      badgeBackgroundColor?: string;
     };
     /** @description Payload изменения статуса места. */
     UpdatePlaceStatusRequest: {
@@ -1734,10 +1739,20 @@ export interface components {
      */
     PlaceId: string;
     /**
+     * @description Публичный slug места.
+     * @example baden-baden-uktus
+     */
+    PlaceSlug: string;
+    /**
      * @description Идентификатор категории места.
      * @example category_spa
      */
     CategoryId: string;
+    /**
+     * @description Публичный slug категории места.
+     * @example spa
+     */
+    CategorySlug: string;
     /**
      * @description Идентификатор материала.
      * @example material_telegram_001
@@ -1919,6 +1934,33 @@ export interface operations {
       };
     };
   };
+  getPlaceCategory: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Публичный slug категории места.
+         * @example spa
+         */
+        categorySlug: components['parameters']['CategorySlug'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Категория места. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceCategory'];
+        };
+      };
+      404: components['responses']['CategoryNotFound'];
+    };
+  };
   listPlaces: {
     parameters: {
       query?: {
@@ -1937,11 +1979,6 @@ export interface operations {
          * @example термы
          */
         search?: string;
-        /**
-         * @description Режим сортировки списка мест.
-         * @example title_asc
-         */
-        sort?: 'popular' | 'title_asc';
         /**
          * @description Фильтр по идентификатору категории места.
          * @example category_spa
@@ -1972,10 +2009,10 @@ export interface operations {
       header?: never;
       path: {
         /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
+         * @description Публичный slug места.
+         * @example baden-baden-uktus
          */
-        placeId: components['parameters']['PlaceId'];
+        placeSlug: components['parameters']['PlaceSlug'];
       };
       cookie?: never;
     };
@@ -1999,10 +2036,10 @@ export interface operations {
       header?: never;
       path: {
         /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
+         * @description Публичный slug места.
+         * @example baden-baden-uktus
          */
-        placeId: components['parameters']['PlaceId'];
+        placeSlug: components['parameters']['PlaceSlug'];
       };
       cookie?: never;
     };
@@ -2034,10 +2071,10 @@ export interface operations {
       header?: never;
       path: {
         /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
+         * @description Публичный slug места.
+         * @example baden-baden-uktus
          */
-        placeId: components['parameters']['PlaceId'];
+        placeSlug: components['parameters']['PlaceSlug'];
       };
       cookie?: never;
     };

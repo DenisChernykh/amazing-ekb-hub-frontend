@@ -3,6 +3,7 @@ import { mapPlaceSummaryToCardModel } from './map-place-summary-to-card';
 
 const BASE_PLACE_SUMMARY = {
   id: 'place_ekb_001',
+  slug: 'baden-baden-uktus',
   title: 'Baden-Baden Uktus',
   summary: 'Thermal complex with spa zone.',
   tags: ['spa'],
@@ -10,11 +11,9 @@ const BASE_PLACE_SUMMARY = {
     id: 'category_spa',
     slug: 'spa',
     title: 'SPA',
-    badgeBackgroundColor: '#faf0ed',
   },
   status: 'active' as const,
-  popularityWeight: 95,
-  coverImageUrl: '/v1/places/place_ekb_001/photo',
+  coverImageUrl: '/v1/places/baden-baden-uktus/photo',
 };
 
 describe('mapPlaceSummaryToCardModel', () => {
@@ -58,12 +57,12 @@ describe('mapPlaceSummaryToCardModel', () => {
     });
   });
 
-  it('keeps backend category object for dynamic badges and filters', () => {
+  it('keeps the public slug and backend category for navigation and filters', () => {
+    expect(mapPlaceSummaryToCardModel(BASE_PLACE_SUMMARY).slug).toBe('baden-baden-uktus');
     expect(mapPlaceSummaryToCardModel(BASE_PLACE_SUMMARY).category).toEqual({
       id: 'category_spa',
       slug: 'spa',
       title: 'SPA',
-      badgeBackgroundColor: '#faf0ed',
     });
   });
 });

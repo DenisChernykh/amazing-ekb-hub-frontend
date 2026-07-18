@@ -18,13 +18,11 @@ const MODEL: CatalogControlsModel = {
       id: 'category_spa',
       slug: 'spa',
       title: 'SPA',
-      badgeBackgroundColor: '#faf0ed',
     },
     {
       id: 'category_night_life',
       slug: 'night-life',
       title: 'Ночная жизнь',
-      badgeBackgroundColor: '#111827',
     },
   ],
 };
@@ -49,8 +47,9 @@ describe('CatalogControls', () => {
     expect(html).toContain('type="submit"');
     expect(html).toContain('>Найти</button>');
     expect(html).toContain('aria-pressed="true"');
-    expect(html).toContain('background-color:#111827');
-    expect(html).toContain('color:#ffffff');
+    expect(html).toContain('bg-primary');
+    expect(html).toContain('text-primary-foreground');
+    expect(html).not.toContain('background-color:');
     expect(html.indexOf('>Все</button>')).toBeLessThan(html.indexOf('>SPA</button>'));
     expect(html.indexOf('>SPA</button>')).toBeLessThan(html.indexOf('>Ночная жизнь</button>'));
     expect(html.match(/<button\b/g)).toHaveLength(4);

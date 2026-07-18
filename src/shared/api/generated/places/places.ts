@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  CategoryNotFoundResponse,
+  GetPlaceCategoryPathParameters,
   GetPlaceCoverPhotoPathParameters,
   GetPlaceDetailPathParameters,
   ListPlaceMaterialsParams,
@@ -13,6 +15,7 @@ import type {
   ListPlacesParams,
   MaterialListResponse,
   MaterialNotFoundResponse,
+  PlaceCategory,
   PlaceCategoryListResponse,
   PlaceDetail,
   PlaceNotFoundResponse,
@@ -58,7 +61,56 @@ export const listPlaceCategories = async (
 };
 
 /**
- * Возвращает публичный список мест с пагинацией, поиском и фильтрацией по категории.
+ * Возвращает публичную категорию места по её slug.
+ * @summary Get place category
+ */
+export type getPlaceCategoryResponse200 = {
+  data: PlaceCategory;
+  status: 200;
+};
+
+export type getPlaceCategoryResponse404 = {
+  data: CategoryNotFoundResponse;
+  status: 404;
+};
+
+export type getPlaceCategoryResponseSuccess = getPlaceCategoryResponse200 & {
+  headers: Headers;
+};
+export type getPlaceCategoryResponseError = getPlaceCategoryResponse404 & {
+  headers: Headers;
+};
+
+export const getGetPlaceCategoryUrl = ({ categorySlug }: GetPlaceCategoryPathParameters) => {
+  return `${process.env.API_BASE_URL}/categories/${categorySlug}`;
+};
+
+export const getPlaceCategory = async (
+  { categorySlug }: GetPlaceCategoryPathParameters,
+  options?: RequestInit,
+): Promise<getPlaceCategoryResponseSuccess> => {
+  const res = await fetch(getGetPlaceCategoryUrl({ categorySlug }), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: getPlaceCategoryResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: getPlaceCategoryResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: getPlaceCategoryResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as getPlaceCategoryResponseSuccess;
+};
+
+/**
+ * Возвращает публичный список мест с пагинацией, поиском и фильтрацией по категории в стабильном порядке `title ASC, id ASC`.
  * @summary List places
  */
 export type listPlacesResponse200 = {
@@ -117,7 +169,7 @@ export const listPlaces = async (
 };
 
 /**
- * Возвращает детальную карточку публичного места по его идентификатору.
+ * Возвращает детальную карточку публичного места по его slug.
  * @summary Get place details
  */
 export type getPlaceDetailResponse200 = {
@@ -137,15 +189,15 @@ export type getPlaceDetailResponseError = getPlaceDetailResponse404 & {
   headers: Headers;
 };
 
-export const getGetPlaceDetailUrl = ({ placeId }: GetPlaceDetailPathParameters) => {
-  return `${process.env.API_BASE_URL}/places/${placeId}`;
+export const getGetPlaceDetailUrl = ({ placeSlug }: GetPlaceDetailPathParameters) => {
+  return `${process.env.API_BASE_URL}/places/${placeSlug}`;
 };
 
 export const getPlaceDetail = async (
-  { placeId }: GetPlaceDetailPathParameters,
+  { placeSlug }: GetPlaceDetailPathParameters,
   options?: RequestInit,
 ): Promise<getPlaceDetailResponseSuccess> => {
-  const res = await fetch(getGetPlaceDetailUrl({ placeId }), {
+  const res = await fetch(getGetPlaceDetailUrl({ placeSlug }), {
     ...options,
     method: 'GET',
   });
@@ -198,15 +250,15 @@ export type getPlaceCoverPhotoResponseError = getPlaceCoverPhotoResponse404 & {
   headers: Headers;
 };
 
-export const getGetPlaceCoverPhotoUrl = ({ placeId }: GetPlaceCoverPhotoPathParameters) => {
-  return `${process.env.API_BASE_URL}/places/${placeId}/photo`;
+export const getGetPlaceCoverPhotoUrl = ({ placeSlug }: GetPlaceCoverPhotoPathParameters) => {
+  return `${process.env.API_BASE_URL}/places/${placeSlug}/photo`;
 };
 
 export const getPlaceCoverPhoto = async (
-  { placeId }: GetPlaceCoverPhotoPathParameters,
+  { placeSlug }: GetPlaceCoverPhotoPathParameters,
   options?: RequestInit,
 ): Promise<getPlaceCoverPhotoResponseSuccess> => {
-  const res = await fetch(getGetPlaceCoverPhotoUrl({ placeId }), {
+  const res = await fetch(getGetPlaceCoverPhotoUrl({ placeSlug }), {
     ...options,
     method: 'GET',
   });
@@ -259,7 +311,7 @@ export type listPlaceMaterialsResponseError = (
 };
 
 export const getListPlaceMaterialsUrl = (
-  { placeId }: ListPlaceMaterialsPathParameters,
+  { placeSlug }: ListPlaceMaterialsPathParameters,
   params?: ListPlaceMaterialsParams,
 ) => {
   const normalizedParams = new URLSearchParams();
@@ -273,16 +325,16 @@ export const getListPlaceMaterialsUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `${process.env.API_BASE_URL}/places/${placeId}/materials?${stringifiedParams}`
-    : `${process.env.API_BASE_URL}/places/${placeId}/materials`;
+    ? `${process.env.API_BASE_URL}/places/${placeSlug}/materials?${stringifiedParams}`
+    : `${process.env.API_BASE_URL}/places/${placeSlug}/materials`;
 };
 
 export const listPlaceMaterials = async (
-  { placeId }: ListPlaceMaterialsPathParameters,
+  { placeSlug }: ListPlaceMaterialsPathParameters,
   params?: ListPlaceMaterialsParams,
   options?: RequestInit,
 ): Promise<listPlaceMaterialsResponseSuccess> => {
-  const res = await fetch(getListPlaceMaterialsUrl({ placeId }, params), {
+  const res = await fetch(getListPlaceMaterialsUrl({ placeSlug }, params), {
     ...options,
     method: 'GET',
   });

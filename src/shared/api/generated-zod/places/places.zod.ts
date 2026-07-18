@@ -11,10 +11,6 @@ import * as zod from 'zod';
  * Возвращает публичный справочник категорий мест для фильтров и бейджей.
  * @summary List place categories
  */
-export const listPlaceCategories200ResponseItemsItemBadgeBackgroundColorRegExp = new RegExp(
-  '^#[0-9a-f]{6}$',
-);
-
 export const ListPlaceCategories200Response = zod
   .strictObject({
     items: zod.array(
@@ -23,18 +19,45 @@ export const ListPlaceCategories200Response = zod
           id: zod.string().describe('Идентификатор категории.'),
           slug: zod.string().describe('Человекочитаемый slug категории.'),
           title: zod.string().describe('Название категории для интерфейса.'),
-          badgeBackgroundColor: zod
-            .string()
-            .regex(listPlaceCategories200ResponseItemsItemBadgeBackgroundColorRegExp)
-            .describe('Цвет фона бейджа категории в HEX-формате.'),
         })
-        .describe('Публичная категория места для фильтров и бейджей.'),
+        .describe('Публичная категория места для фильтров.'),
     ),
   })
   .describe('Публичный список категорий мест.');
 
 /**
- * Возвращает публичный список мест с пагинацией, поиском и фильтрацией по категории.
+ * Возвращает публичную категорию места по её slug.
+ * @summary Get place category
+ */
+export const getPlaceCategoryPathCategorySlugRegExp = new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)\*$');
+
+export const GetPlaceCategoryParams = zod.strictObject({
+  categorySlug: zod
+    .string()
+    .regex(getPlaceCategoryPathCategorySlugRegExp)
+    .describe('Публичный slug категории места.'),
+});
+
+export const GetPlaceCategory200Response = zod
+  .strictObject({
+    id: zod.string().describe('Идентификатор категории.'),
+    slug: zod.string().describe('Человекочитаемый slug категории.'),
+    title: zod.string().describe('Название категории для интерфейса.'),
+  })
+  .describe('Публичная категория места для фильтров.');
+
+export const GetPlaceCategory404Response = zod
+  .strictObject({
+    statusCode: zod.number().describe('HTTP status code ответа.'),
+    message: zod
+      .union([zod.string(), zod.array(zod.string())])
+      .describe('Сообщение ошибки. Для DTO validation NestJS обычно возвращает массив строк.'),
+    error: zod.string().optional().describe('Стандартное HTTP reason summary от NestJS.'),
+  })
+  .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
+
+/**
+ * Возвращает публичный список мест с пагинацией, поиском и фильтрацией по категории в стабильном порядке `title ASC, id ASC`.
  * @summary List places
  */
 export const listPlacesQueryPageDefault = 1;
@@ -44,8 +67,6 @@ export const listPlacesQueryPageSizeDefault = 20;
 export const listPlacesQueryPageSizeMax = 100;
 
 export const listPlacesQuerySearchMax = 100;
-
-export const listPlacesQuerySortDefault = `popular`;
 
 export const ListPlacesQueryParams = zod.strictObject({
   page: zod
@@ -65,16 +86,8 @@ export const ListPlacesQueryParams = zod.strictObject({
     .max(listPlacesQuerySearchMax)
     .optional()
     .describe('Полнотекстовый поиск по названию и описанию места. Максимум 100 символов.'),
-  sort: zod
-    .enum(['popular', 'title_asc'])
-    .default(listPlacesQuerySortDefault)
-    .describe('Режим сортировки списка мест.'),
   categoryId: zod.string().optional().describe('Фильтр по идентификатору категории места.'),
 });
-
-export const listPlaces200ResponseItemsItemCategoryBadgeBackgroundColorRegExp = new RegExp(
-  '^#[0-9a-f]{6}$',
-);
 
 export const ListPlaces200Response = zod
   .strictObject({
@@ -83,6 +96,7 @@ export const ListPlaces200Response = zod
         zod
           .strictObject({
             id: zod.string().describe('Идентификатор места.'),
+            slug: zod.string().describe('Публичный slug места.'),
             title: zod.string().describe('Название места.'),
             summary: zod.string().describe('Короткое описание для каталога.'),
             tags: zod.array(zod.string()).describe('Набор тегов для поиска и фильтрации.'),
@@ -91,14 +105,9 @@ export const ListPlaces200Response = zod
                 id: zod.string().describe('Идентификатор категории.'),
                 slug: zod.string().describe('Человекочитаемый slug категории.'),
                 title: zod.string().describe('Название категории для интерфейса.'),
-                badgeBackgroundColor: zod
-                  .string()
-                  .regex(listPlaces200ResponseItemsItemCategoryBadgeBackgroundColorRegExp)
-                  .describe('Цвет фона бейджа категории в HEX-формате.'),
               })
-              .describe('Публичная категория места для фильтров и бейджей.'),
+              .describe('Публичная категория места для фильтров.'),
             status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
-            popularityWeight: zod.number().describe('Вес популярности для сортировки.'),
             coverImageUrl: zod
               .string()
               .nullable()
@@ -133,20 +142,22 @@ export const ListPlaces400Response = zod
   .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
 
 /**
- * Возвращает детальную карточку публичного места по его идентификатору.
+ * Возвращает детальную карточку публичного места по его slug.
  * @summary Get place details
  */
-export const GetPlaceDetailParams = zod.strictObject({
-  placeId: zod.string().describe('Идентификатор места.'),
-});
+export const getPlaceDetailPathPlaceSlugRegExp = new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)\*$');
 
-export const getPlaceDetail200ResponseCategoryBadgeBackgroundColorRegExp = new RegExp(
-  '^#[0-9a-f]{6}$',
-);
+export const GetPlaceDetailParams = zod.strictObject({
+  placeSlug: zod
+    .string()
+    .regex(getPlaceDetailPathPlaceSlugRegExp)
+    .describe('Публичный slug места.'),
+});
 
 export const GetPlaceDetail200Response = zod
   .strictObject({
     id: zod.string().describe('Идентификатор места.'),
+    slug: zod.string().describe('Публичный slug места.'),
     title: zod.string().describe('Название места.'),
     summary: zod.string().describe('Короткое описание для каталога.'),
     tags: zod.array(zod.string()).describe('Набор тегов для поиска и фильтрации.'),
@@ -155,14 +166,9 @@ export const GetPlaceDetail200Response = zod
         id: zod.string().describe('Идентификатор категории.'),
         slug: zod.string().describe('Человекочитаемый slug категории.'),
         title: zod.string().describe('Название категории для интерфейса.'),
-        badgeBackgroundColor: zod
-          .string()
-          .regex(getPlaceDetail200ResponseCategoryBadgeBackgroundColorRegExp)
-          .describe('Цвет фона бейджа категории в HEX-формате.'),
       })
-      .describe('Публичная категория места для фильтров и бейджей.'),
+      .describe('Публичная категория места для фильтров.'),
     status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
-    popularityWeight: zod.number().describe('Вес популярности для сортировки.'),
     coverImageUrl: zod
       .string()
       .nullable()
@@ -227,8 +233,13 @@ export const GetPlaceDetail404Response = zod
  * Возвращает бинарное содержимое публичного cover-фото активного места.
  * @summary Get place cover photo
  */
+export const getPlaceCoverPhotoPathPlaceSlugRegExp = new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)\*$');
+
 export const GetPlaceCoverPhotoParams = zod.strictObject({
-  placeId: zod.string().describe('Идентификатор места.'),
+  placeSlug: zod
+    .string()
+    .regex(getPlaceCoverPhotoPathPlaceSlugRegExp)
+    .describe('Публичный slug места.'),
 });
 
 export const GetPlaceCoverPhoto404Response = zod
@@ -245,8 +256,13 @@ export const GetPlaceCoverPhoto404Response = zod
  * Возвращает до 100 материалов, связанных с указанным активным местом, с опциональным фильтром по платформе.
  * @summary List place materials
  */
+export const listPlaceMaterialsPathPlaceSlugRegExp = new RegExp('^[a-z0-9]+(?:-[a-z0-9]+)\*$');
+
 export const ListPlaceMaterialsParams = zod.strictObject({
-  placeId: zod.string().describe('Идентификатор места.'),
+  placeSlug: zod
+    .string()
+    .regex(listPlaceMaterialsPathPlaceSlugRegExp)
+    .describe('Публичный slug места.'),
 });
 
 export const ListPlaceMaterialsQueryParams = zod.strictObject({

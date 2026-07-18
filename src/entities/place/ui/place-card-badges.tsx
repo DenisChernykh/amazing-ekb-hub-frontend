@@ -23,7 +23,7 @@ export function PlaceCardBadges({ place }: Readonly<PlaceCardBadgesProps>) {
 
         return (
           <Badge
-            render={<Link href={buildPlaceMaterialsHref(place.id, platform)} />}
+            render={<Link href={buildPlaceMaterialsHref(place.slug, platform)} />}
             key={platform}
             className="h-6 gap-1 rounded-full border-transparent py-0 pr-2 pl-1 text-[0.8125rem] leading-6 font-bold no-underline transition-[filter,box-shadow] hover:brightness-95"
             style={{

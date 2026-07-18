@@ -8,6 +8,7 @@ const DZEN_REDIRECT_URL = '/v1/materials/material_dzen_001/go';
 
 const BASE_PLACE_DETAIL: PlaceDetail = {
   id: 'place_ekb_001',
+  slug: 'baden-baden-uktus',
   title: 'Baden-Baden Uktus',
   summary: 'Thermal complex with spa zone.',
   tags: ['spa'],
@@ -15,10 +16,8 @@ const BASE_PLACE_DETAIL: PlaceDetail = {
     id: 'category_spa',
     slug: 'spa',
     title: 'SPA',
-    badgeBackgroundColor: '#faf0ed',
   },
   status: 'active',
-  popularityWeight: 10,
   coverImageUrl: null,
   counters: {
     dzen: 1,
@@ -77,12 +76,12 @@ describe('mapPlaceDetailToModel', () => {
     expect(place.materialsByPlatform.dzen[0]?.redirectUrl).toBeNull();
   });
 
-  it('keeps backend category object for detail badges', () => {
+  it('keeps the public slug and backend category for the detail model', () => {
+    expect(mapPlaceDetailToModel(BASE_PLACE_DETAIL, {}).slug).toBe('baden-baden-uktus');
     expect(mapPlaceDetailToModel(BASE_PLACE_DETAIL, {}).category).toEqual({
       id: 'category_spa',
       slug: 'spa',
       title: 'SPA',
-      badgeBackgroundColor: '#faf0ed',
     });
   });
 

@@ -15,7 +15,7 @@ interface PlaceCardProps {
  * @param props - Данные карточки места.
  */
 export function PlaceCard({ place }: Readonly<PlaceCardProps>) {
-  const placeHref = buildPlaceHref(place.id);
+  const placeHref = buildPlaceHref(place.slug);
 
   return (
     <Card className="h-full gap-0 py-0 shadow-app-card hover:ring-primary/35 hover:shadow-app-card-hover focus-within:ring-primary/35 focus-within:shadow-app-card-focus hover:focus-within:shadow-app-card-focus motion-safe:transition-[transform,translate,box-shadow] motion-safe:duration-[180ms] motion-safe:ease-out motion-safe:hover:-translate-y-1 motion-safe:focus-within:-translate-y-1">

@@ -1,5 +1,4 @@
 import type { MaterialType } from '@/shared/api/generated/model/materialType';
-import type { PlaceCategory } from '@/shared/api/generated/model/placeCategory';
 import type { Platform } from '@/shared/api/generated/model/platform';
 import type { PlaceDisplayMeta, PlatformCounters } from './types';
 
@@ -9,96 +8,11 @@ const PLATFORM_DISPLAY: Record<Platform, PlaceDisplayMeta> = {
   instagram: { label: 'Instagram', color: '#9d174d', backgroundColor: '#fce7f3' },
 };
 
-const DARK_BADGE_TEXT = '#111827';
-const LIGHT_BADGE_TEXT = '#ffffff';
-const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
-
 const MATERIAL_TYPE_DISPLAY: Record<MaterialType, string> = {
   post: 'Пост',
   reel: 'Reels',
   video: 'Видео',
 };
-
-/**
- * Это хелпер. Возвращает подпись и цветовой тон категории.
- *
- * @param category - Категория места из API.
- * @returns Display-метаданные категории для UI.
- */
-export function getPlaceCategoryDisplay(category: PlaceCategory): PlaceDisplayMeta {
-  return {
-    label: category.title,
-    color: getReadableTextColor(category.badgeBackgroundColor),
-    backgroundColor: category.badgeBackgroundColor,
-  };
-}
-
-/**
- * Это хелпер. Подбирает читаемый цвет текста для HEX-фона категории.
- *
- * @param backgroundColor - HEX-цвет фона бейджа.
- * @returns Темный или светлый цвет текста.
- */
-function getReadableTextColor(backgroundColor: string): string {
-  if (!HEX_COLOR_PATTERN.test(backgroundColor)) {
-    return DARK_BADGE_TEXT;
-  }
-
-  const red = Number.parseInt(backgroundColor.slice(1, 3), 16);
-  const green = Number.parseInt(backgroundColor.slice(3, 5), 16);
-  const blue = Number.parseInt(backgroundColor.slice(5, 7), 16);
-  const luminance = getRelativeLuminance(red, green, blue);
-  const darkContrast = getContrastRatio(luminance, getHexColorLuminance(DARK_BADGE_TEXT));
-  const lightContrast = getContrastRatio(luminance, getHexColorLuminance(LIGHT_BADGE_TEXT));
-
-  return darkContrast >= lightContrast ? DARK_BADGE_TEXT : LIGHT_BADGE_TEXT;
-}
-
-/**
- * Это хелпер. Считает относительную яркость HEX-цвета.
- *
- * @param color - HEX-цвет в формате `#RRGGBB`.
- * @returns WCAG-like luminance от 0 до 1.
- */
-function getHexColorLuminance(color: string): number {
-  const red = Number.parseInt(color.slice(1, 3), 16);
-  const green = Number.parseInt(color.slice(3, 5), 16);
-  const blue = Number.parseInt(color.slice(5, 7), 16);
-
-  return getRelativeLuminance(red, green, blue);
-}
-
-/**
- * Это хелпер. Считает contrast ratio двух яркостей.
- *
- * @param firstLuminance - Первая относительная яркость.
- * @param secondLuminance - Вторая относительная яркость.
- * @returns Contrast ratio по WCAG-формуле.
- */
-function getContrastRatio(firstLuminance: number, secondLuminance: number): number {
-  const lighter = Math.max(firstLuminance, secondLuminance);
-  const darker = Math.min(firstLuminance, secondLuminance);
-
-  return (lighter + 0.05) / (darker + 0.05);
-}
-
-/**
- * Это хелпер. Считает относительную яркость RGB-цвета.
- *
- * @param red - Красный канал от 0 до 255.
- * @param green - Зеленый канал от 0 до 255.
- * @param blue - Синий канал от 0 до 255.
- * @returns WCAG-like luminance от 0 до 1.
- */
-function getRelativeLuminance(red: number, green: number, blue: number): number {
-  const [r, g, b] = [red, green, blue].map((channel) => {
-    const normalized = channel / 255;
-
-    return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
-  });
-
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
 
 /**
  * Это хелпер. Возвращает подпись и цветовой тон платформы.

@@ -110,13 +110,13 @@ Completed slices:
 - `src/widgets/place-detail` and `PlaceCategoryBadge` no longer import MUI; the complete publication index, anchors, redirect links, headings, and empty state remain server-rendered.
 - Focus preview and platform scrollspy are isolated client enhancements. The page requires no client-side data fetch and keeps usable anchors and material links without JavaScript.
 - Literata and Manrope are loaded through `next/font` and scoped to the ready place-detail route. Legacy pages keep the existing Roboto setup.
-- The production login and public routes use the same Tailwind/shadcn foundation without a root UI toolkit bridge.
+- Before its later removal under issue #88, the production login and public routes used the same Tailwind/shadcn foundation without a root UI toolkit bridge.
 
 Exit criteria:
 
 - The catalog and detail pages preserve the existing look unless a redesign ADR exists.
 - No MUI imports remain in migrated entity/widget slices.
-- Visual checks cover home, filtered empty, login, place detail, desktop and mobile.
+- Visual checks cover the active home, filtered-empty, and place-detail routes on desktop and mobile.
 
 ### Phase 5: Remove MUI Bridge
 
@@ -126,7 +126,7 @@ Completed outcomes:
 
 - The internal `auth-lab` debug routes were deleted.
 - `AppRouterCacheProvider`, MUI `ThemeProvider`, and `CssBaseline` were removed from root wiring.
-- `SessionProvider` remains as the application-owned client context boundary.
+- The later auth/session cleanup removed the unused root `SessionProvider` and `/login` route; generated auth API artifacts remain backend-contract snapshots.
 - Direct MUI and Emotion dependencies and `src/shared/ui/theme` were removed.
 - The `mui` cascade layer and MUI-specific CSS exception were removed from `globals.css`.
 - ADR-0004 was superseded and current contributor guidance records the final stack.

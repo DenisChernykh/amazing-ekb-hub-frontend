@@ -14,12 +14,12 @@ const MODEL: PlacesCatalogModel = {
     items: [
       {
         id: 'place_ekb_001',
+        slug: 'baden-baden-uktus',
         title: 'Баден-Баден Уктус',
         category: {
           id: 'category_spa',
           slug: 'spa',
           title: 'SPA',
-          badgeBackgroundColor: '#faf0ed',
         },
         coverImageUrl: null,
         platformCounters: {
@@ -36,7 +36,6 @@ const MODEL: PlacesCatalogModel = {
         id: 'category_spa',
         slug: 'spa',
         title: 'SPA',
-        badgeBackgroundColor: '#faf0ed',
       },
     ],
   },

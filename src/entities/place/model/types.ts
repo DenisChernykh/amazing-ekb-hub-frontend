@@ -14,6 +14,7 @@ export type PlatformCounters = Record<Platform, number>;
  */
 export type PlaceCardModel = {
   id: string;
+  slug: string;
   title: string;
   category: PlaceCategory;
   coverImageUrl: string | null;
@@ -43,6 +44,7 @@ export type PlaceMaterialsByPlatform = Record<Platform, PlaceMaterialModel[]>;
  */
 export type PlaceDetailModel = {
   id: string;
+  slug: string;
   title: string;
   summary: string;
   tags: string[];

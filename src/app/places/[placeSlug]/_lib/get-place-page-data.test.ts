@@ -20,25 +20,26 @@ describe('getPlacePageData', () => {
     fetchPublicPlaceMaterialsMock.mockReset();
   });
 
-  it('rejects malformed route placeId before backend calls', async () => {
+  it('rejects malformed route placeSlug before backend calls', async () => {
     await expect(getPlacePageData('../admin?x=1')).resolves.toEqual({ kind: 'not_found' });
 
     expect(fetchPublicPlaceDetailMock).not.toHaveBeenCalled();
     expect(fetchPublicPlaceMaterialsMock).not.toHaveBeenCalled();
   });
 
-  it('rejects route placeId with decoded surrounding whitespace before backend calls', async () => {
-    await expect(getPlacePageData(' place_ekb_001 ')).resolves.toEqual({ kind: 'not_found' });
+  it('rejects route placeSlug with decoded surrounding whitespace before backend calls', async () => {
+    await expect(getPlacePageData(' baden-baden-uktus ')).resolves.toEqual({ kind: 'not_found' });
 
     expect(fetchPublicPlaceDetailMock).not.toHaveBeenCalled();
     expect(fetchPublicPlaceMaterialsMock).not.toHaveBeenCalled();
   });
 
-  it('uses valid route placeId for detail and materials requests', async () => {
+  it('uses valid route placeSlug for detail and materials requests', async () => {
     fetchPublicPlaceDetailMock.mockResolvedValueOnce({
       kind: 'success',
       data: {
         id: 'place_ekb_001',
+        slug: 'baden-baden-uktus',
         title: 'Aqua City',
         summary: 'Pool',
         tags: ['pool'],
@@ -46,10 +47,8 @@ describe('getPlacePageData', () => {
           id: 'category_pools',
           slug: 'pools',
           title: 'Бассейны',
-          badgeBackgroundColor: '#e0f2fe',
         },
         status: 'active',
-        popularityWeight: 100,
         coverImageUrl: null,
         counters: {
           dzen: 0,
@@ -66,11 +65,11 @@ describe('getPlacePageData', () => {
       },
     });
 
-    await expect(getPlacePageData('place_ekb_001')).resolves.toMatchObject({ kind: 'ready' });
+    await expect(getPlacePageData('baden-baden-uktus')).resolves.toMatchObject({ kind: 'ready' });
 
-    expect(fetchPublicPlaceDetailMock).toHaveBeenCalledWith('place_ekb_001');
-    expect(fetchPublicPlaceMaterialsMock).toHaveBeenCalledWith('place_ekb_001', 'dzen');
-    expect(fetchPublicPlaceMaterialsMock).toHaveBeenCalledWith('place_ekb_001', 'telegram');
-    expect(fetchPublicPlaceMaterialsMock).toHaveBeenCalledWith('place_ekb_001', 'instagram');
+    expect(fetchPublicPlaceDetailMock).toHaveBeenCalledWith('baden-baden-uktus');
+    expect(fetchPublicPlaceMaterialsMock).toHaveBeenCalledWith('baden-baden-uktus', 'dzen');
+    expect(fetchPublicPlaceMaterialsMock).toHaveBeenCalledWith('baden-baden-uktus', 'telegram');
+    expect(fetchPublicPlaceMaterialsMock).toHaveBeenCalledWith('baden-baden-uktus', 'instagram');
   });
 });

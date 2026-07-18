@@ -14,6 +14,6 @@ const manrope = Manrope({
 });
 
 /**
- * Ограничивает новую типографику страницей места, не меняя legacy-разделы.
+ * Ограничивает новую типографику публичной страницей места, не меняя остальные разделы.
  */
 export const placeDetailFontVariables = `${literata.variable} ${manrope.variable}`;

@@ -10,7 +10,6 @@ export {
   formatMaterialPublishedDate,
   formatMaterialsCount,
   getMaterialTypeDisplay,
-  getPlaceCategoryDisplay,
   getPlatformDisplay,
 } from './model/place-display';
 export {

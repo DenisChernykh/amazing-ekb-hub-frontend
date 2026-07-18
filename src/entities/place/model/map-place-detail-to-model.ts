@@ -105,6 +105,7 @@ export function mapPlaceDetailToModel(
 ): PlaceDetailModel {
   return {
     id: place.id,
+    slug: place.slug,
     title: place.title,
     summary: place.summary,
     tags: place.tags,

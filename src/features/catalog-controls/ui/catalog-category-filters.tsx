@@ -1,4 +1,4 @@
-import { getPlaceCategoryDisplay, type PlaceCategory } from '@/entities/place';
+import type { PlaceCategory } from '@/entities/place';
 import { Badge } from '@/shared/ui';
 
 interface CatalogCategoryFiltersProps {
@@ -37,7 +37,6 @@ export function CatalogCategoryFilters({
       </Badge>
 
       {categories.map((placeCategory) => {
-        const display = getPlaceCategoryDisplay(placeCategory);
         const isActive = activeCategorySlug === placeCategory.slug;
 
         return (
@@ -51,17 +50,9 @@ export function CatalogCategoryFilters({
             }
             key={placeCategory.id}
             className={CATEGORY_BUTTON_CLASS_NAME}
-            style={
-              isActive
-                ? {
-                    backgroundColor: display.backgroundColor,
-                    color: display.color,
-                  }
-                : undefined
-            }
             variant={isActive ? 'default' : 'outline'}
           >
-            {display.label}
+            {placeCategory.title}
           </Badge>
         );
       })}

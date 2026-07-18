@@ -23,10 +23,10 @@ describe('buildCatalogControlsHref', () => {
   it('writes a category value and resets pagination', () => {
     expect(
       buildCatalogControlsHref({
-        currentSearchParams: 'search=spa&sort=title_asc&pageSize=40&page=4',
+        currentSearchParams: 'search=spa&pageSize=40&page=4',
         next: { category: 'family-spa' },
       }),
-    ).toBe('/?search=spa&category=family-spa&sort=title_asc&pageSize=40');
+    ).toBe('/?search=spa&category=family-spa&pageSize=40');
   });
 
   it('writes all as a real dynamic category slug', () => {
@@ -47,12 +47,12 @@ describe('buildCatalogControlsHref', () => {
     ).toBe('/?search=spa');
   });
 
-  it('resets filters and preserves unrelated safe params', () => {
+  it('resets filters, drops a retired sort parameter, and preserves page size', () => {
     expect(
       buildCatalogControlsHref({
         currentSearchParams: 'search=spa&category=spa&sort=title_asc&pageSize=40&page=5',
         next: { reset: true },
       }),
-    ).toBe('/?sort=title_asc&pageSize=40');
+    ).toBe('/?pageSize=40');
   });
 });
