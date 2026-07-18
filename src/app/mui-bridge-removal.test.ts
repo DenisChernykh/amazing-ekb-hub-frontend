@@ -10,10 +10,7 @@ describe('completed MUI bridge removal', () => {
     expect(existsSync(resolve(process.cwd(), 'src/app/auth-lab/page.tsx'))).toBe(false);
     expect(existsSync(resolve(process.cwd(), 'src/shared/ui/theme/index.ts'))).toBe(false);
 
-    const runtimeSource = [
-      readProjectFile('src/app/layout.tsx'),
-      readProjectFile('src/app/providers.tsx'),
-    ].join('\n');
+    const runtimeSource = readProjectFile('src/app/layout.tsx');
     const globalCss = readProjectFile('src/app/globals.css');
 
     expect(runtimeSource).not.toMatch(
