@@ -30,5 +30,6 @@ The step-by-step migration plan lives in `docs/architecture/mui-to-shadcn-migrat
 The bridge period ended after the production login migration. The internal auth lab was
 deleted, the root MUI/Emotion providers and theme were removed, and the direct MUI and
 Emotion dependencies were uninstalled. Tailwind CSS and project-owned shadcn components
-are now the only application UI foundation; `SessionProvider` remains as an
-application-owned client context boundary.
+are now the only application UI foundation. The later issue #88 cleanup also removed the
+unused handwritten login/session vertical and its root provider; generated auth clients
+and schemas remain because they mirror the backend contract.
