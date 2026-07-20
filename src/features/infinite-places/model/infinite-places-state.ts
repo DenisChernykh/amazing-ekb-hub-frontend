@@ -16,7 +16,8 @@ export type InfinitePlacesAction =
   | { type: 'request' }
   | { type: 'success'; page: CategoryPlacesPage }
   | { type: 'failure' }
-  | { type: 'retry' };
+  | { type: 'retry' }
+  | { type: 'cancel' };
 
 /** Создаёт начальное состояние из server-rendered первой страницы. */
 export function createInfinitePlacesState(page: CategoryPlacesPage): InfinitePlacesState {
@@ -40,6 +41,10 @@ export function infinitePlacesReducer(
 
   if (action.type === 'failure') {
     return state.status === 'loading' ? { ...state, status: 'error' } : state;
+  }
+
+  if (action.type === 'cancel') {
+    return state.status === 'loading' ? { ...state, status: 'idle' } : state;
   }
 
   if (state.status !== 'loading') return state;

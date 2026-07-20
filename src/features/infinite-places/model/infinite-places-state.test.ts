@@ -111,6 +111,43 @@ describe('infinitePlacesReducer', () => {
     });
   });
 
+  it('moves loading to idle on cancellation without changing feed data', () => {
+    const loading = infinitePlacesReducer(createInfinitePlacesState(INITIAL_PAGE), {
+      type: 'request',
+    });
+
+    expect(infinitePlacesReducer(loading, { type: 'cancel' })).toEqual({
+      ...loading,
+      status: 'idle',
+    });
+  });
+
+  it.each(['idle', 'error', 'end'] as const)(
+    'keeps the same state when cancellation arrives while status is %s',
+    (status) => {
+      const state: InfinitePlacesState = {
+        ...createInfinitePlacesState(INITIAL_PAGE),
+        status,
+      };
+
+      expect(infinitePlacesReducer(state, { type: 'cancel' })).toBe(state);
+    },
+  );
+
+  it('ignores a stale success after the active request was cancelled', () => {
+    const loading = infinitePlacesReducer(createInfinitePlacesState(INITIAL_PAGE), {
+      type: 'request',
+    });
+    const cancelled = infinitePlacesReducer(loading, { type: 'cancel' });
+
+    expect(
+      infinitePlacesReducer(cancelled, {
+        type: 'success',
+        page: createPage(createItems(21, 40), 2),
+      }),
+    ).toBe(cancelled);
+  });
+
   it.each(['loading', 'end'] as const)(
     'keeps the same state when request arrives while status is %s',
     (status) => {

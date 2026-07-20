@@ -3,6 +3,7 @@
 import type { CategoryPlacesPage } from '@/entities/place';
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { fetchNextCategoryPlacesPage } from '../api/fetch-next-category-places-page';
+import { cancelActiveRequest } from './cancel-active-request';
 import { createInfinitePlacesState, infinitePlacesReducer } from './infinite-places-state';
 
 /** Управляет последовательной клиентской подгрузкой страниц мест. */
@@ -46,7 +47,7 @@ export function useInfinitePlaces({
     [categorySlug],
   );
 
-  useEffect(() => () => requestRef.current?.abort(), []);
+  useEffect(() => () => cancelActiveRequest(requestRef, () => dispatch({ type: 'cancel' })), []);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
