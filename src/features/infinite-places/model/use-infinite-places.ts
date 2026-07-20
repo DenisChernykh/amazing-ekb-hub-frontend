@@ -1,62 +1,11 @@
 'use client';
 
 import type { CategoryPlacesPage } from '@/entities/place';
-import { PlaceFeed } from '@/widgets/place-feed';
-import { useCallback, useEffect, useReducer, useRef, type RefObject } from 'react';
+import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { fetchNextCategoryPlacesPage } from '../api/fetch-next-category-places-page';
-import {
-  createInfinitePlacesState,
-  infinitePlacesReducer,
-  type InfinitePlacesStatus,
-} from '../model/infinite-places-state';
+import { createInfinitePlacesState, infinitePlacesReducer } from './infinite-places-state';
 
-type PlacesAppendControlProps = {
-  status: InfinitePlacesStatus;
-  sentinelRef: RefObject<HTMLDivElement | null>;
-  onRetry: () => void;
-};
-
-export function PlacesAppendControl({
-  status,
-  sentinelRef,
-  onRetry,
-}: Readonly<PlacesAppendControlProps>) {
-  if (status === 'end') return null;
-
-  return (
-    <div className="places-append-control">
-      {status === 'idle' && (
-        <div
-          ref={sentinelRef}
-          className="h-12 w-full"
-          data-category-places-sentinel="true"
-          aria-hidden="true"
-        />
-      )}
-
-      {status === 'loading' && (
-        <div className="places-append-loader" role="status" aria-live="polite">
-          <span className="sr-only">Загружаем следующие места</span>
-          <span aria-hidden="true" className="places-append-loader-track">
-            <span className="places-append-loader-segment" />
-          </span>
-        </div>
-      )}
-
-      {status === 'error' && (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="border border-black bg-white px-5 py-3 text-sm font-medium text-black focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
-        >
-          Повторить
-        </button>
-      )}
-    </div>
-  );
-}
-
-export function InfinitePlaces({
+export function useInfinitePlaces({
   initialPage,
   categorySlug,
 }: Readonly<{ initialPage: CategoryPlacesPage; categorySlug: string }>) {
@@ -115,14 +64,10 @@ export function InfinitePlaces({
     return () => observer.disconnect();
   }, [loadNextPage, state.status]);
 
-  return (
-    <>
-      <PlaceFeed items={state.items} />
-      <PlacesAppendControl
-        status={state.status}
-        sentinelRef={sentinelRef}
-        onRetry={() => void loadNextPage(true)}
-      />
-    </>
-  );
+  return {
+    items: state.items,
+    status: state.status,
+    sentinelRef,
+    retry: () => void loadNextPage(true),
+  };
 }
