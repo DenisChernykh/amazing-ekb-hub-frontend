@@ -1,4 +1,4 @@
-import { PlaceCard, type PlaceCardModel } from '@/entities/place';
+import { PlaceCard, type PlaceCardModel } from '@/entities/place/client';
 import { chunkPlaceCards } from '../lib/chunk-place-cards';
 
 export function PlaceFeed({ items }: Readonly<{ items: PlaceCardModel[] }>) {

@@ -1,4 +1,4 @@
-import { categoryPlacesPageSchema, type CategoryPlacesPage } from '@/entities/place';
+import { categoryPlacesPageSchema, type CategoryPlacesPage } from '@/entities/place/client';
 
 export async function fetchNextCategoryPlacesPage({
   categorySlug,

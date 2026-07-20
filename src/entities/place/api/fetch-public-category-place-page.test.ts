@@ -1,4 +1,5 @@
 import { listPlaces } from '@/shared/api/generated/places/places';
+import { cacheLife, cacheTag } from 'next/cache';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchPublicCategoryPlacePage } from './fetch-public-category-place-page';
 
@@ -6,11 +7,20 @@ vi.mock('@/shared/api/generated/places/places', () => ({
   listPlaces: vi.fn(),
 }));
 
+vi.mock('next/cache', () => ({
+  cacheLife: vi.fn(),
+  cacheTag: vi.fn(),
+}));
+
 const listPlacesMock = vi.mocked(listPlaces);
+const cacheLifeMock = vi.mocked(cacheLife);
+const cacheTagMock = vi.mocked(cacheTag);
 
 describe('fetchPublicCategoryPlacePage', () => {
   beforeEach(() => {
     listPlacesMock.mockReset();
+    cacheLifeMock.mockReset();
+    cacheTagMock.mockReset();
   });
 
   it('requests a fixed-size category page and maps backend summaries to the transport model', async () => {
@@ -71,5 +81,11 @@ describe('fetchPublicCategoryPlacePage', () => {
       page: 1,
       pageSize: 20,
     });
+    expect(cacheLifeMock).toHaveBeenCalledWith({
+      stale: 60,
+      revalidate: 300,
+      expire: 3600,
+    });
+    expect(cacheTagMock).toHaveBeenCalledWith('category-places:spa');
   });
 });

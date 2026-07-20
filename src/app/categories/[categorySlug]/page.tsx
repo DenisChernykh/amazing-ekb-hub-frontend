@@ -1,6 +1,11 @@
 import { notFound } from 'next/navigation';
 import { CategoryPageContent } from './_components/category-page-content';
 import { getCategoryPageData } from './_lib/get-category-page-data';
+import { getCategoryStaticParams } from './_lib/get-category-static-params';
+
+export async function generateStaticParams() {
+  return getCategoryStaticParams();
+}
 
 export default async function CategoryPage({
   params,

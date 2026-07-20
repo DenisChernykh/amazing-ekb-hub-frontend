@@ -1,3 +1,4 @@
+export { fetchAllPublicPlaceSlugs } from './api/fetch-all-public-place-slugs';
 export { fetchPublicCategoryPlacePage } from './api/fetch-public-category-place-page';
 export { buildPlaceHref } from './lib/build-place-href';
 export { buildPlaceMaterialsAnchor } from './lib/build-place-materials-anchor';

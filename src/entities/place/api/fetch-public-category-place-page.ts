@@ -1,4 +1,6 @@
 import { listPlaces } from '@/shared/api/generated/places/places';
+import { PUBLIC_CATALOG_CACHE_LIFE, getCategoryPlacesCacheTag } from '@/shared/lib/cache';
+import { cacheLife, cacheTag } from 'next/cache';
 import type { CategoryPlacesPage } from '../model/category-places-page-schema';
 import { mapPlaceSummaryToCardModel } from '../model/map-place-summary-to-card';
 
@@ -10,13 +12,14 @@ export type FetchPublicCategoryPlacePageInput = {
 
 export async function fetchPublicCategoryPlacePage({
   categoryId,
+  categorySlug,
   page,
 }: FetchPublicCategoryPlacePageInput): Promise<CategoryPlacesPage> {
-  const response = await listPlaces({
-    categoryId,
-    page,
-    pageSize: 20,
-  });
+  'use cache';
+  cacheLife(PUBLIC_CATALOG_CACHE_LIFE);
+  cacheTag(getCategoryPlacesCacheTag(categorySlug));
+
+  const response = await listPlaces({ categoryId, page, pageSize: 20 });
 
   return {
     items: response.data.items.map(mapPlaceSummaryToCardModel),
