@@ -53,7 +53,6 @@
     "eslint-plugin-jsdoc": "^62.8.0",
     "eslint-plugin-tsdoc": "^0.5.2",
     "husky": "^9.1.7",
-    "jsdom": "^29.1.1",
     "lint-staged": "^16.3.3",
     "openapi-typescript": "^7.13.0",
     "orval": "^8.8.1",
