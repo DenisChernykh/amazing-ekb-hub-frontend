@@ -4,7 +4,7 @@ const SIGNATURE_PATTERN = /^sha256=([a-f0-9]{64})$/;
 const REPLAY_WINDOW_SECONDS = 300;
 
 type VerifyInput = {
-  rawBody: string;
+  rawBody: Uint8Array;
   timestampHeader: string | null;
   signatureHeader: string | null;
   secret: string;
@@ -18,7 +18,7 @@ export function verifyCacheRevalidationSignature({
   secret,
   nowSeconds = Math.floor(Date.now() / 1000),
 }: VerifyInput): boolean {
-  if (!/^\d+$/.test(timestampHeader ?? '')) return false;
+  if (timestampHeader === null || !/^\d+$/.test(timestampHeader)) return false;
 
   const timestamp = Number(timestampHeader);
   if (!Number.isSafeInteger(timestamp)) return false;
@@ -28,7 +28,9 @@ export function verifyCacheRevalidationSignature({
   if (!signatureMatch) return false;
 
   const expected = createHmac('sha256', secret)
-    .update(`${timestampHeader}.${rawBody}`, 'utf8')
+    .update(timestampHeader, 'utf8')
+    .update('.', 'ascii')
+    .update(rawBody)
     .digest();
   const received = Buffer.from(signatureMatch[1], 'hex');
 

@@ -1,6 +1,7 @@
 import { revalidateTag } from 'next/cache';
 import { cacheRevalidationPayloadSchema } from './_lib/cache-revalidation-schema';
 import { mapRevalidationScopesToTags } from './_lib/map-revalidation-scopes-to-tags';
+import { readBoundedRequestBody } from './_lib/read-bounded-request-body';
 import { verifyCacheRevalidationSignature } from './_lib/verify-cache-revalidation-signature';
 
 export async function POST(request: Request): Promise<Response> {
@@ -10,7 +11,12 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ message: 'Cache revalidation is not configured.' }, { status: 500 });
     }
 
-    const rawBody = await request.text();
+    const bodyResult = await readBoundedRequestBody(request);
+    if (!bodyResult.ok) {
+      return Response.json({ message: 'Request body is too large.' }, { status: 413 });
+    }
+
+    const rawBody = bodyResult.body;
     const verified = verifyCacheRevalidationSignature({
       rawBody,
       timestampHeader: request.headers.get('X-Amazing-Timestamp'),
@@ -24,7 +30,11 @@ export async function POST(request: Request): Promise<Response> {
 
     let json: unknown;
     try {
-      json = JSON.parse(rawBody);
+      const bodyText = new TextDecoder('utf-8', {
+        fatal: true,
+        ignoreBOM: false,
+      }).decode(rawBody);
+      json = JSON.parse(bodyText);
     } catch {
       return Response.json({ message: 'Invalid JSON body.' }, { status: 400 });
     }

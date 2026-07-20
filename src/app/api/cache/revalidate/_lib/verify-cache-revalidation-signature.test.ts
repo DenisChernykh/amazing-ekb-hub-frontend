@@ -4,11 +4,14 @@ import { verifyCacheRevalidationSignature } from './verify-cache-revalidation-si
 
 const SECRET = 'a-secure-cache-revalidation-secret';
 const NOW_SECONDS = 1_785_000_000;
-const RAW_BODY = '{"schemaVersion":1}';
+const ENCODER = new TextEncoder();
+const RAW_BODY = ENCODER.encode('{"schemaVersion":1}');
 
-function sign(timestampHeader: string, rawBody = RAW_BODY) {
+function sign(timestampHeader: string, rawBody: Uint8Array = RAW_BODY) {
   return `sha256=${createHmac('sha256', SECRET)
-    .update(`${timestampHeader}.${rawBody}`, 'utf8')
+    .update(timestampHeader, 'utf8')
+    .update('.', 'ascii')
+    .update(rawBody)
     .digest('hex')}`;
 }
 
@@ -26,7 +29,7 @@ function verify(overrides: Partial<Parameters<typeof verifyCacheRevalidationSign
 }
 
 describe('verifyCacheRevalidationSignature', () => {
-  it('accepts a real HMAC over the exact timestamp header and raw body', () => {
+  it('accepts a real HMAC over the exact timestamp header and raw body bytes', () => {
     expect(verify()).toBe(true);
   });
 
@@ -71,8 +74,30 @@ describe('verifyCacheRevalidationSignature', () => {
   it('rejects a different raw-body byte sequence', () => {
     expect(
       verify({
-        rawBody: '{ "schemaVersion": 1 }',
+        rawBody: ENCODER.encode('{ "schemaVersion": 1 }'),
       }),
     ).toBe(false);
+  });
+
+  it('rejects BOM-prefixed bytes signed only over the canonical JSON bytes', () => {
+    const bomBody = Uint8Array.from([0xef, 0xbb, 0xbf, ...RAW_BODY]);
+
+    expect(
+      verify({
+        rawBody: bomBody,
+      }),
+    ).toBe(false);
+  });
+
+  it('accepts BOM-prefixed bytes when the BOM is included in the HMAC input', () => {
+    const bomBody = Uint8Array.from([0xef, 0xbb, 0xbf, ...RAW_BODY]);
+    const timestampHeader = String(NOW_SECONDS);
+
+    expect(
+      verify({
+        rawBody: bomBody,
+        signatureHeader: sign(timestampHeader, bomBody),
+      }),
+    ).toBe(true);
   });
 });
