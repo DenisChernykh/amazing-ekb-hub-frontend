@@ -7,8 +7,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: var(--font-roboto);
-  --font-sans: var(--font-roboto);
+  --font-heading: var(--font-onest);
+  --font-sans: var(--font-onest);
+  --color-card-title-hover: #c6b09f;
+  --duration-site-header: 360ms;
+  --duration-primary-action: 400ms;
+  --ease-catalog: cubic-bezier(0.22, 1, 0.36, 1);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -53,38 +57,38 @@
 }
 
 :root {
-  --background: #f6f1ea;
-  --foreground: #111827;
+  --background: #ffffff;
+  --foreground: #0a0a0a;
   --card: #ffffff;
-  --card-foreground: #111827;
+  --card-foreground: #0a0a0a;
   --popover: #ffffff;
-  --popover-foreground: #111827;
-  --primary: #237a76;
+  --popover-foreground: #0a0a0a;
+  --primary: #000000;
   --primary-foreground: #ffffff;
-  --secondary: #edf2f0;
-  --secondary-foreground: #111827;
-  --muted: #edf2f0;
-  --muted-foreground: #5f6b7a;
-  --accent: rgb(35 122 118 / 6%);
-  --accent-foreground: #111827;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f3f4f6;
+  --muted-foreground: #666666;
+  --accent: #f5f5f5;
+  --accent-foreground: #0a0a0a;
   --destructive: #b42318;
-  --border: rgb(31 41 55 / 10%);
-  --input: rgb(31 41 55 / 10%);
-  --ring: rgb(35 122 118 / 22%);
-  --chart-1: #237a76;
-  --chart-2: #5f6b7a;
-  --chart-3: #111827;
-  --chart-4: #edf2f0;
-  --chart-5: #fffaf4;
+  --border: #d9d9d9;
+  --input: #d9d9d9;
+  --ring: #000000;
+  --chart-1: #000000;
+  --chart-2: #666666;
+  --chart-3: #9ca3af;
+  --chart-4: #d9d9d9;
+  --chart-5: #f3f4f6;
   --radius: 0.5rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #111827;
-  --sidebar-primary: #237a76;
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #000000;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgb(35 122 118 / 6%);
-  --sidebar-accent-foreground: #111827;
-  --sidebar-border: rgb(31 41 55 / 10%);
-  --sidebar-ring: rgb(35 122 118 / 22%);
+  --sidebar-accent: #f5f5f5;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: #d9d9d9;
+  --sidebar-ring: #000000;
 }
 
 .dark {
@@ -151,5 +155,15 @@
   svg {
     display: block;
     max-width: 100%;
+  }
+}
+
+@layer components {
+  .site-header-expanded {
+    height: 78px;
+  }
+
+  .site-header-compact {
+    height: 58px;
   }
 }
