@@ -134,7 +134,8 @@ Exit criteria:
 - The category-first catalog follows its approved catalog design specification;
   other migrated pages preserve their existing look unless a redesign ADR exists.
 - No MUI imports remain in migrated entity/widget slices.
-- Visual checks cover the active home, filtered-empty, and place-detail routes on desktop and mobile.
+- Visual checks cover the current home, category index, populated/empty category,
+  and place-detail routes on desktop and mobile.
 
 ### Phase 5: Remove MUI Bridge
 

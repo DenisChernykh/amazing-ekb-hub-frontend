@@ -265,12 +265,15 @@ Throw-based bridge и `std-errors` остаются target direction для но
 
 Актуальный reference:
 
-- `src/app/page.tsx`;
-- `src/app/_lib/get-home-page-data.ts`;
-- `src/app/_components/home-page-content.tsx`;
+- `src/app/(home)/page.tsx`;
+- `src/app/(home)/_lib/get-home-page-data.ts`;
+- `src/app/(home)/_components/home-category-section.tsx`;
+- `src/app/categories/[categorySlug]`;
+- `src/entities/category`;
 - `src/entities/place`;
-- `src/features/places-pagination`;
-- `src/widgets/places-catalog`.
+- `src/features/infinite-places`;
+- `src/widgets/category-grid`;
+- `src/widgets/place-feed`.
 
 ## Related Documents
 
