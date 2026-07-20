@@ -434,9 +434,15 @@ Contract rules:
 - arrays are deduplicated by the sender or receiver;
 - slugs must satisfy the public slug contract;
 - all scope fields are optional individually;
+- the serialized raw request body is at most `65,536` bytes;
 - unknown fields or unsupported versions are rejected.
 
 The payload is domain-oriented. Backend does not send Next.js cache-tag names.
+
+The frontend enforces the `65,536`-byte limit before authentication. A declared
+larger `Content-Length` is rejected early, but missing, malformed, or dishonest
+headers do not bypass streamed byte counting. Deployment proxy limits remain
+defense in depth and must be configured at or above this contract limit.
 
 Frontend scope mapping:
 
@@ -496,6 +502,7 @@ Response contract:
 - `204` for accepted invalidation, including a duplicate valid event;
 - `400` for an invalid body or unsupported schema version;
 - `401` for missing, invalid, or replayed signatures;
+- `413` when the raw request body exceeds `65,536` bytes;
 - `500` only for an unexpected frontend failure.
 
 ## Backend Delivery Dependency
@@ -519,6 +526,12 @@ Mutation delivery rules:
   slugs;
 - place mutations include affected old/new place slugs and old/new category
   slugs when the card/list can change;
+- every serialized event must remain within `65,536` raw bytes;
+- if one mutation would exceed the limit, the backend splits it into multiple
+  independently valid signed events with stable event ids;
+- a frontend `413` is a non-retriable contract violation: the delivery worker
+  surfaces it through its failure/observability path instead of retrying the
+  same oversized body;
 - photo changes include the current place and category slug;
 - material/link/pinned changes include all affected place slugs;
 - no event is sent when the domain mutation fails;
