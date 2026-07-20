@@ -1,5 +1,10 @@
+export { fetchPublicCategoryPlacePage } from './api/fetch-public-category-place-page';
 export { buildPlaceHref } from './lib/build-place-href';
 export { buildPlaceMaterialsAnchor } from './lib/build-place-materials-anchor';
+export {
+  categoryPlacesPageSchema,
+  type CategoryPlacesPage,
+} from './model/category-places-page-schema';
 export { mapPlaceDetailToModel } from './model/map-place-detail-to-model';
 export { mapPlaceSummaryToCardModel } from './model/map-place-summary-to-card';
 export {
