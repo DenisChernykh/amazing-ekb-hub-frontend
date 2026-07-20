@@ -233,6 +233,18 @@ describe('POST cache revalidation', () => {
     expect(revalidateTagMock).not.toHaveBeenCalled();
   });
 
+  it('returns 413 when a dishonest lower Content-Length understates actual bytes', async () => {
+    const request = createStreamedRequest([new Uint8Array(MAX_CACHE_REVALIDATION_BODY_BYTES + 1)], {
+      'Content-Length': '1',
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(413);
+    expect(verifyCacheRevalidationSignatureMock).not.toHaveBeenCalled();
+    expect(revalidateTagMock).not.toHaveBeenCalled();
+  });
+
   it('accepts a valid signed body exactly at the byte limit', async () => {
     const padding = ' '.repeat(MAX_CACHE_REVALIDATION_BODY_BYTES - ENCODER.encode(RAW_BODY).length);
     const atLimitBody = `${RAW_BODY}${padding}`;
@@ -243,6 +255,39 @@ describe('POST cache revalidation', () => {
 
     expect(response.status).toBe(204);
     expect(revalidateTagMock).toHaveBeenCalledTimes(EXPECTED_TAGS.length);
+  });
+
+  it('returns 500 when reading the request stream fails technically', async () => {
+    const request = new Request('http://localhost/api/cache/revalidate', {
+      method: 'POST',
+      body: new ReadableStream<Uint8Array>({
+        pull(controller) {
+          controller.error(new Error('request stream failed'));
+        },
+      }),
+      duplex: 'half',
+    } as RequestInit & { duplex: 'half' });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({
+      message: 'Cache revalidation failed.',
+    });
+    expect(verifyCacheRevalidationSignatureMock).not.toHaveBeenCalled();
+    expect(revalidateTagMock).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 for signed exact invalid UTF-8 bytes', async () => {
+    const invalidUtf8Body = Uint8Array.from([0xc3, 0x28]);
+
+    const response = await POST(createSignedRequest({ rawBody: invalidUtf8Body }));
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      message: 'Invalid JSON body.',
+    });
+    expect(revalidateTagMock).not.toHaveBeenCalled();
   });
 
   it.each([

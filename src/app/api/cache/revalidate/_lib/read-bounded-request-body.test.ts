@@ -23,6 +23,31 @@ function createStreamedRequest(chunks: Uint8Array[], contentLength?: string) {
   } as RequestInit & { duplex: 'half' });
 }
 
+function createCancellableRequest({
+  chunks,
+  cancel,
+}: {
+  chunks: Uint8Array[];
+  cancel: () => void | Promise<void>;
+}) {
+  let chunkIndex = 0;
+
+  return new Request('http://localhost/api/cache/revalidate', {
+    method: 'POST',
+    body: new ReadableStream<Uint8Array>({
+      pull(controller) {
+        const chunk = chunks[chunkIndex];
+        if (!chunk) return;
+
+        chunkIndex += 1;
+        controller.enqueue(chunk);
+      },
+      cancel,
+    }),
+    duplex: 'half',
+  } as RequestInit & { duplex: 'half' });
+}
+
 describe('readBoundedRequestBody', () => {
   it('rejects a declared Content-Length above the webhook limit', async () => {
     const request = new Request('http://localhost/api/cache/revalidate', {
@@ -46,6 +71,33 @@ describe('readBoundedRequestBody', () => {
     ).resolves.toEqual({ ok: false });
   });
 
+  it('cancels the request stream when actual chunks exceed the limit', async () => {
+    let cancelCalls = 0;
+    const request = createCancellableRequest({
+      chunks: [
+        new Uint8Array(MAX_CACHE_REVALIDATION_BODY_BYTES / 2),
+        new Uint8Array(MAX_CACHE_REVALIDATION_BODY_BYTES / 2 + 1),
+      ],
+      cancel() {
+        cancelCalls += 1;
+      },
+    });
+
+    await expect(readBoundedRequestBody(request)).resolves.toEqual({ ok: false });
+    expect(cancelCalls).toBe(1);
+  });
+
+  it('keeps known overflow as too large when stream cancellation rejects', async () => {
+    const request = createCancellableRequest({
+      chunks: [new Uint8Array(MAX_CACHE_REVALIDATION_BODY_BYTES + 1)],
+      cancel() {
+        return Promise.reject(new Error('cancel failed'));
+      },
+    });
+
+    await expect(readBoundedRequestBody(request)).resolves.toEqual({ ok: false });
+  });
+
   it('accepts actual bytes exactly at the webhook limit', async () => {
     const body = new Uint8Array(MAX_CACHE_REVALIDATION_BODY_BYTES);
 
@@ -61,5 +113,28 @@ describe('readBoundedRequestBody', () => {
     await expect(
       readBoundedRequestBody(createStreamedRequest([overLimitBody], 'not-a-number')),
     ).resolves.toEqual({ ok: false });
+  });
+
+  it('does not trust a lower numeric Content-Length and still bounds actual bytes', async () => {
+    const overLimitBody = new Uint8Array(MAX_CACHE_REVALIDATION_BODY_BYTES + 1);
+
+    await expect(
+      readBoundedRequestBody(createStreamedRequest([overLimitBody], '1')),
+    ).resolves.toEqual({ ok: false });
+  });
+
+  it('propagates a technical reader failure instead of classifying it as overflow', async () => {
+    const streamError = new Error('request stream failed');
+    const request = new Request('http://localhost/api/cache/revalidate', {
+      method: 'POST',
+      body: new ReadableStream<Uint8Array>({
+        pull(controller) {
+          controller.error(streamError);
+        },
+      }),
+      duplex: 'half',
+    } as RequestInit & { duplex: 'half' });
+
+    await expect(readBoundedRequestBody(request)).rejects.toBe(streamError);
   });
 });
