@@ -619,8 +619,9 @@ data.
 - empty, route error, append loading, append error, retry, and end states;
 - same-origin page Route Handler validates page/slug and returns the frontend
   contract;
-- revalidation Route Handler returns `204`, `400`, and `401` for the defined
-  cases and invokes each exact tag once;
+- revalidation Route Handler returns `204`, `400`, `401`, and `413` for the
+  defined cases, rejects both declared and streamed oversized bodies, and
+  invokes each exact tag once;
 - reduced-motion and loader accessibility markup;
 - removed search/filter/pagination controls do not remain in the public catalog
   composition.
