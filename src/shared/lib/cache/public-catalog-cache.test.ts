@@ -22,4 +22,30 @@ describe('public catalog cache contract', () => {
     expect(getCategoryPlacesCacheTag('family-spa')).toBe('category-places:family-spa');
     expect(getPlaceCacheTag('baden-baden-uktus')).toBe('place:baden-baden-uktus');
   });
+
+  it('preserves the exact tag through the 256-character boundary', () => {
+    const slugAtBoundary = 'a'.repeat(256 - 'category:'.length);
+
+    expect(getCategoryCacheTag(slugAtBoundary)).toBe(`category:${slugAtBoundary}`);
+    expect(getCategoryCacheTag(slugAtBoundary)).toHaveLength(256);
+  });
+
+  it('compresses overlong slugs to deterministic scoped SHA-256 tags', () => {
+    const overlongSlug = 'a'.repeat(248);
+    const firstTag = getCategoryCacheTag(overlongSlug);
+    const secondTag = getCategoryCacheTag(overlongSlug);
+
+    expect(firstTag).toBe(secondTag);
+    expect(firstTag).toMatch(/^category:sha256:[a-f0-9]{64}$/);
+    expect(firstTag.length).toBeLessThanOrEqual(256);
+  });
+
+  it('keeps every overlong tag scope and gives different slugs different hash shapes', () => {
+    const firstSlug = 'a'.repeat(300);
+    const secondSlug = 'b'.repeat(300);
+
+    expect(getCategoryCacheTag(firstSlug)).not.toBe(getCategoryCacheTag(secondSlug));
+    expect(getCategoryPlacesCacheTag(firstSlug)).toMatch(/^category-places:sha256:[a-f0-9]{64}$/);
+    expect(getPlaceCacheTag(firstSlug)).toMatch(/^place:sha256:[a-f0-9]{64}$/);
+  });
 });

@@ -14,7 +14,7 @@ vi.mock('next/cache', () => ({
 const listPlacesMock = vi.mocked(listPlaces);
 const cacheLifeMock = vi.mocked(cacheLife);
 
-function makePlace(index: number) {
+function makePlace(index: number, status: 'active' | 'hidden' = 'active') {
   return {
     id: `place-${index}`,
     slug: `place-${index}`,
@@ -22,7 +22,7 @@ function makePlace(index: number) {
     summary: '',
     tags: [],
     category: { id: 'category-spa', slug: 'spa', title: 'SPA' },
-    status: 'active' as const,
+    status,
     coverImageUrl: null,
     counters: { dzen: 0, telegram: 0, instagram: 0 },
   };
@@ -70,6 +70,61 @@ describe('fetchAllPublicPlaceSlugs', () => {
       revalidate: 300,
       expire: 3600,
     });
+  });
+
+  it('filters hidden places without using the filtered count to stop pagination', async () => {
+    listPlacesMock
+      .mockResolvedValueOnce({
+        data: {
+          items: [
+            ...Array.from({ length: 99 }, (_, index) => makePlace(index + 1)),
+            makePlace(100, 'hidden'),
+          ],
+          page: 1,
+          pageSize: 100,
+          total: 102,
+        },
+        status: 200,
+        headers: new Headers(),
+      })
+      .mockResolvedValueOnce({
+        data: {
+          items: [makePlace(101), makePlace(102, 'hidden')],
+          page: 2,
+          pageSize: 100,
+          total: 102,
+        },
+        status: 200,
+        headers: new Headers(),
+      });
+
+    const slugs = await fetchAllPublicPlaceSlugs();
+
+    expect(slugs).toHaveLength(100);
+    expect(slugs).not.toContain('place-100');
+    expect(slugs).toContain('place-101');
+    expect(slugs).not.toContain('place-102');
+    expect(listPlacesMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('fails fast when an empty page arrives before the reported total', async () => {
+    listPlacesMock
+      .mockResolvedValueOnce({
+        data: {
+          items: [],
+          page: 1,
+          pageSize: 100,
+          total: 2,
+        },
+        status: 200,
+        headers: new Headers(),
+      })
+      .mockRejectedValueOnce(new Error('unexpected second request'));
+
+    await expect(fetchAllPublicPlaceSlugs()).rejects.toThrow(
+      'Public place slug enumeration stopped: page 1 returned no items before total 2 was reached',
+    );
+    expect(listPlacesMock).toHaveBeenCalledOnce();
   });
 
   it('propagates a build-time API failure', async () => {
