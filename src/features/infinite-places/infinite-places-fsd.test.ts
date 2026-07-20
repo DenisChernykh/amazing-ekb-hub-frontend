@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 const FEATURE_ROOT = dirname(fileURLToPath(import.meta.url));
 
+/** Рекурсивно собирает production TypeScript-файлы feature-slice. */
 function collectSourceFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);

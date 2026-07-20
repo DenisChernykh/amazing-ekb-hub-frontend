@@ -4,6 +4,7 @@ import { buildPlaceHref } from '../lib/build-place-href';
 import type { PlaceCardModel, PlaceCardVariant } from '../model/types';
 import { PlaceCardImage } from './place-card-image';
 
+/** Отображает ссылку-карточку публичного места. */
 export function PlaceCard({
   place,
   variant,

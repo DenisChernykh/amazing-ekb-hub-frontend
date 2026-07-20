@@ -3,6 +3,7 @@ import { buildCategoryHref } from '../lib/build-category-href';
 import type { CategoryCardModel } from '../model/types';
 import { CategoryCardImage } from './category-card-image';
 
+/** Отображает ссылку-карточку публичной категории. */
 export function CategoryCard({ category }: Readonly<{ category: CategoryCardModel }>) {
   return (
     <article className="h-full border border-border bg-white">

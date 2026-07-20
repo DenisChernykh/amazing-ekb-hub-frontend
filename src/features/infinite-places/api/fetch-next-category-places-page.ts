@@ -1,5 +1,6 @@
 import { categoryPlacesPageSchema, type CategoryPlacesPage } from '@/entities/place/client';
 
+/** Загружает следующую страницу мест через same-origin Route Handler. */
 export async function fetchNextCategoryPlacesPage({
   categorySlug,
   page,

@@ -1,5 +1,6 @@
 import { CategoryCard, type CategoryCardModel } from '@/entities/category';
 
+/** Отображает адаптивную сетку карточек категорий. */
 export function CategoryGrid({
   categories,
   ariaLabel,

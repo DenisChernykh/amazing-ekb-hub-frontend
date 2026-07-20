@@ -2,6 +2,7 @@ import type { PlaceCardModel } from '@/entities/place';
 
 const PLACE_MODULE_SIZE = 5;
 
+/** Разбивает карточки мест на визуальные модули по пять элементов. */
 export function chunkPlaceCards(items: PlaceCardModel[]): PlaceCardModel[][] {
   const modules: PlaceCardModel[][] = [];
 

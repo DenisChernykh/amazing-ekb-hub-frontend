@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+/** Строгая клиентская схема страницы мест категории. */
 export const categoryPlacesPageSchema = z.strictObject({
   items: z.array(
     z.strictObject({
@@ -14,4 +15,5 @@ export const categoryPlacesPageSchema = z.strictObject({
   total: z.number().int().nonnegative(),
 });
 
+/** Проверенная frontend-модель страницы мест категории. */
 export type CategoryPlacesPage = z.infer<typeof categoryPlacesPageSchema>;

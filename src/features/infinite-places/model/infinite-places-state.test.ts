@@ -6,6 +6,7 @@ import {
   type InfinitePlacesState,
 } from './infinite-places-state';
 
+/** Создаёт последовательность карточек мест для reducer-сценариев. */
 function createItems(from: number, to: number): PlaceCardModel[] {
   return Array.from({ length: to - from + 1 }, (_, index) => {
     const id = String(from + index);
@@ -19,6 +20,7 @@ function createItems(from: number, to: number): PlaceCardModel[] {
   });
 }
 
+/** Создаёт страницу мест для reducer-сценариев. */
 function createPage(items: PlaceCardModel[], page: number, total = 40): CategoryPlacesPage {
   return { items, page, pageSize: 20, total };
 }

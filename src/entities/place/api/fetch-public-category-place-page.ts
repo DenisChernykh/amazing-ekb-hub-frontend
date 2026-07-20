@@ -4,12 +4,14 @@ import { cacheLife, cacheTag } from 'next/cache';
 import type { CategoryPlacesPage } from '../model/category-places-page-schema';
 import { mapPlaceSummaryToCardModel } from '../model/map-place-summary-to-card';
 
+/** Параметры кешируемой страницы мест категории. */
 export type FetchPublicCategoryPlacePageInput = {
   categoryId: string;
   categorySlug: string;
   page: number;
 };
 
+/** Загружает и преобразует одну публичную страницу мест категории. */
 export async function fetchPublicCategoryPlacePage({
   categoryId,
   categorySlug,

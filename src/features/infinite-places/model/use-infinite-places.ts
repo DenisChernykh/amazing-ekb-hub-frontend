@@ -5,6 +5,7 @@ import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { fetchNextCategoryPlacesPage } from '../api/fetch-next-category-places-page';
 import { createInfinitePlacesState, infinitePlacesReducer } from './infinite-places-state';
 
+/** Управляет последовательной клиентской подгрузкой страниц мест. */
 export function useInfinitePlaces({
   initialPage,
   categorySlug,

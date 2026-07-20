@@ -1,7 +1,9 @@
 import type { CategoryPlacesPage, PlaceCardModel } from '@/entities/place';
 
+/** Состояние жизненного цикла подгрузки мест. */
 export type InfinitePlacesStatus = 'idle' | 'loading' | 'error' | 'end';
 
+/** Полное клиентское состояние бесконечной ленты мест. */
 export type InfinitePlacesState = {
   items: PlaceCardModel[];
   page: number;
@@ -9,12 +11,14 @@ export type InfinitePlacesState = {
   status: InfinitePlacesStatus;
 };
 
+/** События, изменяющие состояние бесконечной ленты мест. */
 export type InfinitePlacesAction =
   | { type: 'request' }
   | { type: 'success'; page: CategoryPlacesPage }
   | { type: 'failure' }
   | { type: 'retry' };
 
+/** Создаёт начальное состояние из server-rendered первой страницы. */
 export function createInfinitePlacesState(page: CategoryPlacesPage): InfinitePlacesState {
   return {
     items: page.items,
@@ -24,6 +28,7 @@ export function createInfinitePlacesState(page: CategoryPlacesPage): InfinitePla
   };
 }
 
+/** Применяет событие загрузки к состоянию бесконечной ленты. */
 export function infinitePlacesReducer(
   state: InfinitePlacesState,
   action: InfinitePlacesAction,

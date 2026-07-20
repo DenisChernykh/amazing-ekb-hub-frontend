@@ -15,6 +15,7 @@ export type FetchPublicPlaceDetailResult =
   | { kind: 'not_found'; data: getPlaceDetailResponseError['data'] }
   | { kind: 'unexpected_error'; message: string };
 
+/** Загружает кешируемые detail-данные публичного места. */
 async function fetchCachedPublicPlaceDetail(
   placeSlug: string,
 ): Promise<getPlaceDetailResponseSuccess['data']> {

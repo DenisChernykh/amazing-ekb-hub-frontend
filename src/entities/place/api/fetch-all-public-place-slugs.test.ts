@@ -14,6 +14,7 @@ vi.mock('next/cache', () => ({
 const listPlacesMock = vi.mocked(listPlaces);
 const cacheLifeMock = vi.mocked(cacheLife);
 
+/** Создаёт API-модель места для проверки build-time перечисления. */
 function makePlace(index: number, status: 'active' | 'hidden' = 'active') {
   return {
     id: `place-${index}`,

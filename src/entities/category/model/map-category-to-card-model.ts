@@ -3,6 +3,7 @@ import type { CategoryCardModel } from './types';
 
 const CATEGORY_PLACEHOLDER_SRC = '/images/categories/category-placeholder.svg';
 
+/** Преобразует API-категорию во frontend-модель карточки. */
 export function mapCategoryToCardModel(category: PlaceCategory): CategoryCardModel {
   return {
     id: category.id,

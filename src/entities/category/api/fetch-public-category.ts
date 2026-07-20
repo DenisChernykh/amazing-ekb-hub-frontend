@@ -4,6 +4,7 @@ import { isGeneratedApiError } from '@/shared/lib/api/is-generated-api-error';
 import { PUBLIC_CATALOG_CACHE_LIFE, getCategoryCacheTag } from '@/shared/lib/cache';
 import { cacheLife, cacheTag } from 'next/cache';
 
+/** Загружает публичную категорию по slug или возвращает `null`. */
 export async function fetchPublicCategory(categorySlug: string): Promise<PlaceCategory | null> {
   'use cache';
   cacheLife(PUBLIC_CATALOG_CACHE_LIFE);

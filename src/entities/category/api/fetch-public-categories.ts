@@ -3,6 +3,7 @@ import { listPlaceCategories } from '@/shared/api/generated/places/places';
 import { PUBLIC_CATALOG_CACHE_LIFE, getCategoriesCacheTag } from '@/shared/lib/cache';
 import { cacheLife, cacheTag } from 'next/cache';
 
+/** Загружает кешируемый список публичных категорий. */
 export async function fetchPublicCategories(): Promise<PlaceCategory[]> {
   'use cache';
   cacheLife(PUBLIC_CATALOG_CACHE_LIFE);

@@ -4,6 +4,7 @@ import { cacheLife } from 'next/cache';
 
 const BUILD_PAGE_SIZE = 100;
 
+/** Перечисляет slug всех активных публичных мест для статической генерации. */
 export async function fetchAllPublicPlaceSlugs(): Promise<string[]> {
   'use cache';
   cacheLife(PUBLIC_CATALOG_CACHE_LIFE);

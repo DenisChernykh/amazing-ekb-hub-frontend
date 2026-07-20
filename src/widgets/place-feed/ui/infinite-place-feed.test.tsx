@@ -1,4 +1,4 @@
-/** @vitest-environment jsdom */
+// @vitest-environment jsdom
 
 import type { CategoryPlacesPage } from '@/entities/place';
 import { act, createElement } from 'react';
@@ -8,6 +8,7 @@ import { InfinitePlaceFeed } from './infinite-place-feed';
 
 type ObserverCallback = ConstructorParameters<typeof IntersectionObserver>[0];
 
+/** Управляемый IntersectionObserver для клиентских runtime-сценариев. */
 class IntersectionObserverMock implements IntersectionObserver {
   static instances: IntersectionObserverMock[] = [];
 
@@ -47,6 +48,7 @@ class IntersectionObserverMock implements IntersectionObserver {
   }
 }
 
+/** Создаёт последовательность карточек мест для runtime-сценариев. */
 function createItems(from: number, to: number) {
   return Array.from({ length: to - from + 1 }, (_, index) => {
     const id = String(from + index);
@@ -60,6 +62,7 @@ function createItems(from: number, to: number) {
   });
 }
 
+/** Создаёт страницу мест для runtime-сценариев. */
 function createPage(
   items: CategoryPlacesPage['items'],
   page: number,
@@ -68,6 +71,7 @@ function createPage(
   return { items, page, pageSize: 20, total };
 }
 
+/** Создаёт JSON response страницы мест. */
 function jsonResponse(page: CategoryPlacesPage, status = 200) {
   return Promise.resolve(
     new Response(status === 200 ? JSON.stringify(page) : null, {
@@ -77,6 +81,7 @@ function jsonResponse(page: CategoryPlacesPage, status = 200) {
   );
 }
 
+/** Создаёт управляемый Promise ответа для проверки loading-состояния. */
 function deferredResponse() {
   let resolve!: (response: Response) => void;
   const promise = new Promise<Response>((promiseResolve) => {

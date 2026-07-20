@@ -18,6 +18,7 @@ export type FetchPublicPlaceMaterialsResult =
   | { kind: 'not_found'; data: listPlaceMaterialsResponseError['data'] }
   | { kind: 'unexpected_error'; message: string };
 
+/** Загружает кешируемые материалы публичного места для одной платформы. */
 async function fetchCachedPublicPlaceMaterials(
   placeSlug: string,
   platform: Platform,

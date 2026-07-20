@@ -4,6 +4,7 @@ import type { PlaceCardVariant } from '../model/types';
 
 const PLACE_PLACEHOLDER_IMAGE_SRC = '/images/places/place-placeholder.webp';
 
+/** Отображает обложку места или стандартный placeholder. */
 export function PlaceCardImage({
   src,
   variant,

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { isSiteHeaderCompact } from '../model/is-site-header-compact';
 
+/** Отображает sticky header публичного каталога. */
 export function SiteHeader() {
   const [compact, setCompact] = useState(false);
 

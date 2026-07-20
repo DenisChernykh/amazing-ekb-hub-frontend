@@ -9,6 +9,7 @@ type PlacesAppendControlProps = {
   onRetry: () => void;
 };
 
+/** Отображает sentinel, loader или retry-контрол бесконечной ленты. */
 export function PlacesAppendControl({
   status,
   sentinelRef,

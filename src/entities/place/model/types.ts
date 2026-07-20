@@ -19,6 +19,7 @@ export type PlaceCardModel = {
   coverImageUrl: string | null;
 };
 
+/** Визуальный размер карточки места внутри неравномерной сетки. */
 export type PlaceCardVariant = 'regular' | 'tall';
 
 /**
