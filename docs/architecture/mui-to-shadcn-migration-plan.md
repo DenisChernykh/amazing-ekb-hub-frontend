@@ -44,12 +44,15 @@ Exit criteria:
 
 Status: completed.
 
-Migrate small, visually bounded states first:
+The migration began with small, visually bounded states:
 
-1. `PlacesCatalogEmpty`.
+1. `PlacesCatalogEmpty` (historical first slice, later removed with the query-driven catalog).
 2. Shared route/page `ErrorState`.
 3. App-level `loading` surfaces.
 4. Other empty/error/loading surfaces that do not require complex form controls.
+
+The current category-first catalog keeps its empty category message in the
+route composition and does not restore the deleted `PlacesCatalogEmpty` widget.
 
 Exit criteria:
 
@@ -68,9 +71,13 @@ Migrate reusable display components:
 3. Platform counters.
 4. Reusable entity cards built on stable shared primitives.
 
-Completed slice:
+Historical completed slice:
 
-- The complete place-card entity slice (`PlaceCard`, `PlaceCardImage`, and `PlaceCardBadges`) now uses the shared shadcn `Card` and `Badge` contracts, keeps its image, title, and platform links server-rendered, and no longer imports MUI or requires a client boundary.
+- The original migrated place-card slice used `PlaceCard`, `PlaceCardImage`, and
+  `PlaceCardBadges` with shared shadcn `Card` and `Badge` contracts.
+- The later category-first redesign removed `PlaceCardBadges`, platform links,
+  counters, and metadata from catalog cards. The current reusable `PlaceCard`
+  renders only its image and title as one server-renderable link.
 
 Exit criteria:
 
@@ -82,12 +89,18 @@ Exit criteria:
 
 Status: completed.
 
-Completed slice:
+Historical completed slices:
 
-- `CatalogControls` now uses the project-owned shadcn `TextField`, `Button`, and `Badge` contracts while preserving submit-only search, category colors, canonical URL transitions, and leaf client ownership.
-- `PlacesPagination` now uses the shared shadcn pagination composition with a tested compact range, responsive mobile controls, explicit accessible labels, and the existing canonical href transition.
+- `CatalogControls` was migrated to the project-owned shadcn `TextField`,
+  `Button`, and `Badge` contracts before the query-driven catalog was removed.
+- `PlacesPagination` was migrated to the shared shadcn pagination composition
+  before numbered public pagination was removed.
 - Production login now uses the shared shadcn `Field`, `Input`, `Alert`, and `Button` contracts while preserving the existing server action, credential safety, validation, and redirect flow.
 - Login uses the explicitly approved editorial desktop/form-first mobile redesign. Field errors combine visible text, invalid styling, and explicit accessible associations; pending submit keeps the stable `Войти` label and adds a reduced-motion-safe spinner.
+
+The current public flow is category-first. `features/infinite-places` owns the
+append state, observer, loader, and retry action for category feeds; no search
+controls or numbered pagination remain in the public catalog.
 
 Special rule:
 
@@ -105,16 +118,21 @@ Status: completed.
 
 Completed slices:
 
-- The complete public places catalog now uses semantic HTML, Tailwind layout, shared shadcn controls, and the migrated place-card entity slice. Its server/client boundaries, canonical URL behavior, empty states, 600px/900px/1200px responsive layout, and desktop/mobile visual language remain intact.
+- The current public catalog is category-first: `/` previews categories,
+  `/categories` lists all categories, and `/categories/[categorySlug]`
+  server-renders the first place batch before the client appends later pages.
+  Category and place cards contain only image and title.
 - Place detail is migrated as the explicitly approved **Archive Spine × Focus Mode** redesign. This is a documented exception to visual parity, not a precedent for silently redesigning other migration slices.
 - `src/widgets/place-detail` and `PlaceCategoryBadge` no longer import MUI; the complete publication index, anchors, redirect links, headings, and empty state remain server-rendered.
 - Focus preview and platform scrollspy are isolated client enhancements. The page requires no client-side data fetch and keeps usable anchors and material links without JavaScript.
-- Literata and Manrope are loaded through `next/font` and scoped to the ready place-detail route. Legacy pages keep the existing Roboto setup.
+- Onest is the global public-catalog font. Literata and Manrope remain loaded
+  through `next/font` and scoped to the ready place-detail route.
 - Before its later removal under issue #88, the production login and public routes used the same Tailwind/shadcn foundation without a root UI toolkit bridge.
 
 Exit criteria:
 
-- The catalog and detail pages preserve the existing look unless a redesign ADR exists.
+- The category-first catalog follows its approved catalog design specification;
+  other migrated pages preserve their existing look unless a redesign ADR exists.
 - No MUI imports remain in migrated entity/widget slices.
 - Visual checks cover the active home, filtered-empty, and place-detail routes on desktop and mobile.
 
@@ -148,11 +166,13 @@ Exit criteria:
 
 Use full `pnpm lint:strict`, `pnpm test:unit`, and `pnpm build` before merging larger slices or removing bridge pieces.
 
-## Initial Slice
+## Historical Initial Slice
 
-The first slice is `src/widgets/places-catalog/ui/places-catalog-empty.tsx`.
+The first migration slice was
+`src/widgets/places-catalog/ui/places-catalog-empty.tsx`. The category-first
+catalog later deleted that widget together with the old query catalog.
 
-It validates the foundation because it exercises:
+At the time, it validated the foundation because it exercised:
 
 - shared `Button` and `Card`;
 - Tailwind token mapping;
@@ -160,7 +180,9 @@ It validates the foundation because it exercises:
 - empty-state semantics;
 - action link rendering through the shared button contract.
 
-Do not use this slice as permission for mass conversion. Each next slice should be small enough to review visually and mechanically.
+The historical slice should not be reintroduced as a current architecture
+reference. New empty states follow the owning route or shared UI contract and
+remain small enough to review visually and mechanically.
 
 ## Completed High-visibility Slice
 
