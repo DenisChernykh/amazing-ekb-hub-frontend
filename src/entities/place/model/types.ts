@@ -16,10 +16,10 @@ export type PlaceCardModel = {
   id: string;
   slug: string;
   title: string;
-  category: PlaceCategory;
   coverImageUrl: string | null;
-  platformCounters: PlatformCounters;
 };
+
+export type PlaceCardVariant = 'regular' | 'tall';
 
 /**
  * Frontend contract материала места.

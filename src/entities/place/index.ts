@@ -1,8 +1,5 @@
 export { buildPlaceHref } from './lib/build-place-href';
-export {
-  buildPlaceMaterialsAnchor,
-  buildPlaceMaterialsHref,
-} from './lib/build-place-materials-href';
+export { buildPlaceMaterialsAnchor } from './lib/build-place-materials-anchor';
 export { mapPlaceDetailToModel } from './model/map-place-detail-to-model';
 export { mapPlaceSummaryToCardModel } from './model/map-place-summary-to-card';
 export {
@@ -15,6 +12,7 @@ export {
 export {
   PLACE_PLATFORMS,
   type PlaceCardModel,
+  type PlaceCardVariant,
   type PlaceCategory,
   type PlaceDetailModel,
   type PlaceMaterialModel,
