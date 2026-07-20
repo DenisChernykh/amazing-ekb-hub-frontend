@@ -63,6 +63,20 @@ describe('infinitePlacesReducer', () => {
     expect(result).toMatchObject({ page: 2, total: 40, status: 'idle' });
   });
 
+  it('deduplicates repeated new ids within one response without ending early', () => {
+    const loading = infinitePlacesReducer(createInfinitePlacesState(INITIAL_PAGE), {
+      type: 'request',
+    });
+    const repeatedNewItems = createItems(21, 22).flatMap((item) => [item, item]);
+    const result = infinitePlacesReducer(loading, {
+      type: 'success',
+      page: createPage(repeatedNewItems, 2, 23),
+    });
+
+    expect(result.items.map(({ id }) => id)).toEqual(createItems(1, 22).map(({ id }) => id));
+    expect(result).toMatchObject({ page: 2, total: 23, status: 'idle' });
+  });
+
   it('ends when the merged item count reaches the total', () => {
     const loading = infinitePlacesReducer(createInfinitePlacesState(INITIAL_PAGE), {
       type: 'request',

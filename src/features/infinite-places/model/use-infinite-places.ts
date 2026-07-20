@@ -5,6 +5,7 @@ import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { fetchNextCategoryPlacesPage } from '../api/fetch-next-category-places-page';
 import { cancelActiveRequest } from './cancel-active-request';
 import { createInfinitePlacesState, infinitePlacesReducer } from './infinite-places-state';
+import { runIfActiveRequest } from './run-if-active-request';
 
 /** Управляет последовательной клиентской подгрузкой страниц мест. */
 export function useInfinitePlaces({
@@ -37,9 +38,13 @@ export function useInfinitePlaces({
           page: current.page + 1,
           signal: controller.signal,
         });
-        dispatch({ type: 'success', page });
+        runIfActiveRequest(requestRef, controller, () => {
+          dispatch({ type: 'success', page });
+        });
       } catch {
-        if (!controller.signal.aborted) dispatch({ type: 'failure' });
+        runIfActiveRequest(requestRef, controller, () => {
+          if (!controller.signal.aborted) dispatch({ type: 'failure' });
+        });
       } finally {
         if (requestRef.current === controller) requestRef.current = null;
       }

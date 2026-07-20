@@ -50,7 +50,11 @@ export function infinitePlacesReducer(
   if (state.status !== 'loading') return state;
 
   const knownIds = new Set(state.items.map(({ id }) => id));
-  const newItems = action.page.items.filter(({ id }) => !knownIds.has(id));
+  const newItems = action.page.items.filter(({ id }) => {
+    if (knownIds.has(id)) return false;
+    knownIds.add(id);
+    return true;
+  });
   const items = [...state.items, ...newItems];
   const ended = newItems.length === 0 || items.length >= action.page.total;
 
