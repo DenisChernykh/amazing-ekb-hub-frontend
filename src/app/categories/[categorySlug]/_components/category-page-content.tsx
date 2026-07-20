@@ -1,7 +1,7 @@
 import type { CategoryCardModel } from '@/entities/category';
 import type { CategoryPlacesPage } from '@/entities/place';
+import { InfinitePlaces } from '@/features/infinite-places';
 import { Container } from '@/shared/ui';
-import { PlaceFeed } from '@/widgets/place-feed';
 import Link from 'next/link';
 
 export function CategoryPageContent({
@@ -39,7 +39,7 @@ export function CategoryPageContent({
       <h1 className="mb-8 text-3xl font-medium text-black sm:text-4xl">{category.title}</h1>
 
       {places.items.length > 0 ? (
-        <PlaceFeed items={places.items} />
+        <InfinitePlaces initialPage={places} categorySlug={category.slug} />
       ) : (
         <p className="py-12 text-base text-muted-foreground">В этой категории пока нет мест.</p>
       )}

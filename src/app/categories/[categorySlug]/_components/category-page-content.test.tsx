@@ -24,7 +24,7 @@ const PLACES: CategoryPlacesPage = {
   })),
   page: 1,
   pageSize: 20,
-  total: 5,
+  total: 25,
 };
 
 describe('CategoryPageContent', () => {
@@ -46,6 +46,7 @@ describe('CategoryPageContent', () => {
     expect(html).toContain('aria-label="Места"');
     expect(html).toContain('place-feed-module');
     expect(html.match(/href="\/places\/place-[1-5]"/g)).toHaveLength(5);
+    expect(html).toContain('data-category-places-sentinel="true"');
     expect(html).toContain('focus-visible:outline-2');
     expect(html).not.toContain('В этой категории пока нет мест.');
   });
