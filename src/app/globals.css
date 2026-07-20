@@ -159,6 +159,10 @@
 }
 
 @layer components {
+  .category-card-media {
+    aspect-ratio: 4 / 3;
+  }
+
   .site-header-expanded {
     height: 78px;
   }
