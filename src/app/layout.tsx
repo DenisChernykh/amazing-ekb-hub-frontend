@@ -1,28 +1,34 @@
+import { SiteHeader } from '@/widgets/site-header';
 import type { Metadata } from 'next';
-import { Roboto } from 'next/font/google';
+import { Onest } from 'next/font/google';
 
 import './globals.css';
 
-const roboto = Roboto({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin', 'cyrillic'],
+const onest = Onest({
+  weight: ['400', '500', '600'],
+  subsets: ['cyrillic', 'latin'],
   display: 'swap',
-  variable: '--font-roboto',
+  variable: '--font-onest',
 });
 
+/** Базовые metadata публичного приложения. */
 export const metadata: Metadata = {
   title: 'Стрельчук в Екатеринбурге',
   description: 'Удобный навигатор по моим обзорам',
 };
 
+/** Корневой layout с общей типографикой и sticky header. */
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={roboto.variable}>
-      <body>{children}</body>
+    <html lang="ru" className={onest.variable}>
+      <body>
+        <SiteHeader />
+        {children}
+      </body>
     </html>
   );
 }

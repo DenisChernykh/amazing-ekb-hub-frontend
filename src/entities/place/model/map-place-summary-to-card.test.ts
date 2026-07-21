@@ -14,55 +14,20 @@ const BASE_PLACE_SUMMARY = {
   },
   status: 'active' as const,
   coverImageUrl: '/v1/places/baden-baden-uktus/photo',
+  counters: {
+    dzen: 0,
+    telegram: 0,
+    instagram: 0,
+  },
 };
 
 describe('mapPlaceSummaryToCardModel', () => {
-  it('uses real platform counters from public place summary', () => {
-    expect(
-      mapPlaceSummaryToCardModel({
-        ...BASE_PLACE_SUMMARY,
-        counters: {
-          dzen: 12,
-          telegram: 7,
-          instagram: 3,
-        },
-      }).platformCounters,
-    ).toEqual({
-      dzen: 12,
-      telegram: 7,
-      instagram: 3,
-    });
-  });
-
-  it('does not substitute mock platform counters when counters are missing', () => {
-    expect(mapPlaceSummaryToCardModel(BASE_PLACE_SUMMARY).platformCounters).toEqual({
-      dzen: 0,
-      telegram: 0,
-      instagram: 0,
-    });
-  });
-
-  it('fills missing counter fields with zeroes', () => {
-    expect(
-      mapPlaceSummaryToCardModel({
-        ...BASE_PLACE_SUMMARY,
-        counters: {
-          telegram: 2,
-        },
-      }).platformCounters,
-    ).toEqual({
-      dzen: 0,
-      telegram: 2,
-      instagram: 0,
-    });
-  });
-
-  it('keeps the public slug and backend category for navigation and filters', () => {
-    expect(mapPlaceSummaryToCardModel(BASE_PLACE_SUMMARY).slug).toBe('baden-baden-uktus');
-    expect(mapPlaceSummaryToCardModel(BASE_PLACE_SUMMARY).category).toEqual({
-      id: 'category_spa',
-      slug: 'spa',
-      title: 'SPA',
+  it('maps only the fields required by a place card', () => {
+    expect(mapPlaceSummaryToCardModel(BASE_PLACE_SUMMARY)).toEqual({
+      id: 'place_ekb_001',
+      slug: 'baden-baden-uktus',
+      title: 'Baden-Baden Uktus',
+      coverImageUrl: '/v1/places/baden-baden-uktus/photo',
     });
   });
 });

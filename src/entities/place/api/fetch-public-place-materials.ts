@@ -6,6 +6,8 @@ import {
   type listPlaceMaterialsResponseSuccess,
 } from '@/shared/api/generated/places/places';
 import { isGeneratedApiError } from '@/shared/lib/api/is-generated-api-error';
+import { PUBLIC_CATALOG_CACHE_LIFE, getPlaceCacheTag } from '@/shared/lib/cache';
+import { cacheLife, cacheTag } from 'next/cache';
 
 /**
  * Нормализованный результат загрузки публичных материалов места.
@@ -15,6 +17,20 @@ export type FetchPublicPlaceMaterialsResult =
   | { kind: 'bad_request'; data: listPlaceMaterialsResponseError['data'] }
   | { kind: 'not_found'; data: listPlaceMaterialsResponseError['data'] }
   | { kind: 'unexpected_error'; message: string };
+
+/** Загружает кешируемые материалы публичного места для одной платформы. */
+async function fetchCachedPublicPlaceMaterials(
+  placeSlug: string,
+  platform: Platform,
+): Promise<listPlaceMaterialsResponseSuccess['data']> {
+  'use cache';
+  cacheLife(PUBLIC_CATALOG_CACHE_LIFE);
+  cacheTag(getPlaceCacheTag(placeSlug));
+
+  const query: ListPlaceMaterialsParams = { platform };
+  const response = await listPlaceMaterials({ placeSlug }, query);
+  return response.data;
+}
 
 /**
  * Загружает материалы места по платформе и приводит ответ API к controlled union.
@@ -27,18 +43,10 @@ export async function fetchPublicPlaceMaterials(
   placeSlug: string,
   platform: Platform,
 ): Promise<FetchPublicPlaceMaterialsResult> {
-  const query: ListPlaceMaterialsParams = {
-    platform,
-  };
-
   try {
-    const response = await listPlaceMaterials({ placeSlug }, query, {
-      cache: 'no-store',
-    });
-
     return {
       kind: 'success',
-      data: response.data,
+      data: await fetchCachedPublicPlaceMaterials(placeSlug, platform),
     };
   } catch (error) {
     if (isGeneratedApiError(error) && error.status === 400) {

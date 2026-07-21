@@ -16,10 +16,11 @@ export type PlaceCardModel = {
   id: string;
   slug: string;
   title: string;
-  category: PlaceCategory;
   coverImageUrl: string | null;
-  platformCounters: PlatformCounters;
 };
+
+/** Визуальный размер карточки места внутри неравномерной сетки. */
+export type PlaceCardVariant = 'regular' | 'tall';
 
 /**
  * Frontend contract материала места.

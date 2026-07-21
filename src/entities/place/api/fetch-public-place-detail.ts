@@ -4,6 +4,8 @@ import {
   type getPlaceDetailResponseSuccess,
 } from '@/shared/api/generated/places/places';
 import { isGeneratedApiError } from '@/shared/lib/api/is-generated-api-error';
+import { PUBLIC_CATALOG_CACHE_LIFE, getPlaceCacheTag } from '@/shared/lib/cache';
+import { cacheLife, cacheTag } from 'next/cache';
 
 /**
  * Нормализованный результат загрузки публичной detail-карточки места.
@@ -12,6 +14,18 @@ export type FetchPublicPlaceDetailResult =
   | { kind: 'success'; data: getPlaceDetailResponseSuccess['data'] }
   | { kind: 'not_found'; data: getPlaceDetailResponseError['data'] }
   | { kind: 'unexpected_error'; message: string };
+
+/** Загружает кешируемые detail-данные публичного места. */
+async function fetchCachedPublicPlaceDetail(
+  placeSlug: string,
+): Promise<getPlaceDetailResponseSuccess['data']> {
+  'use cache';
+  cacheLife(PUBLIC_CATALOG_CACHE_LIFE);
+  cacheTag(getPlaceCacheTag(placeSlug));
+
+  const response = await getPlaceDetail({ placeSlug });
+  return response.data;
+}
 
 /**
  * Загружает публичную detail-карточку места и приводит ответ API к controlled union.
@@ -23,16 +37,9 @@ export async function fetchPublicPlaceDetail(
   placeSlug: string,
 ): Promise<FetchPublicPlaceDetailResult> {
   try {
-    const response = await getPlaceDetail(
-      { placeSlug },
-      {
-        cache: 'no-store',
-      },
-    );
-
     return {
       kind: 'success',
-      data: response.data,
+      data: await fetchCachedPublicPlaceDetail(placeSlug),
     };
   } catch (error) {
     if (isGeneratedApiError(error) && error.status === 404) {
@@ -42,9 +49,6 @@ export async function fetchPublicPlaceDetail(
       };
     }
 
-    return {
-      kind: 'unexpected_error',
-      message: 'Не удалось загрузить место.',
-    };
+    return { kind: 'unexpected_error', message: 'Не удалось загрузить место.' };
   }
 }

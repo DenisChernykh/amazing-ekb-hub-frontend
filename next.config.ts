@@ -10,6 +10,7 @@ function normalizeApiBaseUrl(apiBaseUrl: string): string {
 }
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
   output: 'standalone',
   outputFileTracingRoot: configDir,
   async rewrites() {

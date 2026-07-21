@@ -1,42 +1,35 @@
-import { Card, CardContent } from '@/shared/ui';
+import { cn } from '@/shared/lib/utils';
 import Link from 'next/link';
 import { buildPlaceHref } from '../lib/build-place-href';
-import type { PlaceCardModel } from '../model/types';
-import { PlaceCardBadges } from './place-card-badges';
+import type { PlaceCardModel, PlaceCardVariant } from '../model/types';
 import { PlaceCardImage } from './place-card-image';
 
-interface PlaceCardProps {
+/** Отображает ссылку-карточку публичного места. */
+export function PlaceCard({
+  place,
+  variant,
+  imageLoading = 'lazy',
+}: Readonly<{
   place: PlaceCardModel;
-}
-
-/**
- * Рендерит кликабельную карточку места.
- *
- * @param props - Данные карточки места.
- */
-export function PlaceCard({ place }: Readonly<PlaceCardProps>) {
-  const placeHref = buildPlaceHref(place.slug);
-
+  variant: PlaceCardVariant;
+  imageLoading?: 'eager' | 'lazy';
+}>) {
   return (
-    <Card className="h-full gap-0 py-0 shadow-app-card hover:ring-primary/35 hover:shadow-app-card-hover focus-within:ring-primary/35 focus-within:shadow-app-card-focus hover:focus-within:shadow-app-card-focus motion-safe:transition-[transform,translate,box-shadow] motion-safe:duration-[180ms] motion-safe:ease-out motion-safe:hover:-translate-y-1 motion-safe:focus-within:-translate-y-1">
+    <article className="h-full border border-border bg-white">
       <Link
-        href={placeHref}
-        className="block focus-visible:z-[1] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-inset"
+        href={buildPlaceHref(place.slug)}
+        className="group flex h-full flex-col text-black focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
       >
-        <PlaceCardImage category={place.category} src={place.coverImageUrl} title={place.title} />
+        <PlaceCardImage src={place.coverImageUrl} variant={variant} loading={imageLoading} />
+        <h2
+          className={cn(
+            'px-4 py-4 font-medium transition-colors group-hover:text-card-title-hover group-focus-visible:text-card-title-hover sm:px-5',
+            variant === 'tall' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg',
+          )}
+        >
+          {place.title}
+        </h2>
       </Link>
-
-      <CardContent className="flex min-h-28 w-full flex-col gap-2.5 p-3.5">
-        <p className="line-clamp-2 text-[clamp(1.05rem,0.9rem+0.45vw,1.28rem)] leading-[1.18] font-bold text-card-foreground">
-          <Link
-            href={placeHref}
-            className="rounded-sm text-inherit no-underline focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
-          >
-            {place.title}
-          </Link>
-        </p>
-        <PlaceCardBadges place={place} />
-      </CardContent>
-    </Card>
+    </article>
   );
 }

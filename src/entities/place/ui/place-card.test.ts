@@ -4,70 +4,50 @@ import { describe, expect, it } from 'vitest';
 import type { PlaceCardModel } from '../model/types';
 import { PlaceCard } from './place-card';
 
-const PLACE: PlaceCardModel = {
+const PLACE: PlaceCardModel & {
+  category: { id: string; slug: string; title: string };
+  platformCounters: { dzen: number; telegram: number; instagram: number };
+  summary: string;
+} = {
   id: 'place_ekb_001',
   slug: 'baden-baden-uktus',
   title: 'Баден-Баден Уктус',
+  coverImageUrl: '/images/places/baden.webp',
   category: {
     id: 'category_spa',
     slug: 'spa',
     title: 'SPA',
   },
-  coverImageUrl: '/images/places/baden.webp',
   platformCounters: {
     dzen: 12,
     telegram: 7,
     instagram: 0,
   },
+  summary: 'Thermal complex with spa zone.',
 };
 
 describe('PlaceCard', () => {
-  it('transitions the Tailwind individual translate property for card lift', () => {
-    const html = renderToStaticMarkup(createElement(PlaceCard, { place: PLACE }));
-
-    expect(html).toContain('motion-safe:transition-[transform,translate,box-shadow]');
-  });
-
-  it('keeps the stronger focus shadow when hover and focus-within are active together', () => {
-    const html = renderToStaticMarkup(createElement(PlaceCard, { place: PLACE }));
-
-    expect(html).toContain('hover:focus-within:shadow-app-card-focus');
-  });
-
-  it('server-renders the complete card with separate semantic links and no MUI markup', () => {
-    const html = renderToStaticMarkup(createElement(PlaceCard, { place: PLACE }));
+  it('renders one minimal link with a decorative image and title', () => {
+    const html = renderToStaticMarkup(createElement(PlaceCard, { place: PLACE, variant: 'tall' }));
     const anchorFragments = html.match(/<a\b[^>]*>[\s\S]*?<\/a>/g) ?? [];
 
-    expect(html).toContain('data-slot="card"');
-    expect(html).toContain('data-slot="card-content"');
-    expect(html.match(/href="\/places\/baden-baden-uktus"/g)).toHaveLength(2);
-    expect(html).toContain('href="/places/baden-baden-uktus#materials-dzen"');
-    expect(html).toContain('href="/places/baden-baden-uktus#materials-telegram"');
+    expect(html.match(/href="\/places\/baden-baden-uktus"/g)).toHaveLength(1);
+    expect(anchorFragments).toHaveLength(1);
     expect(html).toContain('Баден-Баден Уктус');
-    expect(html).toContain('alt="Фото места Баден-Баден Уктус"');
+    expect(html).toContain('alt=""');
     expect(html).toContain('/images/places/baden.webp');
     expect(html).toContain('loading="lazy"');
-    expect(html).toContain('>SPA<');
-    expect(html.match(/data-slot="badge"/g)).toHaveLength(3);
-    expect(anchorFragments).toHaveLength(4);
-    expect(anchorFragments.every((anchor) => (anchor.match(/<a\b/g) ?? []).length === 1)).toBe(
-      true,
-    );
-    expect(html).not.toContain('Mui');
-  });
-
-  it('uses the deterministic local image when the cover URL is blank', () => {
-    const html = renderToStaticMarkup(
-      createElement(PlaceCard, {
-        place: {
-          ...PLACE,
-          coverImageUrl: '   ',
-        },
-      }),
-    );
-
-    expect(html).toContain('/images/places/place-placeholder.webp');
-    expect(html).toContain('alt="Фото места Баден-Баден Уктус"');
+    expect(html).toContain('place-card-media-tall');
+    expect(html).not.toContain('SPA');
+    expect(html).not.toContain('Telegram');
+    expect(html).not.toContain('Дзен');
+    expect(html).not.toContain('Instagram');
+    expect(html).not.toContain('>12<');
+    expect(html).not.toContain('>7<');
+    expect(html).not.toContain('Thermal complex with spa zone.');
+    expect(html).not.toContain('badge');
+    expect(html).not.toContain('rounded');
+    expect(html).not.toContain('shadow');
   });
 
   it('renders an absolute cover URL without the Next.js image optimizer', () => {
@@ -78,6 +58,7 @@ describe('PlaceCard', () => {
           ...PLACE,
           coverImageUrl,
         },
+        variant: 'regular',
       }),
     );
 
