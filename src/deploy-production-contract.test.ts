@@ -13,6 +13,10 @@ describe('production deployment contract', () => {
       'CACHE_REVALIDATION_SECRET: ${{ secrets.CACHE_REVALIDATION_SECRET }}',
     );
     expect(workflow).toContain('test -n "${CACHE_REVALIDATION_SECRET}"');
+    expect(workflow).toContain('if [ "${#CACHE_REVALIDATION_SECRET}" -lt 32 ]; then');
+    expect(workflow).toContain(
+      '::error::CACHE_REVALIDATION_SECRET must contain at least 32 characters.',
+    );
     expect(workflow).toContain('FRONTEND_COMPOSE_OVERRIDE_PATH');
     expect(workflow).toContain(
       'CACHE_REVALIDATION_SECRET: ${CACHE_REVALIDATION_SECRET:?CACHE_REVALIDATION_SECRET is required}',

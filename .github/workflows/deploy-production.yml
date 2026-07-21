@@ -177,6 +177,11 @@ jobs:
           test -n "${PUBLIC_BASE_URL}"
           test -n "${CACHE_REVALIDATION_SECRET}"
 
+          if [ "${#CACHE_REVALIDATION_SECRET}" -lt 32 ]; then
+            echo "::error::CACHE_REVALIDATION_SECRET must contain at least 32 characters."
+            exit 1
+          fi
+
       - name: Prepare frontend runtime environment
         run: |
           set -euo pipefail
