@@ -8,8 +8,12 @@ export function CategoryGrid({
   return (
     <section aria-label={ariaLabel}>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-5">
-        {categories.map((category) => (
-          <CategoryCard key={category.id} category={category} />
+        {categories.map((category, index) => (
+          <CategoryCard
+            key={category.id}
+            category={category}
+            imageLoading={index < 4 ? 'eager' : 'lazy'}
+          />
         ))}
       </div>
     </section>

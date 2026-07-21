@@ -24,4 +24,15 @@ describe('PlaceFeed', () => {
     expect(html).not.toContain(FORBIDDEN_GRID_FLOW);
     expect(html).not.toContain(FORBIDDEN_DENSE);
   });
+
+  it('eagerly loads the first visual module and keeps following images lazy', () => {
+    const html = renderToStaticMarkup(
+      createElement(PlaceFeed, {
+        items: [...ITEMS, { id: '6', slug: 'place-6', title: 'Place 6', coverImageUrl: null }],
+      }),
+    );
+
+    expect(html.match(/loading="eager"/g)).toHaveLength(5);
+    expect(html.match(/loading="lazy"/g)).toHaveLength(1);
+  });
 });

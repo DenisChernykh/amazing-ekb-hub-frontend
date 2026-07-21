@@ -8,7 +8,12 @@ const PLACE_PLACEHOLDER_IMAGE_SRC = '/images/places/place-placeholder.webp';
 export function PlaceCardImage({
   src,
   variant,
-}: Readonly<{ src: string | null; variant: PlaceCardVariant }>) {
+  loading,
+}: Readonly<{
+  src: string | null;
+  variant: PlaceCardVariant;
+  loading: 'eager' | 'lazy';
+}>) {
   return (
     <div
       className={cn(
@@ -21,7 +26,7 @@ export function PlaceCardImage({
         unoptimized
         src={src ?? PLACE_PLACEHOLDER_IMAGE_SRC}
         alt=""
-        loading="lazy"
+        loading={loading}
         sizes="(min-width: 1024px) 33vw, 50vw"
         className="object-cover"
       />

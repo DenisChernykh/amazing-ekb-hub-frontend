@@ -8,14 +8,19 @@ import { PlaceCardImage } from './place-card-image';
 export function PlaceCard({
   place,
   variant,
-}: Readonly<{ place: PlaceCardModel; variant: PlaceCardVariant }>) {
+  imageLoading = 'lazy',
+}: Readonly<{
+  place: PlaceCardModel;
+  variant: PlaceCardVariant;
+  imageLoading?: 'eager' | 'lazy';
+}>) {
   return (
     <article className="h-full border border-border bg-white">
       <Link
         href={buildPlaceHref(place.slug)}
         className="group flex h-full flex-col text-black focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
       >
-        <PlaceCardImage src={place.coverImageUrl} variant={variant} />
+        <PlaceCardImage src={place.coverImageUrl} variant={variant} loading={imageLoading} />
         <h2
           className={cn(
             'px-4 py-4 font-medium transition-colors group-hover:text-card-title-hover group-focus-visible:text-card-title-hover sm:px-5',
