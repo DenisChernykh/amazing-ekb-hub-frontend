@@ -115,7 +115,9 @@ jobs:
       IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.run_id }}-${{ github.sha }}
       IMAGE_ARTIFACT_DIR: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}
       IMAGE_ARTIFACT_PATH: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}/frontend-runtime-image.tar.gz
+      FRONTEND_COMPOSE_OVERRIDE_PATH: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}/frontend-secret.override.yml
       PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL || vars.PUBLIC_BASE_URL }}
+      CACHE_REVALIDATION_SECRET: ${{ secrets.CACHE_REVALIDATION_SECRET }}
 
     steps:
       - name: Download runtime image
@@ -163,6 +165,19 @@ jobs:
 
           test -f "${IMAGE_ARTIFACT_PATH}"
           test -n "${PUBLIC_BASE_URL}"
+          test -n "${CACHE_REVALIDATION_SECRET}"
+
+      - name: Prepare frontend runtime environment
+        run: |
+          set -euo pipefail
+
+          cat > "${FRONTEND_COMPOSE_OVERRIDE_PATH}" <<'COMPOSE'
+          services:
+            frontend:
+              environment:
+                CACHE_REVALIDATION_SECRET: ${CACHE_REVALIDATION_SECRET:?CACHE_REVALIDATION_SECRET is required}
+          COMPOSE
+          chmod 600 "${FRONTEND_COMPOSE_OVERRIDE_PATH}"
 
       - name: Load runtime image
         run: |
@@ -178,8 +193,10 @@ jobs:
           set -euo pipefail
 
           cd "${APP_DIR}"
-          docker compose --env-file .env -f compose.yml --profile apps up -d frontend
-          docker compose --env-file .env -f compose.yml ps frontend
+          docker compose --env-file .env -f compose.yml \
+            -f "${FRONTEND_COMPOSE_OVERRIDE_PATH}" --profile apps up -d frontend
+          docker compose --env-file .env -f compose.yml \
+            -f "${FRONTEND_COMPOSE_OVERRIDE_PATH}" ps frontend
           DEPLOY
 
       - name: Cleanup runtime image artifact
