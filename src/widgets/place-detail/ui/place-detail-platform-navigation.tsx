@@ -29,7 +29,7 @@ export function PlaceDetailPlatformNavigation({
     <MotionConfig reducedMotion="user">
       <nav
         aria-label="Платформы"
-        className="sticky top-0 z-20 flex overflow-x-auto border-t border-white/10 bg-[#151816] px-4 lg:col-start-1 lg:row-start-1 lg:h-screen lg:flex-col lg:items-stretch lg:justify-end lg:overflow-visible lg:border-t-0 lg:bg-transparent lg:px-3 lg:pb-4"
+        className="place-detail-platform-navigation place-detail-viewport-height sticky z-20 flex overflow-x-auto border-t border-white/10 bg-[#151816] px-4 lg:col-start-1 lg:row-start-1 lg:flex-col lg:items-stretch lg:justify-end lg:overflow-visible lg:border-t-0 lg:bg-transparent lg:px-3 lg:pb-4"
       >
         {platforms.map((platform) => {
           const isActive = platform.platform === activePlatform;
