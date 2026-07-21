@@ -1,5 +1,6 @@
 import { Container, Skeleton } from '@/shared/ui';
 
+/** Показывает общий индикатор ожидания для переходов без более близкого loading boundary. */
 export default function Loading() {
   return (
     <Container as="main" aria-busy="true" className="flex py-8 sm:py-12">

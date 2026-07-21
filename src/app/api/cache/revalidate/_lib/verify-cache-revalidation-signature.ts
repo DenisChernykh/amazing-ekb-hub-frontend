@@ -11,6 +11,7 @@ type VerifyInput = {
   nowSeconds?: number;
 };
 
+/** Проверяет HMAC-подпись webhook-запроса и допустимое окно повторной отправки. */
 export function verifyCacheRevalidationSignature({
   rawBody,
   timestampHeader,

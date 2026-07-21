@@ -11,11 +11,13 @@ const onest = Onest({
   variable: '--font-onest',
 });
 
+/** Базовые metadata публичного приложения. */
 export const metadata: Metadata = {
   title: 'Стрельчук в Екатеринбурге',
   description: 'Удобный навигатор по моим обзорам',
 };
 
+/** Корневой layout с общей типографикой и sticky header. */
 export default function RootLayout({
   children,
 }: Readonly<{

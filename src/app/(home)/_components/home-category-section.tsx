@@ -3,6 +3,7 @@ import { Container } from '@/shared/ui';
 import { CategoryGrid } from '@/widgets/category-grid';
 import { ShowAllCategoriesLink } from './show-all-categories-link';
 
+/** Отображает на главной первые категории и переход к полному каталогу. */
 export function HomeCategorySection({ categories }: Readonly<{ categories: CategoryCardModel[] }>) {
   return (
     <Container as="main" className="py-10 sm:py-14 lg:py-16">

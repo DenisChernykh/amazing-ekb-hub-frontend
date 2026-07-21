@@ -4,6 +4,7 @@ import { mapRevalidationScopesToTags } from './_lib/map-revalidation-scopes-to-t
 import { readBoundedRequestBody } from './_lib/read-bounded-request-body';
 import { verifyCacheRevalidationSignature } from './_lib/verify-cache-revalidation-signature';
 
+/** Принимает подписанное backend-событие и инвалидирует связанные cache tags. */
 export async function POST(request: Request): Promise<Response> {
   try {
     const secret = process.env.CACHE_REVALIDATION_SECRET;

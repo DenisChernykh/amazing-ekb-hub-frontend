@@ -1,5 +1,6 @@
 import { Container } from '@/shared/ui';
 
+/** Показывает состояние ожидания при переходе к ещё не подготовленной категории. */
 export default function CategoryLoading() {
   return (
     <Container as="main" className="py-12">

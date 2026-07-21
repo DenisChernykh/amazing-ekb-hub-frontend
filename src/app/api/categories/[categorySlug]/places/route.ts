@@ -2,6 +2,7 @@ import { fetchPublicCategory, normalizeCategorySlug } from '@/entities/category'
 import { fetchPublicCategoryPlacePage } from '@/entities/place';
 import { normalizePageParam } from './_lib/normalize-page-param';
 
+/** Возвращает следующую страницу мест для клиентской догрузки ленты категории. */
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ categorySlug: string }> },

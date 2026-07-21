@@ -6,6 +6,7 @@ import {
 } from '@/shared/lib/cache';
 import type { CacheRevalidationPayload } from './cache-revalidation-schema';
 
+/** Преобразует доменные области webhook-события в уникальные cache tags Next.js. */
 export function mapRevalidationScopesToTags(scopes: CacheRevalidationPayload['scopes']): string[] {
   const tags = new Set<string>();
 

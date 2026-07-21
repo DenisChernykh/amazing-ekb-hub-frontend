@@ -4,6 +4,7 @@ import { Container } from '@/shared/ui';
 import { InfinitePlaceFeed } from '@/widgets/place-feed';
 import Link from 'next/link';
 
+/** Собирает заголовок, навигацию и ленту мест выбранной категории. */
 export function CategoryPageContent({
   category,
   places,

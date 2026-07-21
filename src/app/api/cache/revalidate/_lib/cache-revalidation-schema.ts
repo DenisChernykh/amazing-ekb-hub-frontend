@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 const slugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
+/** Проверяет версию и области инвалидации входящего webhook-события. */
 export const cacheRevalidationPayloadSchema = z.strictObject({
   schemaVersion: z.literal(1),
   eventId: z.uuid(),
@@ -21,4 +22,5 @@ export const cacheRevalidationPayloadSchema = z.strictObject({
     ),
 });
 
+/** Валидированное тело webhook-события инвалидации кеша. */
 export type CacheRevalidationPayload = z.infer<typeof cacheRevalidationPayloadSchema>;

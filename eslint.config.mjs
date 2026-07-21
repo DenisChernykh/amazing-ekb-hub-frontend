@@ -12,6 +12,7 @@ const orvalGeneratedFiles = [
   'src/shared/api/generated-zod/**/*.{ts,tsx}',
 ];
 const exportedApiContexts = [
+  'ExportDefaultDeclaration[declaration.type="FunctionDeclaration"]',
   'ExportNamedDeclaration[declaration.type="FunctionDeclaration"]',
   'ExportNamedDeclaration[declaration.type="ClassDeclaration"]',
   'ExportNamedDeclaration[declaration.type="TSInterfaceDeclaration"]',
@@ -52,6 +53,9 @@ const eslintConfig = defineConfig([
         'warn',
         {
           contexts: exportedApiContexts,
+          require: {
+            FunctionDeclaration: false,
+          },
           exemptEmptyFunctions: false,
           enableFixer: false,
         },
@@ -65,9 +69,28 @@ const eslintConfig = defineConfig([
     ignores: generatedFiles,
     plugins: {
       tsdoc,
+      jsdoc,
+    },
+    settings: {
+      jsdoc: {
+        mode: 'typescript',
+      },
     },
     rules: {
       'tsdoc/syntax': 'error',
+
+      'jsdoc/require-jsdoc': [
+        'warn',
+        {
+          contexts: exportedApiContexts,
+          require: {
+            FunctionDeclaration: false,
+          },
+          exemptEmptyFunctions: false,
+          enableFixer: false,
+        },
+      ],
+      'jsdoc/require-description': 'warn',
     },
   },
 

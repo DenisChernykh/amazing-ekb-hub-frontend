@@ -11,10 +11,12 @@ interface PlacePageProps {
   }>;
 }
 
+/** Делегирует Next.js подготовку известных place slug во время сборки. */
 export async function generateStaticParams() {
   return getPlaceStaticParams();
 }
 
+/** Серверная детальная страница публичного места. */
 export default async function PlacePage({ params }: PlacePageProps) {
   const { placeSlug } = await params;
   const model = await getPlacePageData(placeSlug);

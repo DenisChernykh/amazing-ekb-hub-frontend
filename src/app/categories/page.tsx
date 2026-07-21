@@ -2,6 +2,7 @@ import { Container } from '@/shared/ui';
 import { CategoryGrid } from '@/widgets/category-grid';
 import { getCategoriesPageData } from './_lib/get-categories-page-data';
 
+/** Серверная страница полного списка категорий. */
 export default async function CategoriesPage() {
   const categories = await getCategoriesPageData();
 

@@ -2,6 +2,7 @@
 
 import { Container } from '@/shared/ui';
 
+/** Показывает recoverable error boundary страницы категории. */
 export default function CategoryError({
   error,
   reset,

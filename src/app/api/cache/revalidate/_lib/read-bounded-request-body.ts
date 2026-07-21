@@ -10,6 +10,7 @@ function declaredBodyExceedsLimit(contentLength: string | null): boolean {
   return Number.isSafeInteger(declaredBytes) && declaredBytes > MAX_CACHE_REVALIDATION_BODY_BYTES;
 }
 
+/** Считывает тело webhook-запроса, не позволяя превысить установленный лимит. */
 export async function readBoundedRequestBody(
   request: Request,
 ): Promise<ReadBoundedRequestBodyResult> {

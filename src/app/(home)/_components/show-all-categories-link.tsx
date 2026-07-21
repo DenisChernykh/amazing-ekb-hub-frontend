@@ -10,6 +10,7 @@ function ActionContent() {
   );
 }
 
+/** Отображает основную ссылку со страницы домой на полный список категорий. */
 export function ShowAllCategoriesLink() {
   return (
     <Link href="/categories" className="catalog-primary-action">
