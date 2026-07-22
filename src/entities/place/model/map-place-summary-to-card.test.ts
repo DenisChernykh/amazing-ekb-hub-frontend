@@ -11,6 +11,7 @@ const BASE_PLACE_SUMMARY = {
     id: 'category_spa',
     slug: 'spa',
     title: 'SPA',
+    coverImageUrl: null,
   },
   status: 'active' as const,
   coverImageUrl: '/v1/places/baden-baden-uktus/photo',

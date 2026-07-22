@@ -22,7 +22,7 @@ function makePlace(index: number, status: 'active' | 'hidden' = 'active') {
     title: `Место ${index}`,
     summary: '',
     tags: [],
-    category: { id: 'category-spa', slug: 'spa', title: 'SPA' },
+    category: { id: 'category-spa', slug: 'spa', title: 'SPA', coverImageUrl: null },
     status,
     coverImageUrl: null,
     counters: { dzen: 0, telegram: 0, instagram: 0 },

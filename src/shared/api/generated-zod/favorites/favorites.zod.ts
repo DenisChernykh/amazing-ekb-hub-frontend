@@ -27,6 +27,12 @@ export const ListFavorites200Response = zod
                 id: zod.string().describe('Идентификатор категории.'),
                 slug: zod.string().describe('Человекочитаемый slug категории.'),
                 title: zod.string().describe('Название категории для интерфейса.'),
+                coverImageUrl: zod
+                  .string()
+                  .nullable()
+                  .describe(
+                    'Versioned URL cover-фотографии категории или `null`, если фото отсутствует.',
+                  ),
               })
               .describe('Публичная категория места для фильтров.'),
             status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),

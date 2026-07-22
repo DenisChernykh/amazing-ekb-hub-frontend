@@ -39,4 +39,5 @@ export * from './serviceUnavailableResponse';
 export * from './telegramImportAlreadyRunningResponse';
 export * from './tooManyRequestsResponse';
 export * from './unauthorizedResponse';
+export * from './uploadPlaceCategoryPhotoBody';
 export * from './validationErrorResponse';

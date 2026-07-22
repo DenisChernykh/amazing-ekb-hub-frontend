@@ -15,7 +15,7 @@ export function CategoryCardImage({
         alt={image.alt}
         loading={loading}
         sizes="(min-width: 1024px) 25vw, 50vw"
-        className="object-contain"
+        className={image.kind === 'photo' ? 'object-cover' : 'object-contain'}
       />
     </div>
   );

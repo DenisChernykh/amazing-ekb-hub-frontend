@@ -22,7 +22,7 @@ const PLACE_DETAIL = {
   title: 'Баден-Баден Уктус',
   summary: 'Термальный комплекс',
   tags: ['spa'],
-  category: { id: 'category-spa', slug: 'spa', title: 'SPA' },
+  category: { id: 'category-spa', slug: 'spa', title: 'SPA', coverImageUrl: null },
   status: 'active' as const,
   coverImageUrl: null,
   counters: { dzen: 0, telegram: 0, instagram: 0 },

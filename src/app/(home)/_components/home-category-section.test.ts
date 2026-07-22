@@ -9,8 +9,11 @@ const CATEGORIES: CategoryCardModel[] = Array.from({ length: 8 }, (_, index) => 
   slug: `category-${index + 1}`,
   title: `Категория ${index + 1}`,
   image: {
-    kind: 'placeholder',
-    src: '/images/categories/category-placeholder.svg',
+    kind: index < 5 ? 'photo' : 'placeholder',
+    src:
+      index < 5
+        ? `/v1/categories/category-${index + 1}/photo?v=123456789ab${index}`
+        : '/images/categories/category-placeholder.svg',
     alt: '',
   },
 }));
@@ -27,5 +30,7 @@ describe('HomeCategorySection', () => {
     expect(html).toContain('Показать все категории');
     const arrowIconNames = html.match(/lucide-arrow-right/g) ?? [];
     expect(new Set(arrowIconNames)).toHaveLength(1);
+    expect(html.match(/object-cover/g)).toHaveLength(5);
+    expect(html.match(/object-contain/g)).toHaveLength(3);
   });
 });

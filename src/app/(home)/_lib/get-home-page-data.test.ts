@@ -17,6 +17,7 @@ const CATEGORIES = Array.from({ length: 10 }, (_, index) => ({
   id: `category-${index + 1}`,
   slug: `category-${index + 1}`,
   title: `Категория ${index + 1}`,
+  coverImageUrl: null,
 }));
 
 describe('getHomePageData', () => {

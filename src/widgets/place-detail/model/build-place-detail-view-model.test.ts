@@ -23,6 +23,7 @@ function createPlace(overrides: Partial<PlaceDetailModel> = {}): PlaceDetailMode
       id: 'category_spa',
       slug: 'spa',
       title: 'SPA',
+      coverImageUrl: null,
     },
     coverImageUrl: null,
     id: 'place_ekb_001',

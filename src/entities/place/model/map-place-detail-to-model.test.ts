@@ -16,6 +16,7 @@ const BASE_PLACE_DETAIL: PlaceDetail = {
     id: 'category_spa',
     slug: 'spa',
     title: 'SPA',
+    coverImageUrl: null,
   },
   status: 'active',
   coverImageUrl: null,
@@ -82,6 +83,7 @@ describe('mapPlaceDetailToModel', () => {
       id: 'category_spa',
       slug: 'spa',
       title: 'SPA',
+      coverImageUrl: null,
     });
   });
 

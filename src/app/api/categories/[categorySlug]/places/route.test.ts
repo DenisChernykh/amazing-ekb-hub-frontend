@@ -57,6 +57,7 @@ describe('GET category places page', () => {
       id: 'category-spa',
       slug: 'spa',
       title: 'SPA',
+      coverImageUrl: null,
     });
     fetchPublicCategoryPlacePageMock.mockResolvedValueOnce(PAGE);
 

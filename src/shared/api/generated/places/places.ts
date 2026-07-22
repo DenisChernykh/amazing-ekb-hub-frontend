@@ -8,6 +8,7 @@
 import type {
   CategoryNotFoundResponse,
   GetPlaceCategoryPathParameters,
+  GetPlaceCategoryPhotoPathParameters,
   GetPlaceCoverPhotoPathParameters,
   GetPlaceDetailPathParameters,
   ListPlaceMaterialsParams,
@@ -107,6 +108,74 @@ export const getPlaceCategory = async (
   }
   const data: getPlaceCategoryResponseSuccess['data'] = body ? JSON.parse(body) : {};
   return { data, status: res.status, headers: res.headers } as getPlaceCategoryResponseSuccess;
+};
+
+/**
+ * Возвращает бинарную cover-фотографию категории с сохранённым MIME-типом. Неизвестная категория, пустые metadata и отсутствующий файл возвращают 404.
+ * @summary Get place category photo
+ */
+export type getPlaceCategoryPhotoResponse200ImageJpeg = {
+  data: Blob;
+  status: 200;
+};
+
+export type getPlaceCategoryPhotoResponse200ImagePng = {
+  data: Blob;
+  status: 200;
+};
+
+export type getPlaceCategoryPhotoResponse200ImageWebp = {
+  data: Blob;
+  status: 200;
+};
+
+export type getPlaceCategoryPhotoResponse404 = {
+  data: CategoryNotFoundResponse;
+  status: 404;
+};
+
+export type getPlaceCategoryPhotoResponseSuccess = (
+  | getPlaceCategoryPhotoResponse200ImageJpeg
+  | getPlaceCategoryPhotoResponse200ImagePng
+  | getPlaceCategoryPhotoResponse200ImageWebp
+) & {
+  headers: Headers;
+};
+export type getPlaceCategoryPhotoResponseError = getPlaceCategoryPhotoResponse404 & {
+  headers: Headers;
+};
+
+export const getGetPlaceCategoryPhotoUrl = ({
+  categorySlug,
+}: GetPlaceCategoryPhotoPathParameters) => {
+  return `${process.env.API_BASE_URL}/categories/${categorySlug}/photo`;
+};
+
+export const getPlaceCategoryPhoto = async (
+  { categorySlug }: GetPlaceCategoryPhotoPathParameters,
+  options?: RequestInit,
+): Promise<getPlaceCategoryPhotoResponseSuccess> => {
+  const res = await fetch(getGetPlaceCategoryPhotoUrl({ categorySlug }), {
+    ...options,
+    method: 'GET',
+  });
+
+  if (!res.ok) {
+    const errorBody = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+    const err: globalThis.Error & {
+      info?: getPlaceCategoryPhotoResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: getPlaceCategoryPhotoResponseError['data'] = errorBody ? JSON.parse(errorBody) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const body = [204, 205, 304].includes(res.status) ? null : await res.blob();
+  const data: getPlaceCategoryPhotoResponseSuccess['data'] =
+    body as getPlaceCategoryPhotoResponseSuccess['data'];
+  return { data, status: res.status, headers: res.headers } as getPlaceCategoryPhotoResponseSuccess;
 };
 
 /**

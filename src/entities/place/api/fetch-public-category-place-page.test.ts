@@ -37,6 +37,7 @@ describe('fetchPublicCategoryPlacePage', () => {
               id: 'category-spa',
               slug: 'spa',
               title: 'SPA',
+              coverImageUrl: null,
             },
             status: 'active',
             coverImageUrl: null,
