@@ -34,6 +34,7 @@ const CATEGORY = {
   id: 'category-spa',
   slug: 'spa',
   title: 'SPA',
+  coverImageUrl: null,
 };
 const CATEGORY_CARD: CategoryCardModel = {
   ...CATEGORY,

@@ -26,14 +26,14 @@ describe('fetchPublicCategories', () => {
   it('caches a successful category list with the shared life and categories tag', async () => {
     listPlaceCategoriesMock.mockResolvedValueOnce({
       data: {
-        items: [{ id: 'category-spa', slug: 'spa', title: 'SPA' }],
+        items: [{ id: 'category-spa', slug: 'spa', title: 'SPA', coverImageUrl: null }],
       },
       status: 200,
       headers: new Headers(),
     });
 
     await expect(fetchPublicCategories()).resolves.toEqual([
-      { id: 'category-spa', slug: 'spa', title: 'SPA' },
+      { id: 'category-spa', slug: 'spa', title: 'SPA', coverImageUrl: null },
     ]);
 
     expect(cacheLifeMock).toHaveBeenCalledOnce();

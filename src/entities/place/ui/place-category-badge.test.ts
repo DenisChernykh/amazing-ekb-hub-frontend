@@ -12,6 +12,7 @@ describe('PlaceCategoryBadge', () => {
           id: 'category_family_spa',
           slug: 'family-spa',
           title: 'Family SPA',
+          coverImageUrl: null,
         },
       }),
     );

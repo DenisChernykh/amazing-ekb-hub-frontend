@@ -25,7 +25,12 @@ describe('fetchPublicCategory', () => {
 
   it('caches a successful category by its slug tag', async () => {
     getPlaceCategoryMock.mockResolvedValueOnce({
-      data: { id: 'category-spa', slug: 'family-spa', title: 'Семейные SPA' },
+      data: {
+        id: 'category-spa',
+        slug: 'family-spa',
+        title: 'Семейные SPA',
+        coverImageUrl: null,
+      },
       status: 200,
       headers: new Headers(),
     });

@@ -16,8 +16,11 @@ const CATEGORIES: CategoryCardModel[] = Array.from({ length: 5 }, (_, index) => 
   slug: `category-${index + 1}`,
   title: `Категория ${index + 1}`,
   image: {
-    kind: 'placeholder',
-    src: '/images/categories/category-placeholder.svg',
+    kind: index < 4 ? 'photo' : 'placeholder',
+    src:
+      index < 4
+        ? `/v1/categories/category-${index + 1}/photo?v=123456789ab${index}`
+        : '/images/categories/category-placeholder.svg',
     alt: '',
   },
 }));
@@ -33,6 +36,8 @@ describe('CategoryGrid', () => {
     expect(html).toContain('aria-label="Категории мест"');
     expect(html.indexOf('Категория 1')).toBeLessThan(html.indexOf('Категория 2'));
     expect(html.match(/href="\/categories\//g)).toHaveLength(CATEGORIES.length);
+    expect(html.match(/object-cover/g)).toHaveLength(4);
+    expect(html.match(/object-contain/g)).toHaveLength(1);
   });
 
   it('eagerly loads only the first desktop row of category images', () => {

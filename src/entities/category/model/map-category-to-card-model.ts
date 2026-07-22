@@ -5,13 +5,15 @@ const CATEGORY_PLACEHOLDER_SRC = '/images/categories/category-placeholder.svg';
 
 /** Преобразует API-категорию во frontend-модель карточки. */
 export function mapCategoryToCardModel(category: PlaceCategory): CategoryCardModel {
+  const coverImageUrl = category.coverImageUrl?.trim();
+
   return {
     id: category.id,
     slug: category.slug,
     title: category.title,
     image: {
-      kind: 'placeholder',
-      src: CATEGORY_PLACEHOLDER_SRC,
+      kind: coverImageUrl ? 'photo' : 'placeholder',
+      src: coverImageUrl || CATEGORY_PLACEHOLDER_SRC,
       alt: '',
     },
   };

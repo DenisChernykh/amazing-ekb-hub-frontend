@@ -5,11 +5,30 @@ const CATEGORY = {
   id: 'category_spa',
   slug: 'family-spa',
   title: 'Семейные SPA',
+  coverImageUrl: null,
 };
 
 describe('mapCategoryToCardModel', () => {
-  it('maps the public category to a literal placeholder card model', () => {
-    expect(mapCategoryToCardModel(CATEGORY)).toEqual({
+  it('maps a non-empty cover URL to a decorative photo', () => {
+    expect(
+      mapCategoryToCardModel({
+        ...CATEGORY,
+        coverImageUrl: ' /v1/categories/family-spa/photo?v=123456789abc ',
+      }),
+    ).toEqual({
+      id: 'category_spa',
+      slug: 'family-spa',
+      title: 'Семейные SPA',
+      image: {
+        kind: 'photo',
+        src: '/v1/categories/family-spa/photo?v=123456789abc',
+        alt: '',
+      },
+    });
+  });
+
+  it.each([null, '', '   '])('keeps the placeholder for an empty cover URL %#', (coverImageUrl) => {
+    expect(mapCategoryToCardModel({ ...CATEGORY, coverImageUrl })).toEqual({
       id: 'category_spa',
       slug: 'family-spa',
       title: 'Семейные SPA',

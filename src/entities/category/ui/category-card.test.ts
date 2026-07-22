@@ -30,4 +30,21 @@ describe('CategoryCard', () => {
     expect(html).toContain('border border-border');
     expect(html).not.toMatch(/description|count|badge|arrow|divide/i);
   });
+
+  it('renders a real cover as a decorative object-cover image', () => {
+    const coverImageUrl = '/v1/categories/family-spa/photo?v=123456789abc';
+    const html = renderToStaticMarkup(
+      createElement(CategoryCard, {
+        category: {
+          ...CATEGORY_CARD,
+          image: { kind: 'photo', src: coverImageUrl, alt: '' },
+        },
+      }),
+    );
+
+    expect(html).toContain(`src="${coverImageUrl}"`);
+    expect(html).toContain('alt=""');
+    expect(html).toContain('object-cover');
+    expect(html).not.toContain('object-contain');
+  });
 });

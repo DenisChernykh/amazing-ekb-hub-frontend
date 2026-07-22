@@ -15,8 +15,8 @@ describe('getCategoryStaticParams', () => {
 
   it('maps every known category slug to a route parameter', async () => {
     fetchPublicCategoriesMock.mockResolvedValueOnce([
-      { id: 'category-spa', slug: 'spa', title: 'SPA' },
-      { id: 'category-pools', slug: 'pools', title: 'Бассейны' },
+      { id: 'category-spa', slug: 'spa', title: 'SPA', coverImageUrl: null },
+      { id: 'category-pools', slug: 'pools', title: 'Бассейны', coverImageUrl: null },
     ]);
 
     await expect(getCategoryStaticParams()).resolves.toEqual([

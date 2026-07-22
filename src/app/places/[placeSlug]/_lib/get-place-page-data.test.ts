@@ -47,6 +47,7 @@ describe('getPlacePageData', () => {
           id: 'category_pools',
           slug: 'pools',
           title: 'Бассейны',
+          coverImageUrl: null,
         },
         status: 'active',
         coverImageUrl: null,

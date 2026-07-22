@@ -18,6 +18,7 @@ const PLACE_DETAIL_WITHOUT_PINNED_MATERIAL: PlaceDetailModel = {
     id: 'category_spa',
     slug: 'spa',
     title: 'SPA',
+    coverImageUrl: null,
   },
   coverImageUrl: null,
   platformCounters: {
