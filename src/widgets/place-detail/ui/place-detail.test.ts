@@ -21,6 +21,7 @@ const PLACE_DETAIL_WITHOUT_PINNED_MATERIAL: PlaceDetailModel = {
     coverImageUrl: null,
   },
   coverImageUrl: null,
+  mapsUrl: null,
   platformCounters: {
     dzen: 1,
     telegram: 1,
@@ -55,6 +56,30 @@ const PLACE_DETAIL_WITHOUT_PINNED_MATERIAL: PlaceDetailModel = {
 };
 
 describe('PlaceDetail', () => {
+  it('renders the maps action with safe external-link attributes when mapsUrl is present', () => {
+    const mapsUrl = 'https://yandex.ru/maps/org/baden_baden/123456789';
+    const html = renderToStaticMarkup(
+      createElement(PlaceDetail, {
+        place: { ...PLACE_DETAIL_WITHOUT_PINNED_MATERIAL, mapsUrl },
+      }),
+    );
+
+    expect(html).toContain('Открыть в картах');
+    expect(html).toContain(`href="${mapsUrl}"`);
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noopener noreferrer"');
+  });
+
+  it.each([null, ''])('does not render the maps action when mapsUrl is %#', (mapsUrl) => {
+    const html = renderToStaticMarkup(
+      createElement(PlaceDetail, {
+        place: { ...PLACE_DETAIL_WITHOUT_PINNED_MATERIAL, mapsUrl },
+      }),
+    );
+
+    expect(html).not.toContain('Открыть в картах');
+  });
+
   it('renders linked material rows through backend redirect links around the row content', () => {
     const html = renderToStaticMarkup(
       createElement(PlaceDetail, {

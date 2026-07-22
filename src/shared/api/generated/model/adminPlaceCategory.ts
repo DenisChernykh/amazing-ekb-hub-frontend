@@ -8,6 +8,8 @@
 import type { PlaceCategory } from './placeCategory';
 
 export type AdminPlaceCategory = PlaceCategory & {
+  /** Draft-категория скрыта из public API до публикации первого места. */
+  status: 'draft' | 'active';
   /** Время создания категории. */
   createdAt: string;
   /** Время последнего обновления категории. */

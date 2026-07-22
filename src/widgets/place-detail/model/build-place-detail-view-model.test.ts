@@ -27,6 +27,7 @@ function createPlace(overrides: Partial<PlaceDetailModel> = {}): PlaceDetailMode
     },
     coverImageUrl: null,
     id: 'place_ekb_001',
+    mapsUrl: null,
     slug: 'baden-baden-uktus',
     materialsByPlatform: {
       dzen: [],

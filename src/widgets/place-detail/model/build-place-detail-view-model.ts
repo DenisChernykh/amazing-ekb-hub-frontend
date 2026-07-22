@@ -68,6 +68,7 @@ export function buildPlaceDetailViewModel(place: PlaceDetailModel): PlaceDetailV
     category: place.category,
     coverImageUrl: place.coverImageUrl ?? PLACE_PLACEHOLDER_IMAGE_SRC,
     initialPreview: pinned ?? previews[0] ?? null,
+    mapsUrl: place.mapsUrl,
     pinned,
     platforms,
     previewsById,

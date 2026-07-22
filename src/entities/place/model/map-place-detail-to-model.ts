@@ -1,6 +1,7 @@
 import type { PlaceDetail } from '@/shared/api/generated/model/placeDetail';
 import type { PublicMaterial } from '@/shared/api/generated/model/publicMaterial';
 import { normalizeCoverImageUrl } from './normalize-cover-image-url';
+import { normalizeMapsUrl } from './normalize-maps-url';
 import { normalizeMaterialRedirectUrl } from './normalize-material-redirect-url';
 import {
   PLACE_PLATFORMS,
@@ -111,6 +112,7 @@ export function mapPlaceDetailToModel(
     tags: place.tags,
     category: place.category,
     coverImageUrl: normalizeCoverImageUrl(place.coverImageUrl),
+    mapsUrl: normalizeMapsUrl(place.mapsUrl),
     platformCounters: place.counters,
     pinnedMaterial: place.pinnedMaterial ? mapMaterialToModel(place.pinnedMaterial) : null,
     materialsByPlatform: normalizeMaterialsByPlatform(materialsByPlatform, place.pinnedMaterial),

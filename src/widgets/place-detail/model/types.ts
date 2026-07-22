@@ -33,6 +33,7 @@ export type PlaceDetailViewModel = {
   title: string;
   category: PlaceCategory;
   coverImageUrl: string;
+  mapsUrl: string | null;
   totalCount: number;
   pinned: PlaceDetailPreview | null;
   initialPreview: PlaceDetailPreview | null;

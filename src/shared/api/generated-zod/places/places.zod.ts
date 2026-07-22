@@ -220,6 +220,10 @@ export const GetPlaceDetail200Response = zod
       .describe(
         'Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.',
       ),
+    mapsUrl: zod
+      .url()
+      .nullable()
+      .describe('Canonical URL карточки Яндекс Карт, если место создано через импорт.'),
     counters: zod
       .strictObject({
         dzen: zod.number(),

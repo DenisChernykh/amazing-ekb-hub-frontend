@@ -400,6 +400,144 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/admin/place-imports/yandex-maps': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Start Yandex Maps place import
+     * @description Создает durable queued operation для одной карточки организации. URL проверяется и очищается до persistence. Endpoint требует trusted Origin/Referer; feature по умолчанию выключена.
+     */
+    post: operations['startYandexMapsPlaceImport'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/place-imports/{operationId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get place import operation */
+    get: operations['getPlaceImportOperation'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/place-imports/{operationId}/events': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read place import journal
+     * @description Polling fallback и reconnect delta после известной operation version.
+     */
+    get: operations['readPlaceImportEvents'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/place-imports/{operationId}/events/stream': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Stream place import updates
+     * @description SSE `place-import.updated` использует subscribe → read → read handshake, Redis version hints и периодическое PostgreSQL reconciliation. Terminal status закрывает stream.
+     */
+    get: operations['streamPlaceImportEvents'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/place-imports/{operationId}/confirm': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Confirm immutable place import preview
+     * @description Без request body атомарно создает hidden Place, external reference и при необходимости draft-категорию. Требует trusted Origin/Referer.
+     */
+    post: operations['confirmPlaceImport'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/place-imports/{operationId}/cancel': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Cancel place import
+     * @description Durable cancellation; Redis notification является только latency hint. Требует trusted Origin/Referer.
+     */
+    post: operations['cancelPlaceImport'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/place-imports/{operationId}/viewer-access': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Create one-time CAPTCHA viewer access
+     * @description Выдает один capability во fragment отдельного viewer-origin. Повторная выдача блокируется до revoke/expiry.
+     */
+    post: operations['createPlaceImportViewerAccess'];
+    /** Revoke CAPTCHA viewer access */
+    delete: operations['revokePlaceImportViewerAccess'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/admin/places': {
     parameters: {
       query?: never;
@@ -787,6 +925,12 @@ export interface components {
     };
     AdminPlaceCategory: components['schemas']['PlaceCategory'] & {
       /**
+       * @description Draft-категория скрыта из public API до публикации первого места.
+       * @example active
+       * @enum {string}
+       */
+      status: 'draft' | 'active';
+      /**
        * Format: date-time
        * @description Время создания категории.
        * @example 2026-07-03T10:00:00.000Z
@@ -940,6 +1084,14 @@ export interface components {
        * @example /v1/places/baden-baden-uktus/photo
        */
       coverImageUrl: string | null;
+    };
+    AdminPlaceSummary: components['schemas']['PlaceSummary'] & {
+      /**
+       * Format: uri
+       * @description Canonical Yandex Maps URL импортированного места; `null` для мест без такой external reference.
+       * @example https://yandex.ru/maps/org/baden_baden/123456789
+       */
+      mapsUrl: string | null;
     };
     /** @description Краткая публичная карточка места со счетчиками материалов по платформам. */
     PublicPlaceSummary: {
@@ -1340,6 +1492,12 @@ export interface components {
        * @example /v1/places/baden-baden-uktus/photo
        */
       coverImageUrl: string | null;
+      /**
+       * Format: uri
+       * @description Canonical URL карточки Яндекс Карт, если место создано через импорт.
+       * @example https://yandex.ru/maps/org/baden_baden/123456789
+       */
+      mapsUrl: string | null;
       /** @description Количество материалов по платформам. */
       counters: {
         /** @example 12 */
@@ -1358,6 +1516,26 @@ export interface components {
     PlaceListResponse: {
       /** @description Элементы текущей страницы. */
       items: components['schemas']['PlaceSummary'][];
+      /**
+       * @description Общее количество доступных элементов.
+       * @example 2
+       */
+      total: number;
+      /**
+       * @description Текущая страница.
+       * @example 1
+       */
+      page: number;
+      /**
+       * @description Размер страницы.
+       * @example 20
+       */
+      pageSize: number;
+    };
+    /** @description Административный пагинированный список мест с nullable Yandex Maps URL. */
+    AdminPlaceListResponse: {
+      /** @description Элементы текущей страницы. */
+      items: components['schemas']['AdminPlaceSummary'][];
       /**
        * @description Общее количество доступных элементов.
        * @example 2
@@ -1491,6 +1669,113 @@ export interface components {
     /** @description Payload изменения статуса места. */
     UpdatePlaceStatusRequest: {
       status: components['schemas']['PlaceStatus'];
+    };
+    /** @description Ссылка на одну карточку организации Яндекс Карт. */
+    StartPlaceImportRequest: {
+      /**
+       * Format: uri
+       * @example https://yandex.ru/maps/org/aqua_city/123456789
+       */
+      url: string;
+    };
+    /** @enum {string} */
+    PlaceImportStatus:
+      | 'queued'
+      | 'parsing'
+      | 'awaiting_captcha'
+      | 'preview_ready'
+      | 'completed'
+      | 'failed'
+      | 'expired'
+      | 'cancelled';
+    /** @enum {string} */
+    PlaceImportCategoryResolution: 'existing' | 'will_create' | 'created';
+    /** @enum {string|null} */
+    PlaceImportOutcome: 'created' | 'already_exists' | null;
+    /** @enum {string} */
+    PlaceImportErrorCode:
+      | 'invalid_url'
+      | 'not_organization_url'
+      | 'redirect_not_allowed'
+      | 'source_not_found'
+      | 'captcha_session_expired'
+      | 'source_blocked'
+      | 'source_timeout'
+      | 'parse_failed'
+      | 'missing_title'
+      | 'missing_primary_category'
+      | 'missing_organization_id'
+      | 'category_conflict'
+      | 'external_identity_conflict'
+      | 'confirmation_expired'
+      | 'internal_error';
+    PlaceImportCategoryPreview: {
+      id: string | null;
+      title: string;
+      /** @enum {string|null} */
+      status: 'draft' | 'active' | null;
+      resolution: components['schemas']['PlaceImportCategoryResolution'];
+    };
+    PlaceImportPossibleDuplicate: {
+      placeId: string;
+      title: string;
+    };
+    PlaceImportError: {
+      code: components['schemas']['PlaceImportErrorCode'];
+      /** @description Безопасная диагностика без URL query, HTML, cookies, screenshot/HAR и browser state. */
+      message: string;
+    };
+    /** @description Read-only snapshot; preview-поля нельзя подменить при confirm. */
+    PlaceImportOperation: {
+      id: string;
+      status: components['schemas']['PlaceImportStatus'];
+      version: number;
+      attempt: number;
+      /**
+       * Format: uri
+       * @description Sanitized URL без credentials, fragment и произвольных query-параметров.
+       */
+      sourceUrl: string;
+      title: string | null;
+      /** Format: uri */
+      mapsUrl: string | null;
+      organizationId: string | null;
+      category: components['schemas']['PlaceImportCategoryPreview'] | null;
+      possibleDuplicate: components['schemas']['PlaceImportPossibleDuplicate'] | null;
+      /** Format: date-time */
+      captchaExpiresAt: string | null;
+      /** Format: date-time */
+      previewExpiresAt: string | null;
+      outcome: components['schemas']['PlaceImportOutcome'];
+      resultPlaceId: string | null;
+      error: components['schemas']['PlaceImportError'] | null;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    PlaceImportEvent: {
+      id: string;
+      operationId: string;
+      seq: number;
+      type: string;
+      version: number;
+      status: components['schemas']['PlaceImportStatus'];
+      /** Format: date-time */
+      createdAt: string;
+    };
+    PlaceImportEventsResponse: {
+      operation: components['schemas']['PlaceImportOperation'];
+      events: components['schemas']['PlaceImportEvent'][];
+    };
+    PlaceImportViewerAccess: {
+      /**
+       * Format: uri
+       * @description URL отдельного viewer-origin; one-time capability находится только во fragment.
+       */
+      viewerUrl: string;
+      /** Format: date-time */
+      expiresAt: string;
     };
     /** @description Payload создания пользовательского content source. */
     CreateContentSourceRequest: {
@@ -1808,6 +2093,11 @@ export interface components {
      * @example source_telegram_001
      */
     ContentSourceId: string;
+    /**
+     * @description Идентификатор операции автоматического создания места.
+     * @example cmrvo_place_import_001
+     */
+    PlaceImportOperationId: string;
     /**
      * @description Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.
      * @example 1
@@ -2450,6 +2740,302 @@ export interface operations {
       404: components['responses']['CategoryNotFound'];
     };
   };
+  startYandexMapsPlaceImport: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StartPlaceImportRequest'];
+      };
+    };
+    responses: {
+      /** @description Operation committed; delivery может быть повторена dispatcher-ом. */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportOperation'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description У администратора уже есть активная operation. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      503: components['responses']['ServiceUnavailable'];
+    };
+  };
+  getPlaceImportOperation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор операции автоматического создания места.
+         * @example cmrvo_place_import_001
+         */
+        operationId: components['parameters']['PlaceImportOperationId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Текущий source-of-truth snapshot. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportOperation'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description Operation не найдена или принадлежит другому пользователю. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      503: components['responses']['ServiceUnavailable'];
+    };
+  };
+  readPlaceImportEvents: {
+    parameters: {
+      query?: {
+        afterVersion?: number;
+      };
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор операции автоматического создания места.
+         * @example cmrvo_place_import_001
+         */
+        operationId: components['parameters']['PlaceImportOperationId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Snapshot и append-only journal delta. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportEventsResponse'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description Operation не найдена. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  streamPlaceImportEvents: {
+    parameters: {
+      query?: {
+        afterVersion?: number;
+      };
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор операции автоматического создания места.
+         * @example cmrvo_place_import_001
+         */
+        operationId: components['parameters']['PlaceImportOperationId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description SSE stream; `data` соответствует PlaceImportEventsResponse. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example id: 3
+           *     event: place-import.updated
+           *     data: {"operation":{"id":"cmrvo_place_import_001","status":"preview_ready","version":3},"events":[]}
+           */
+          'text/event-stream': string;
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+    };
+  };
+  confirmPlaceImport: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор операции автоматического создания места.
+         * @example cmrvo_place_import_001
+         */
+        operationId: components['parameters']['PlaceImportOperationId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Создано hidden место либо возвращено строго существующее. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportOperation'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description Operation не найдена. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Preview не готов или обнаружен external identity conflict. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Preview TTL истёк. */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      503: components['responses']['ServiceUnavailable'];
+    };
+  };
+  cancelPlaceImport: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор операции автоматического создания места.
+         * @example cmrvo_place_import_001
+         */
+        operationId: components['parameters']['PlaceImportOperationId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cancelled или ранее terminal snapshot. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportOperation'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description Operation не найдена. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  createPlaceImportViewerAccess: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор операции автоматического создания места.
+         * @example cmrvo_place_import_001
+         */
+        operationId: components['parameters']['PlaceImportOperationId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Viewer capability создан. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportViewerAccess'];
+        };
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description CAPTCHA state/solver lease не допускает выдачу. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  revokePlaceImportViewerAccess: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор операции автоматического создания места.
+         * @example cmrvo_place_import_001
+         */
+        operationId: components['parameters']['PlaceImportOperationId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Capability/session удалены, старый WebSocket закрывается. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      /** @description Активный solver lease отсутствует. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   listAdminPlaces: {
     parameters: {
       query?: {
@@ -2481,7 +3067,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceListResponse'];
+          'application/json': components['schemas']['AdminPlaceListResponse'];
         };
       };
       400: components['responses']['ValidationError'];
