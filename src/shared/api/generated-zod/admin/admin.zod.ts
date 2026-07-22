@@ -18,6 +18,10 @@ export const ListAdminPlaceCategories200Response = zod
         id: zod.string().describe('Идентификатор категории.'),
         slug: zod.string().describe('Человекочитаемый slug категории.'),
         title: zod.string().describe('Название категории для интерфейса.'),
+        coverImageUrl: zod
+          .string()
+          .nullable()
+          .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
         createdAt: zod.iso.datetime({ offset: true }).describe('Время создания категории.'),
         updatedAt: zod.iso
           .datetime({ offset: true })
@@ -70,6 +74,10 @@ export const CreatePlaceCategory201Response = zod.strictObject({
   id: zod.string().describe('Идентификатор категории.'),
   slug: zod.string().describe('Человекочитаемый slug категории.'),
   title: zod.string().describe('Название категории для интерфейса.'),
+  coverImageUrl: zod
+    .string()
+    .nullable()
+    .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
   createdAt: zod.iso.datetime({ offset: true }).describe('Время создания категории.'),
   updatedAt: zod.iso.datetime({ offset: true }).describe('Время последнего обновления категории.'),
 });
@@ -126,6 +134,10 @@ export const GetAdminPlaceCategory200Response = zod.strictObject({
   id: zod.string().describe('Идентификатор категории.'),
   slug: zod.string().describe('Человекочитаемый slug категории.'),
   title: zod.string().describe('Название категории для интерфейса.'),
+  coverImageUrl: zod
+    .string()
+    .nullable()
+    .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
   createdAt: zod.iso.datetime({ offset: true }).describe('Время создания категории.'),
   updatedAt: zod.iso.datetime({ offset: true }).describe('Время последнего обновления категории.'),
 });
@@ -185,6 +197,10 @@ export const UpdatePlaceCategory200Response = zod.strictObject({
   id: zod.string().describe('Идентификатор категории.'),
   slug: zod.string().describe('Человекочитаемый slug категории.'),
   title: zod.string().describe('Название категории для интерфейса.'),
+  coverImageUrl: zod
+    .string()
+    .nullable()
+    .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
   createdAt: zod.iso.datetime({ offset: true }).describe('Время создания категории.'),
   updatedAt: zod.iso.datetime({ offset: true }).describe('Время последнего обновления категории.'),
 });
@@ -288,6 +304,70 @@ export const DeletePlaceCategory409Response = zod
   .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
 
 /**
+ * Загружает или заменяет cover-фотографию категории. Принимаются JPEG, PNG и WebP размером не более 5 MB.
+ * @summary Upload place category photo
+ */
+export const UploadPlaceCategoryPhotoParams = zod.strictObject({
+  categoryId: zod.string().describe('Идентификатор категории места.'),
+});
+
+export const UploadPlaceCategoryPhotoBody = zod.strictObject({
+  photo: zod.instanceof(File),
+});
+
+export const UploadPlaceCategoryPhoto200Response = zod.strictObject({
+  id: zod.string().describe('Идентификатор категории.'),
+  slug: zod.string().describe('Человекочитаемый slug категории.'),
+  title: zod.string().describe('Название категории для интерфейса.'),
+  coverImageUrl: zod
+    .string()
+    .nullable()
+    .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
+  createdAt: zod.iso.datetime({ offset: true }).describe('Время создания категории.'),
+  updatedAt: zod.iso.datetime({ offset: true }).describe('Время последнего обновления категории.'),
+});
+
+export const UploadPlaceCategoryPhoto400Response = zod
+  .strictObject({
+    statusCode: zod.number().describe('HTTP status code ответа.'),
+    message: zod
+      .union([zod.string(), zod.array(zod.string())])
+      .describe('Сообщение ошибки. Для DTO validation NestJS обычно возвращает массив строк.'),
+    error: zod.string().optional().describe('Стандартное HTTP reason summary от NestJS.'),
+  })
+  .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
+
+export const UploadPlaceCategoryPhoto401Response = zod
+  .strictObject({
+    statusCode: zod.number().describe('HTTP status code ответа.'),
+    message: zod
+      .union([zod.string(), zod.array(zod.string())])
+      .describe('Сообщение ошибки. Для DTO validation NestJS обычно возвращает массив строк.'),
+    error: zod.string().optional().describe('Стандартное HTTP reason summary от NestJS.'),
+  })
+  .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
+
+export const UploadPlaceCategoryPhoto403Response = zod
+  .strictObject({
+    statusCode: zod.number().describe('HTTP status code ответа.'),
+    message: zod
+      .union([zod.string(), zod.array(zod.string())])
+      .describe('Сообщение ошибки. Для DTO validation NestJS обычно возвращает массив строк.'),
+    error: zod.string().optional().describe('Стандартное HTTP reason summary от NestJS.'),
+  })
+  .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
+
+export const UploadPlaceCategoryPhoto404Response = zod
+  .strictObject({
+    statusCode: zod.number().describe('HTTP status code ответа.'),
+    message: zod
+      .union([zod.string(), zod.array(zod.string())])
+      .describe('Сообщение ошибки. Для DTO validation NestJS обычно возвращает массив строк.'),
+    error: zod.string().optional().describe('Стандартное HTTP reason summary от NestJS.'),
+  })
+  .describe('Стандартный JSON body, который NestJS возвращает для `HttpException`.');
+
+/**
  * Возвращает административный список мест с пагинацией и опциональной фильтрацией по статусу. Если `status` не указан, возвращаются и активные, и скрытые места.
  * @summary List admin places
  */
@@ -332,6 +412,12 @@ export const ListAdminPlaces200Response = zod
                 id: zod.string().describe('Идентификатор категории.'),
                 slug: zod.string().describe('Человекочитаемый slug категории.'),
                 title: zod.string().describe('Название категории для интерфейса.'),
+                coverImageUrl: zod
+                  .string()
+                  .nullable()
+                  .describe(
+                    'Versioned URL cover-фотографии категории или `null`, если фото отсутствует.',
+                  ),
               })
               .describe('Публичная категория места для фильтров.'),
             status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
@@ -423,6 +509,10 @@ export const CreatePlace201Response = zod
         id: zod.string().describe('Идентификатор категории.'),
         slug: zod.string().describe('Человекочитаемый slug категории.'),
         title: zod.string().describe('Название категории для интерфейса.'),
+        coverImageUrl: zod
+          .string()
+          .nullable()
+          .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
       })
       .describe('Публичная категория места для фильтров.'),
     status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
@@ -495,6 +585,10 @@ export const GetAdminPlaceDetail200Response = zod
         id: zod.string().describe('Идентификатор категории.'),
         slug: zod.string().describe('Человекочитаемый slug категории.'),
         title: zod.string().describe('Название категории для интерфейса.'),
+        coverImageUrl: zod
+          .string()
+          .nullable()
+          .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
       })
       .describe('Публичная категория места для фильтров.'),
     status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
@@ -617,6 +711,10 @@ export const UpdatePlace200Response = zod
         id: zod.string().describe('Идентификатор категории.'),
         slug: zod.string().describe('Человекочитаемый slug категории.'),
         title: zod.string().describe('Название категории для интерфейса.'),
+        coverImageUrl: zod
+          .string()
+          .nullable()
+          .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
       })
       .describe('Публичная категория места для фильтров.'),
     status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
@@ -695,6 +793,10 @@ export const UpdatePlaceStatus200Response = zod
         id: zod.string().describe('Идентификатор категории.'),
         slug: zod.string().describe('Человекочитаемый slug категории.'),
         title: zod.string().describe('Название категории для интерфейса.'),
+        coverImageUrl: zod
+          .string()
+          .nullable()
+          .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
       })
       .describe('Публичная категория места для фильтров.'),
     status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
@@ -773,6 +875,10 @@ export const UploadPlaceCoverPhoto200Response = zod
         id: zod.string().describe('Идентификатор категории.'),
         slug: zod.string().describe('Человекочитаемый slug категории.'),
         title: zod.string().describe('Название категории для интерфейса.'),
+        coverImageUrl: zod
+          .string()
+          .nullable()
+          .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
       })
       .describe('Публичная категория места для фильтров.'),
     status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
@@ -2331,6 +2437,10 @@ export const SetPinnedMaterial200Response = zod
         id: zod.string().describe('Идентификатор категории.'),
         slug: zod.string().describe('Человекочитаемый slug категории.'),
         title: zod.string().describe('Название категории для интерфейса.'),
+        coverImageUrl: zod
+          .string()
+          .nullable()
+          .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
       })
       .describe('Публичная категория места для фильтров.'),
     status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),
@@ -2444,6 +2554,10 @@ export const ClearPinnedMaterial200Response = zod
         id: zod.string().describe('Идентификатор категории.'),
         slug: zod.string().describe('Человекочитаемый slug категории.'),
         title: zod.string().describe('Название категории для интерфейса.'),
+        coverImageUrl: zod
+          .string()
+          .nullable()
+          .describe('Versioned URL cover-фотографии категории или `null`, если фото отсутствует.'),
       })
       .describe('Публичная категория места для фильтров.'),
     status: zod.enum(['active', 'hidden']).describe('Статус публикации места.'),

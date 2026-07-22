@@ -68,6 +68,8 @@ import type {
   UpdatePlaceRequest,
   UpdatePlaceStatusPathParameters,
   UpdatePlaceStatusRequest,
+  UploadPlaceCategoryPhotoBody,
+  UploadPlaceCategoryPhotoPathParameters,
   UploadPlaceCoverPhotoPathParameters,
   ValidationErrorResponse,
 } from '../model';
@@ -413,6 +415,86 @@ export const deletePlaceCategory = async (
   }
   const data: deletePlaceCategoryResponseSuccess['data'] = body ? JSON.parse(body) : undefined;
   return { data, status: res.status, headers: res.headers } as deletePlaceCategoryResponseSuccess;
+};
+
+/**
+ * Загружает или заменяет cover-фотографию категории. Принимаются JPEG, PNG и WebP размером не более 5 MB.
+ * @summary Upload place category photo
+ */
+export type uploadPlaceCategoryPhotoResponse200 = {
+  data: AdminPlaceCategory;
+  status: 200;
+};
+
+export type uploadPlaceCategoryPhotoResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type uploadPlaceCategoryPhotoResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type uploadPlaceCategoryPhotoResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type uploadPlaceCategoryPhotoResponse404 = {
+  data: CategoryNotFoundResponse;
+  status: 404;
+};
+
+export type uploadPlaceCategoryPhotoResponseSuccess = uploadPlaceCategoryPhotoResponse200 & {
+  headers: Headers;
+};
+export type uploadPlaceCategoryPhotoResponseError = (
+  | uploadPlaceCategoryPhotoResponse400
+  | uploadPlaceCategoryPhotoResponse401
+  | uploadPlaceCategoryPhotoResponse403
+  | uploadPlaceCategoryPhotoResponse404
+) & {
+  headers: Headers;
+};
+
+export const getUploadPlaceCategoryPhotoUrl = ({
+  categoryId,
+}: UploadPlaceCategoryPhotoPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/categories/${categoryId}/photo`;
+};
+
+export const uploadPlaceCategoryPhoto = async (
+  { categoryId }: UploadPlaceCategoryPhotoPathParameters,
+  uploadPlaceCategoryPhotoBody: UploadPlaceCategoryPhotoBody,
+  options?: RequestInit,
+): Promise<uploadPlaceCategoryPhotoResponseSuccess> => {
+  const formData = new FormData();
+  formData.append(`photo`, uploadPlaceCategoryPhotoBody.photo);
+
+  const res = await fetch(getUploadPlaceCategoryPhotoUrl({ categoryId }), {
+    ...options,
+    method: 'POST',
+    body: formData,
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: uploadPlaceCategoryPhotoResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: uploadPlaceCategoryPhotoResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: uploadPlaceCategoryPhotoResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as uploadPlaceCategoryPhotoResponseSuccess;
 };
 
 /**

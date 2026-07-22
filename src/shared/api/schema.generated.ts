@@ -164,6 +164,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/categories/{categorySlug}/photo': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get place category photo
+     * @description Возвращает бинарную cover-фотографию категории с сохранённым MIME-типом. Неизвестная категория, пустые metadata и отсутствующий файл возвращают 404.
+     */
+    get: operations['getPlaceCategoryPhoto'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/places': {
     parameters: {
       query?: never;
@@ -358,6 +378,26 @@ export interface paths {
      * @description Частично обновляет категорию места.
      */
     patch: operations['updatePlaceCategory'];
+    trace?: never;
+  };
+  '/admin/categories/{categoryId}/photo': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Upload place category photo
+     * @description Загружает или заменяет cover-фотографию категории. Принимаются JPEG, PNG и WebP размером не более 5 MB.
+     */
+    post: operations['uploadPlaceCategoryPhoto'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/admin/places': {
@@ -739,6 +779,11 @@ export interface components {
        * @example SPA
        */
       title: string;
+      /**
+       * @description Versioned URL cover-фотографии категории или `null`, если фото отсутствует.
+       * @example /v1/categories/spa/photo?v=23b991827df4
+       */
+      coverImageUrl: string | null;
     };
     AdminPlaceCategory: components['schemas']['PlaceCategory'] & {
       /**
@@ -1961,6 +2006,35 @@ export interface operations {
       404: components['responses']['CategoryNotFound'];
     };
   };
+  getPlaceCategoryPhoto: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Публичный slug категории места.
+         * @example spa
+         */
+        categorySlug: components['parameters']['CategorySlug'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Бинарное содержимое cover-фотографии категории. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/jpeg': string;
+          'image/png': string;
+          'image/webp': string;
+        };
+      };
+      404: components['responses']['CategoryNotFound'];
+    };
+  };
   listPlaces: {
     parameters: {
       query?: {
@@ -2334,6 +2408,46 @@ export interface operations {
       403: components['responses']['Forbidden'];
       404: components['responses']['CategoryNotFound'];
       409: components['responses']['CategoryConflict'];
+    };
+  };
+  uploadPlaceCategoryPhoto: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Идентификатор категории места.
+         * @example category_spa
+         */
+        categoryId: components['parameters']['CategoryId'];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': {
+          /**
+           * Format: binary
+           * @description JPEG, PNG или WebP файл размером не более 5 MB.
+           */
+          photo: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Фотография загружена, category metadata и versioned URL обновлены. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminPlaceCategory'];
+        };
+      };
+      400: components['responses']['ValidationError'];
+      401: components['responses']['Unauthorized'];
+      403: components['responses']['Forbidden'];
+      404: components['responses']['CategoryNotFound'];
     };
   };
   listAdminPlaces: {

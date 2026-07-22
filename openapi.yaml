@@ -226,6 +226,7 @@ components:
               id: category_pools
               slug: pools
               title: Бассейны
+              coverImageUrl: /v1/categories/pools/photo?v=4e8a65a4732f
             status: active
             slug: the-pool
             coverImageUrl: null
@@ -281,6 +282,7 @@ components:
         id: category_spa
         slug: spa
         title: SPA
+        coverImageUrl: /v1/categories/spa/photo?v=23b991827df4
 
     AdminPlaceCategory:
       summary: Административная категория места
@@ -288,6 +290,7 @@ components:
         id: category_spa
         slug: spa
         title: SPA
+        coverImageUrl: /v1/categories/spa/photo?v=23b991827df4
         createdAt: '2026-07-03T10:00:00.000Z'
         updatedAt: '2026-07-03T10:00:00.000Z'
 
@@ -298,9 +301,11 @@ components:
           - id: category_spa
             slug: spa
             title: SPA
+            coverImageUrl: /v1/categories/spa/photo?v=23b991827df4
           - id: category_pools
             slug: pools
             title: Бассейны
+            coverImageUrl: null
 
     AdminPlaceCategoryListResponse:
       summary: Административный список категорий мест
@@ -309,6 +314,7 @@ components:
           - id: category_spa
             slug: spa
             title: SPA
+            coverImageUrl: /v1/categories/spa/photo?v=23b991827df4
             createdAt: '2026-07-03T10:00:00.000Z'
             updatedAt: '2026-07-03T10:00:00.000Z'
 
@@ -723,7 +729,7 @@ components:
     PlaceCategory:
       type: object
       description: Публичная категория места для фильтров.
-      required: [id, slug, title]
+      required: [id, slug, title, coverImageUrl]
       properties:
         id:
           type: string
@@ -737,6 +743,11 @@ components:
           type: string
           description: Название категории для интерфейса.
           example: SPA
+        coverImageUrl:
+          type: string
+          nullable: true
+          description: Versioned URL cover-фотографии категории или `null`, если фото отсутствует.
+          example: /v1/categories/spa/photo?v=23b991827df4
 
     AdminPlaceCategory:
       allOf:
@@ -1951,6 +1962,33 @@ paths:
         '404':
           $ref: '#/components/responses/CategoryNotFound'
 
+  /categories/{categorySlug}/photo:
+    get:
+      tags: [Places]
+      summary: Get place category photo
+      description: Возвращает бинарную cover-фотографию категории с сохранённым MIME-типом. Неизвестная категория, пустые metadata и отсутствующий файл возвращают 404.
+      operationId: getPlaceCategoryPhoto
+      parameters:
+        - $ref: '#/components/parameters/CategorySlug'
+      responses:
+        '200':
+          description: Бинарное содержимое cover-фотографии категории.
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/CategoryNotFound'
+
   /places:
     get:
       tags: [Places]
@@ -2289,6 +2327,48 @@ paths:
           $ref: '#/components/responses/CategoryNotFound'
         '409':
           $ref: '#/components/responses/CategoryConflict'
+
+  /admin/categories/{categoryId}/photo:
+    post:
+      tags: [Admin]
+      summary: Upload place category photo
+      description: Загружает или заменяет cover-фотографию категории. Принимаются JPEG, PNG и WebP размером не более 5 MB.
+      operationId: uploadPlaceCategoryPhoto
+      security:
+        - AccessCookieAuth: []
+      x-required-role: admin
+      parameters:
+        - $ref: '#/components/parameters/CategoryId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [photo]
+              properties:
+                photo:
+                  type: string
+                  format: binary
+                  description: JPEG, PNG или WebP файл размером не более 5 MB.
+      responses:
+        '200':
+          description: Фотография загружена, category metadata и versioned URL обновлены.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminPlaceCategory'
+              examples:
+                default:
+                  $ref: '#/components/examples/AdminPlaceCategory'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/CategoryNotFound'
 
   /admin/places:
     get:
