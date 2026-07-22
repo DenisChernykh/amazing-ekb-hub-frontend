@@ -51,6 +51,7 @@ describe('getPlacePageData', () => {
         },
         status: 'active',
         coverImageUrl: null,
+        mapsUrl: 'https://yandex.ru/maps/org/aqua_city/123456789',
         counters: {
           dzen: 0,
           telegram: 0,

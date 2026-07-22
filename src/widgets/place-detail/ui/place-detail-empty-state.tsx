@@ -1,7 +1,9 @@
 import Image from 'next/image';
+import { PlaceMapsLink } from './place-maps-link';
 
 interface PlaceDetailEmptyStateProps {
   coverImageUrl: string;
+  mapsUrl: string | null;
   title: string;
 }
 
@@ -12,6 +14,7 @@ interface PlaceDetailEmptyStateProps {
  */
 export function PlaceDetailEmptyState({
   coverImageUrl,
+  mapsUrl,
   title,
 }: Readonly<PlaceDetailEmptyStateProps>) {
   return (
@@ -26,6 +29,7 @@ export function PlaceDetailEmptyState({
         <p className="mt-6 max-w-md text-sm leading-6 text-[#81786b]">
           Когда в архиве появится материал об этом месте, ссылка будет доступна здесь.
         </p>
+        <PlaceMapsLink mapsUrl={mapsUrl} />
       </div>
       <div className="relative hidden min-h-screen overflow-hidden bg-[#101211] lg:block">
         <Image

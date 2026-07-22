@@ -24,7 +24,13 @@ export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
       totalCount={model.totalCount}
     />
   );
-  const index = <PlaceDetailMaterialIndex pinned={model.pinned} platforms={model.platforms} />;
+  const index = (
+    <PlaceDetailMaterialIndex
+      mapsUrl={model.mapsUrl}
+      pinned={model.pinned}
+      platforms={model.platforms}
+    />
+  );
 
   if (!model.initialPreview) {
     return (
@@ -36,7 +42,11 @@ export function PlaceDetail({ place }: Readonly<PlaceDetailProps>) {
             title={model.title}
             totalCount={model.totalCount}
           />
-          <PlaceDetailEmptyState coverImageUrl={model.coverImageUrl} title={model.title} />
+          <PlaceDetailEmptyState
+            coverImageUrl={model.coverImageUrl}
+            mapsUrl={model.mapsUrl}
+            title={model.title}
+          />
         </div>
       </main>
     );

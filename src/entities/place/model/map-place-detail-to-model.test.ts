@@ -20,6 +20,7 @@ const BASE_PLACE_DETAIL: PlaceDetail = {
   },
   status: 'active',
   coverImageUrl: null,
+  mapsUrl: null,
   counters: {
     dzen: 1,
     telegram: 0,
@@ -54,6 +55,22 @@ function createTelegramMaterial(
 }
 
 describe('mapPlaceDetailToModel', () => {
+  it.each([
+    [
+      'https://yandex.ru/maps/org/baden_baden/123456789',
+      'https://yandex.ru/maps/org/baden_baden/123456789',
+    ],
+    [
+      '  https://yandex.ru/maps/org/baden_baden/123456789  ',
+      'https://yandex.ru/maps/org/baden_baden/123456789',
+    ],
+    [null, null],
+    ['', null],
+    ['   ', null],
+  ] as const)('normalizes backend mapsUrl value %#', (mapsUrl, expected) => {
+    expect(mapPlaceDetailToModel({ ...BASE_PLACE_DETAIL, mapsUrl }, {}).mapsUrl).toBe(expected);
+  });
+
   it('maps backend redirectUrl and does not expose the direct external material URL', () => {
     const place = mapPlaceDetailToModel(BASE_PLACE_DETAIL, {
       dzen: [BASE_DZEN_MATERIAL],

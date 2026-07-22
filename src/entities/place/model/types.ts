@@ -51,6 +51,7 @@ export type PlaceDetailModel = {
   tags: string[];
   category: PlaceCategory;
   coverImageUrl: string | null;
+  mapsUrl: string | null;
   platformCounters: PlatformCounters;
   pinnedMaterial: PlaceMaterialModel | null;
   materialsByPlatform: PlaceMaterialsByPlatform;
