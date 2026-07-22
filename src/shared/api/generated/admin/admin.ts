@@ -11,9 +11,12 @@ import type {
   AdminPlaceCategory,
   AdminPlaceCategoryListResponse,
   AdminPlaceDetail,
+  AdminPlaceListResponse,
+  CancelPlaceImportPathParameters,
   CategoryConflictResponse,
   CategoryNotFoundResponse,
   ClearPinnedMaterialPathParameters,
+  ConfirmPlaceImportPathParameters,
   ContentSource,
   ContentSourceConflictResponse,
   ContentSourceListResponse,
@@ -21,12 +24,14 @@ import type {
   CreateContentSourceRequest,
   CreateMaterialRequest,
   CreatePlaceCategoryRequest,
+  CreatePlaceImportViewerAccessPathParameters,
   CreatePlaceMaterialPathParameters,
   CreatePlaceRequest,
   DeletePlaceCategoryPathParameters,
   ForbiddenResponse,
   GetAdminPlaceCategoryPathParameters,
   GetAdminPlaceDetailPathParameters,
+  GetPlaceImportOperationPathParameters,
   HidePlaceMaterialLinkPathParameters,
   ImportRun,
   ImportRunListResponse,
@@ -43,13 +48,22 @@ import type {
   MaterialListResponse,
   MaterialNotFoundResponse,
   NestErrorResponse,
-  PlaceListResponse,
+  PlaceImportEventsResponse,
+  PlaceImportOperation,
+  PlaceImportViewerAccess,
   PlaceNotFoundResponse,
   PlacePhotoUploadRequest,
   PlaceSummary,
+  ReadPlaceImportEventsParams,
+  ReadPlaceImportEventsPathParameters,
+  RevokePlaceImportViewerAccessPathParameters,
+  ServiceUnavailableResponse,
   SetPinnedMaterialPathParameters,
   SetPinnedMaterialRequest,
+  StartPlaceImportRequest,
   StreamImportRunEventsPathParameters,
+  StreamPlaceImportEventsParams,
+  StreamPlaceImportEventsPathParameters,
   TelegramImportAlreadyRunningResponse,
   UnauthorizedResponse,
   UpdateContentSourcePathParameters,
@@ -498,11 +512,609 @@ export const uploadPlaceCategoryPhoto = async (
 };
 
 /**
+ * Создает durable queued operation для одной карточки организации. URL проверяется и очищается до persistence. Endpoint требует trusted Origin/Referer; feature по умолчанию выключена.
+
+ * @summary Start Yandex Maps place import
+ */
+export type startYandexMapsPlaceImportResponse202 = {
+  data: PlaceImportOperation;
+  status: 202;
+};
+
+export type startYandexMapsPlaceImportResponse400 = {
+  data: ValidationErrorResponse;
+  status: 400;
+};
+
+export type startYandexMapsPlaceImportResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type startYandexMapsPlaceImportResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type startYandexMapsPlaceImportResponse409 = {
+  data: void;
+  status: 409;
+};
+
+export type startYandexMapsPlaceImportResponse503 = {
+  data: ServiceUnavailableResponse;
+  status: 503;
+};
+
+export type startYandexMapsPlaceImportResponseSuccess = startYandexMapsPlaceImportResponse202 & {
+  headers: Headers;
+};
+export type startYandexMapsPlaceImportResponseError = (
+  | startYandexMapsPlaceImportResponse400
+  | startYandexMapsPlaceImportResponse401
+  | startYandexMapsPlaceImportResponse403
+  | startYandexMapsPlaceImportResponse409
+  | startYandexMapsPlaceImportResponse503
+) & {
+  headers: Headers;
+};
+
+export const getStartYandexMapsPlaceImportUrl = () => {
+  return `${process.env.API_BASE_URL}/admin/place-imports/yandex-maps`;
+};
+
+export const startYandexMapsPlaceImport = async (
+  startPlaceImportRequest: StartPlaceImportRequest,
+  options?: RequestInit,
+): Promise<startYandexMapsPlaceImportResponseSuccess> => {
+  const res = await fetch(getStartYandexMapsPlaceImportUrl(), {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(startPlaceImportRequest),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: startYandexMapsPlaceImportResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: startYandexMapsPlaceImportResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: startYandexMapsPlaceImportResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as startYandexMapsPlaceImportResponseSuccess;
+};
+
+/**
+ * @summary Get place import operation
+ */
+export type getPlaceImportOperationResponse200 = {
+  data: PlaceImportOperation;
+  status: 200;
+};
+
+export type getPlaceImportOperationResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type getPlaceImportOperationResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type getPlaceImportOperationResponse404 = {
+  data: void;
+  status: 404;
+};
+
+export type getPlaceImportOperationResponse503 = {
+  data: ServiceUnavailableResponse;
+  status: 503;
+};
+
+export type getPlaceImportOperationResponseSuccess = getPlaceImportOperationResponse200 & {
+  headers: Headers;
+};
+export type getPlaceImportOperationResponseError = (
+  | getPlaceImportOperationResponse401
+  | getPlaceImportOperationResponse403
+  | getPlaceImportOperationResponse404
+  | getPlaceImportOperationResponse503
+) & {
+  headers: Headers;
+};
+
+export const getGetPlaceImportOperationUrl = ({
+  operationId,
+}: GetPlaceImportOperationPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/place-imports/${operationId}`;
+};
+
+export const getPlaceImportOperation = async (
+  { operationId }: GetPlaceImportOperationPathParameters,
+  options?: RequestInit,
+): Promise<getPlaceImportOperationResponseSuccess> => {
+  const res = await fetch(getGetPlaceImportOperationUrl({ operationId }), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: getPlaceImportOperationResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: getPlaceImportOperationResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: getPlaceImportOperationResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getPlaceImportOperationResponseSuccess;
+};
+
+/**
+ * Polling fallback и reconnect delta после известной operation version.
+ * @summary Read place import journal
+ */
+export type readPlaceImportEventsResponse200 = {
+  data: PlaceImportEventsResponse;
+  status: 200;
+};
+
+export type readPlaceImportEventsResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type readPlaceImportEventsResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type readPlaceImportEventsResponse404 = {
+  data: void;
+  status: 404;
+};
+
+export type readPlaceImportEventsResponseSuccess = readPlaceImportEventsResponse200 & {
+  headers: Headers;
+};
+export type readPlaceImportEventsResponseError = (
+  | readPlaceImportEventsResponse401
+  | readPlaceImportEventsResponse403
+  | readPlaceImportEventsResponse404
+) & {
+  headers: Headers;
+};
+
+export const getReadPlaceImportEventsUrl = (
+  { operationId }: ReadPlaceImportEventsPathParameters,
+  params?: ReadPlaceImportEventsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `${process.env.API_BASE_URL}/admin/place-imports/${operationId}/events?${stringifiedParams}`
+    : `${process.env.API_BASE_URL}/admin/place-imports/${operationId}/events`;
+};
+
+export const readPlaceImportEvents = async (
+  { operationId }: ReadPlaceImportEventsPathParameters,
+  params?: ReadPlaceImportEventsParams,
+  options?: RequestInit,
+): Promise<readPlaceImportEventsResponseSuccess> => {
+  const res = await fetch(getReadPlaceImportEventsUrl({ operationId }, params), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: readPlaceImportEventsResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: readPlaceImportEventsResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: readPlaceImportEventsResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as readPlaceImportEventsResponseSuccess;
+};
+
+/**
+ * SSE `place-import.updated` использует subscribe → read → read handshake, Redis version hints и периодическое PostgreSQL reconciliation. Terminal status закрывает stream.
+
+ * @summary Stream place import updates
+ */
+export type streamPlaceImportEventsResponse200 = {
+  data: string;
+  status: 200;
+};
+
+export type streamPlaceImportEventsResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type streamPlaceImportEventsResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type streamPlaceImportEventsResponseSuccess = streamPlaceImportEventsResponse200 & {
+  headers: Headers;
+};
+export type streamPlaceImportEventsResponseError = (
+  | streamPlaceImportEventsResponse401
+  | streamPlaceImportEventsResponse403
+) & {
+  headers: Headers;
+};
+
+export const getStreamPlaceImportEventsUrl = (
+  { operationId }: StreamPlaceImportEventsPathParameters,
+  params?: StreamPlaceImportEventsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `${process.env.API_BASE_URL}/admin/place-imports/${operationId}/events/stream?${stringifiedParams}`
+    : `${process.env.API_BASE_URL}/admin/place-imports/${operationId}/events/stream`;
+};
+
+export const streamPlaceImportEvents = async (
+  { operationId }: StreamPlaceImportEventsPathParameters,
+  params?: StreamPlaceImportEventsParams,
+  options?: RequestInit,
+): Promise<streamPlaceImportEventsResponseSuccess> => {
+  const res = await fetch(getStreamPlaceImportEventsUrl({ operationId }, params), {
+    ...options,
+    method: 'GET',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: streamPlaceImportEventsResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: streamPlaceImportEventsResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: streamPlaceImportEventsResponseSuccess['data'] = body !== null ? body : '';
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as streamPlaceImportEventsResponseSuccess;
+};
+
+/**
+ * Без request body атомарно создает hidden Place, external reference и при необходимости draft-категорию. Требует trusted Origin/Referer.
+ * @summary Confirm immutable place import preview
+ */
+export type confirmPlaceImportResponse201 = {
+  data: PlaceImportOperation;
+  status: 201;
+};
+
+export type confirmPlaceImportResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type confirmPlaceImportResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type confirmPlaceImportResponse404 = {
+  data: void;
+  status: 404;
+};
+
+export type confirmPlaceImportResponse409 = {
+  data: void;
+  status: 409;
+};
+
+export type confirmPlaceImportResponse410 = {
+  data: void;
+  status: 410;
+};
+
+export type confirmPlaceImportResponse503 = {
+  data: ServiceUnavailableResponse;
+  status: 503;
+};
+
+export type confirmPlaceImportResponseSuccess = confirmPlaceImportResponse201 & {
+  headers: Headers;
+};
+export type confirmPlaceImportResponseError = (
+  | confirmPlaceImportResponse401
+  | confirmPlaceImportResponse403
+  | confirmPlaceImportResponse404
+  | confirmPlaceImportResponse409
+  | confirmPlaceImportResponse410
+  | confirmPlaceImportResponse503
+) & {
+  headers: Headers;
+};
+
+export const getConfirmPlaceImportUrl = ({ operationId }: ConfirmPlaceImportPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/place-imports/${operationId}/confirm`;
+};
+
+export const confirmPlaceImport = async (
+  { operationId }: ConfirmPlaceImportPathParameters,
+  options?: RequestInit,
+): Promise<confirmPlaceImportResponseSuccess> => {
+  const res = await fetch(getConfirmPlaceImportUrl({ operationId }), {
+    ...options,
+    method: 'POST',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: confirmPlaceImportResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: confirmPlaceImportResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: confirmPlaceImportResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as confirmPlaceImportResponseSuccess;
+};
+
+/**
+ * Durable cancellation; Redis notification является только latency hint. Требует trusted Origin/Referer.
+ * @summary Cancel place import
+ */
+export type cancelPlaceImportResponse201 = {
+  data: PlaceImportOperation;
+  status: 201;
+};
+
+export type cancelPlaceImportResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type cancelPlaceImportResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type cancelPlaceImportResponse404 = {
+  data: void;
+  status: 404;
+};
+
+export type cancelPlaceImportResponseSuccess = cancelPlaceImportResponse201 & {
+  headers: Headers;
+};
+export type cancelPlaceImportResponseError = (
+  | cancelPlaceImportResponse401
+  | cancelPlaceImportResponse403
+  | cancelPlaceImportResponse404
+) & {
+  headers: Headers;
+};
+
+export const getCancelPlaceImportUrl = ({ operationId }: CancelPlaceImportPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/place-imports/${operationId}/cancel`;
+};
+
+export const cancelPlaceImport = async (
+  { operationId }: CancelPlaceImportPathParameters,
+  options?: RequestInit,
+): Promise<cancelPlaceImportResponseSuccess> => {
+  const res = await fetch(getCancelPlaceImportUrl({ operationId }), {
+    ...options,
+    method: 'POST',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: cancelPlaceImportResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: cancelPlaceImportResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: cancelPlaceImportResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return { data, status: res.status, headers: res.headers } as cancelPlaceImportResponseSuccess;
+};
+
+/**
+ * Выдает один capability во fragment отдельного viewer-origin. Повторная выдача блокируется до revoke/expiry.
+ * @summary Create one-time CAPTCHA viewer access
+ */
+export type createPlaceImportViewerAccessResponse201 = {
+  data: PlaceImportViewerAccess;
+  status: 201;
+};
+
+export type createPlaceImportViewerAccessResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type createPlaceImportViewerAccessResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type createPlaceImportViewerAccessResponse409 = {
+  data: void;
+  status: 409;
+};
+
+export type createPlaceImportViewerAccessResponseSuccess =
+  createPlaceImportViewerAccessResponse201 & {
+    headers: Headers;
+  };
+export type createPlaceImportViewerAccessResponseError = (
+  | createPlaceImportViewerAccessResponse401
+  | createPlaceImportViewerAccessResponse403
+  | createPlaceImportViewerAccessResponse409
+) & {
+  headers: Headers;
+};
+
+export const getCreatePlaceImportViewerAccessUrl = ({
+  operationId,
+}: CreatePlaceImportViewerAccessPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/place-imports/${operationId}/viewer-access`;
+};
+
+export const createPlaceImportViewerAccess = async (
+  { operationId }: CreatePlaceImportViewerAccessPathParameters,
+  options?: RequestInit,
+): Promise<createPlaceImportViewerAccessResponseSuccess> => {
+  const res = await fetch(getCreatePlaceImportViewerAccessUrl({ operationId }), {
+    ...options,
+    method: 'POST',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: createPlaceImportViewerAccessResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: createPlaceImportViewerAccessResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: createPlaceImportViewerAccessResponseSuccess['data'] = body ? JSON.parse(body) : {};
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as createPlaceImportViewerAccessResponseSuccess;
+};
+
+/**
+ * @summary Revoke CAPTCHA viewer access
+ */
+export type revokePlaceImportViewerAccessResponse204 = {
+  data: void;
+  status: 204;
+};
+
+export type revokePlaceImportViewerAccessResponse401 = {
+  data: UnauthorizedResponse;
+  status: 401;
+};
+
+export type revokePlaceImportViewerAccessResponse403 = {
+  data: ForbiddenResponse;
+  status: 403;
+};
+
+export type revokePlaceImportViewerAccessResponse409 = {
+  data: void;
+  status: 409;
+};
+
+export type revokePlaceImportViewerAccessResponseSuccess =
+  revokePlaceImportViewerAccessResponse204 & {
+    headers: Headers;
+  };
+export type revokePlaceImportViewerAccessResponseError = (
+  | revokePlaceImportViewerAccessResponse401
+  | revokePlaceImportViewerAccessResponse403
+  | revokePlaceImportViewerAccessResponse409
+) & {
+  headers: Headers;
+};
+
+export const getRevokePlaceImportViewerAccessUrl = ({
+  operationId,
+}: RevokePlaceImportViewerAccessPathParameters) => {
+  return `${process.env.API_BASE_URL}/admin/place-imports/${operationId}/viewer-access`;
+};
+
+export const revokePlaceImportViewerAccess = async (
+  { operationId }: RevokePlaceImportViewerAccessPathParameters,
+  options?: RequestInit,
+): Promise<revokePlaceImportViewerAccessResponseSuccess> => {
+  const res = await fetch(getRevokePlaceImportViewerAccessUrl({ operationId }), {
+    ...options,
+    method: 'DELETE',
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: revokePlaceImportViewerAccessResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: revokePlaceImportViewerAccessResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: revokePlaceImportViewerAccessResponseSuccess['data'] = body
+    ? JSON.parse(body)
+    : undefined;
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as revokePlaceImportViewerAccessResponseSuccess;
+};
+
+/**
  * Возвращает административный список мест с пагинацией и опциональной фильтрацией по статусу. Если `status` не указан, возвращаются и активные, и скрытые места.
  * @summary List admin places
  */
 export type listAdminPlacesResponse200 = {
-  data: PlaceListResponse;
+  data: AdminPlaceListResponse;
   status: 200;
 };
 
