@@ -25,6 +25,8 @@ describe('CI API base URL contract', () => {
     expect(workflow).toContain('repository: DenisChernykh/amazing-ekb-hub-backend');
     expect(workflow).toContain('ref: 664304d19002aef542e9cef07e202e99e5693725');
     expect(workflow).toContain('path: backend');
+    expect(workflow).toContain('BACKEND_REPO_READ_TOKEN');
+    expect(workflow).toContain('persist-credentials: false');
     expect(workflow).toContain('docker compose --profile development up');
     expect(workflow).toContain('name: Seed local backend build fixture');
     expect(workflow).not.toContain(missingApiBaseUrlError);

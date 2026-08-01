@@ -73,6 +73,15 @@ jobs:
       - name: Run typecheck
         run: pnpm run typecheck
 
+      - name: Validate backend checkout token
+        env:
+          BACKEND_REPO_READ_TOKEN: ${{ secrets.BACKEND_REPO_READ_TOKEN }}
+        run: |
+          if [ -z "${BACKEND_REPO_READ_TOKEN}" ]; then
+            echo "::error::BACKEND_REPO_READ_TOKEN repository secret is required to checkout the private backend repository."
+            exit 1
+          fi
+
       - name: Checkout backend
         uses: actions/checkout@v4
         with:
@@ -81,6 +90,8 @@ jobs:
           ref: 664304d19002aef542e9cef07e202e99e5693725
           path: backend
           fetch-depth: 1
+          persist-credentials: false
+          token: ${{ secrets.BACKEND_REPO_READ_TOKEN }}
 
       - name: Start local backend
         working-directory: backend
