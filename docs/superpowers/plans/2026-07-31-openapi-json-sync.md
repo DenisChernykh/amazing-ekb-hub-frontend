@@ -54,44 +54,61 @@
 - `src/shared/api/category-photo-contract.test.ts`, `src/shared/api/place-maps-url-contract.test.ts` — Zod/DTO contract assertions.
 - `README.md`, `docs/architecture/api-integration.md`, `docs/testing/test-strategy.md`, `docs/runbooks/local-setup.md` — текущая интеграционная документация.
 
-## Luna Execution Protocol
+## Supervised Delegation Protocol
 
-Для `gpt-5.6-luna` использовать `superpowers:executing-plans` в одном frontend checkout или Codex worktree. Не запускать subagents: Luna выполняет один stage за раз, фиксирует checkpoint и продолжает автоматически только после `PASS` либо явно разрешённого `EXPECTED_RED`.
+Исполнять через `superpowers:subagent-driven-development` в одном изолированном frontend worktree. Controller остаётся на более сильной модели, выдаёт implementer-у только один work package, проверяет его diff и evidence, затем либо разрешает следующий пакет, либо возвращает точечные замечания тому же implementer-у.
 
-Новая задача должна стартовать от текущего frontend working tree/HEAD, который содержит commit `d45a604` с этим implementation plan. Не стартовать от чистого `origin/stage`: там отсутствуют локальные design/plan commits.
+Использовать модели так:
 
-| Stage | Граница работы                                                    | Разрешённый результат                               | Commit           |
-| ----- | ----------------------------------------------------------------- | --------------------------------------------------- | ---------------- |
-| `L0`  | Только preflight backend/frontend                                 | `PASS` или `BLOCKED`                                | Нет              |
-| `L1`  | Sync CLI, formatting guard, generator config, base URL tests      | `PASS`: 8 focused tests                             | Нет              |
-| `L2`  | Canonical JSON snapshot и полная regeneration                     | `EXPECTED_RED`: только перечисленный consumer drift | Нет              |
-| `L3`  | Categories, place types/operations, 422 и Zod consumers           | `PASS`: focused consumers + typecheck               | Нет              |
-| `L4`  | Compatibility scan, scope review, atomic code commit, determinism | `PASS`: clean generated diff                        | Один code commit |
-| `L5`  | Только четыре текущих integration docs                            | `PASS`: docs scan                                   | Нет              |
-| `L6`  | Final aggregate gates, local smoke, docs commit                   | `PASS` или environment `BLOCKED` для smoke          | Один docs commit |
+- `gpt-5.6-terra` medium — механические path-bounded пакеты с точной replacement map и focused tests;
+- `gpt-5.6-terra` high — regeneration/integration пакеты с generated outputs либо несколькими FSD slices;
+- текущая более сильная controller-модель — решения при `BLOCKED`, проверка scope/architecture и final whole-branch review.
 
-Stages `L1`–`L4` являются одной атомарной миграцией Task 1. Не коммитить `L1`, `L2` или `L3` отдельно и не оставлять их как завершённую работу: после regeneration промежуточный consumer drift ожидаем и закрывается в `L3`.
+Не использовать `gpt-5.6-luna` для этой миграции. Не запускать implementers параллельно: packages меняют один generated-contract cutover и должны видеть результат предыдущего пакета.
 
-После каждого stage Luna сообщает:
+| Package | Implementer  | Граница работы                                                          | Разрешённый результат                               | Commit           |
+| ------- | ------------ | ----------------------------------------------------------------------- | --------------------------------------------------- | ---------------- |
+| `P0`    | Controller   | Worktree setup и pinned preflight                                       | `PASS` или `BLOCKED`                                | Нет              |
+| `P1`    | Terra medium | Sync CLI tests, validation, formatting guard, generator/base URL config | `PASS`: 8 focused tests                             | Нет              |
+| `P2`    | Terra high   | Canonical JSON snapshot и полная regeneration                           | `EXPECTED_RED`: только перечисленный consumer drift | Нет              |
+| `P3`    | Terra medium | Только category consumers и их tests                                    | `PASS`: category-focused tests                      | Нет              |
+| `P4`    | Terra medium | Stable place entity type boundary                                       | `PASS`: type-boundary focused tests                 | Нет              |
+| `P5`    | Terra high   | Place operations, mappers, 422 и Zod consumers                          | `PASS`: focused consumers + typecheck               | Нет              |
+| `P6`    | Terra medium | Compatibility/scope checks, determinism и atomic code commit            | `PASS`: clean generated diff                        | Один code commit |
+| `P7`    | Terra medium | Только четыре текущих integration docs                                  | `PASS`: docs scan                                   | Нет              |
+| `P8`    | Terra high   | Aggregate gates, local smoke и docs commit                              | `PASS` или environment `BLOCKED` для smoke          | Один docs commit |
 
-- stage и итоговый статус: `PASS`, `EXPECTED_RED` или `BLOCKED`;
+Packages `P1`–`P6` являются одной атомарной миграцией Task 1. До `P6` controller хранит progress и review evidence в plan-specific `.superpowers/sdd` workspace, но не разрешает промежуточные commits. Это осознанная адаптация subagent workflow: commit после `P1`, `P2`, `P3`, `P4` или `P5` зафиксировал бы YAML/JSON dual state либо некомпилируемый generated/consumer state.
+
+Перед каждым package controller создаёт короткий brief только с:
+
+- соответствующим package heading и его Steps из этого plan;
+- Global Constraints;
+- текущим `git status --short`;
+- interfaces, произведёнными предыдущим package;
+- путём report-файла в plan-specific `.superpowers/sdd` workspace.
+
+Implementer возвращает только:
+
+- package и статус: `DONE`, `DONE_WITH_CONCERNS`, `EXPECTED_RED` или `BLOCKED`;
 - изменённые tracked-файлы;
-- выполненные команды и exit codes;
-- почему следующий stage разрешён либо какое stop condition сработало.
+- выполненные команды, exit codes и test counts;
+- concerns и конкретное решение, которое требуется от controller.
 
-Stop conditions, при которых нельзя импровизировать:
+После каждого package controller самостоятельно проверяет `git diff`, scope и заявленные команды. При ошибке:
+
+1. контекстная или механическая проблема — вернуть точные замечания тому же Terra implementer-у;
+2. недостаток reasoning — повторить пакет на Terra high;
+3. ошибка plan/backend contract — остановить dispatch, исправить plan либо вернуть работу владельцу backend;
+4. новая архитектурная развилка — запросить решение пользователя.
+
+Stop conditions, при которых implementer не импровизирует:
 
 - backend HEAD/hash/schema assertions отличаются от pinned handoff;
 - Orval или TypeScript падает внутри generated файлов;
-- после `L3` остаются TypeScript errors;
+- после `P5` остаются TypeScript errors;
 - `openapi.json` меняет pinned SHA-256;
-- для продолжения требуется backend fix, deployment, push, PR или merge.
-
-Handoff prompt для отдельной Luna-задачи:
-
-```text
-Исполни docs/superpowers/plans/2026-07-31-openapi-json-sync.md через superpowers:executing-plans. Работай последовательно по Luna stages L0-L6, на каждом checkpoint сообщай статус и продолжай только при PASS или документированном EXPECTED_RED. Сохрани атомарность L1-L4, не создавай промежуточные commits, не меняй backend и не выполняй push, PR, merge или deploy.
-```
+- для продолжения требуется backend fix, новый compatibility layer, deployment, push, PR или merge.
 
 ---
 
@@ -147,7 +164,7 @@ Handoff prompt для отдельной Luna-задачи:
 - Produces: public generated operations `categoriesList`, `categoriesGet`, `placesList`, `placesGet`, `placeMaterialsList`.
 - Produces: stable entity types `Platform`, `MaterialType`, `PlaceCategory` from the new generated DTO unions.
 
-#### Luna Stage L0: Verify the immutable handoff
+#### Work Package P0: Verify the immutable handoff
 
 **Checkpoint:** все команды и schema assertions проходят. Любое отличие — `BLOCKED`; Task 1 не начинается.
 
@@ -225,7 +242,7 @@ backend OpenAPI handoff: valid
 
 If backend HEAD or artifact hash differs, stop and inspect the new backend diff before continuing. Do not silently pin a different document.
 
-#### Luna Stage L1: Make sync and routing behavior explicit
+#### Work Package P1: Make sync and routing behavior explicit
 
 **Checkpoint:** Steps 2–8 завершены, 2 focused files / 8 tests проходят. Не запускать regeneration и не создавать commit на этом stage.
 
@@ -476,7 +493,7 @@ pnpm exec vitest run src/openapi-sync-contract.test.ts src/next-config-rewrites.
 
 Expected: PASS, 2 test files / 8 tests.
 
-#### Luna Stage L2: Regenerate from the canonical JSON
+#### Work Package P2: Regenerate from the canonical JSON
 
 **Checkpoint:** Orval завершился без generated errors; hash совпал; Step 10 дал только документированный handwritten consumer drift. Это единственный разрешённый `EXPECTED_RED` во всём плане.
 
@@ -522,9 +539,9 @@ pnpm run typecheck
 
 Expected: FAIL only on removed old operation/type/Zod names such as `listPlaces`, `getPlaceDetail`, `PlaceDetail`, `PublicMaterial`, `GetPlaceDetail200Response`; there must be no error inside `src/shared/api/generated/**`.
 
-#### Luna Stage L3: Cut handwritten consumers over to generated names
+#### Work Package P3: Adapt only category consumers
 
-**Checkpoint:** Steps 11–16 завершены; focused consumer tests и `pnpm run typecheck` проходят. Не создавать commit до compatibility/scope checks в `L4`.
+**Checkpoint:** Step 11 и category-focused tests завершены. Category consumers используют новый generated module. Не создавать commit и не менять place files — они принадлежат `P4` и `P5`.
 
 - [ ] **Step 11: Adapt category consumers to the new generated tag and DTO names**
 
@@ -552,6 +569,22 @@ import { categoriesGet } from '@/shared/api/generated/categories/categories';
 ```
 
 Keep the existing `404 -> null` behavior in `fetchPublicCategory`; the new contract still declares 404.
+
+- [ ] **Step 11a: Verify the bounded P3 package**
+
+Run:
+
+```bash
+pnpm exec vitest run src/entities/category
+git diff --check
+git diff -- src/entities/category
+```
+
+Expected: all category tests pass, `git diff --check` exits 0, and the path-scoped diff contains only the exact generated module/function/DTO replacements from Step 11.
+
+#### Work Package P4: Stabilize place entity types
+
+**Checkpoint:** Step 12 и P4 focused tests завершены. Entity helpers/widgets получают `Platform` через entity-owned type boundary. Не создавать commit и не исправлять place operation drift — он принадлежит `P5`.
 
 - [ ] **Step 12: Establish stable place entity types over the new generated DTO unions**
 
@@ -585,6 +618,32 @@ export {
 ```
 
 Inside `src/entities/place/lib/build-place-materials-anchor.ts` and `src/entities/place/model/place-display.ts`, import these types from the local `./model/types` or `./types` file as appropriate. In widgets, import `Platform` through `@/entities/place`; widgets must no longer reach into removed generated `model/platform`.
+
+- [ ] **Step 12a: Verify the bounded P3 package**
+
+Run:
+
+```bash
+pnpm exec vitest run \
+  src/entities/category \
+  src/entities/place/lib/build-place-materials-anchor.test.ts \
+  src/entities/place/model/place-display.test.ts
+git diff --check
+git diff -- \
+  src/entities/category \
+  src/entities/place/index.ts \
+  src/entities/place/lib/build-place-materials-anchor.ts \
+  src/entities/place/model/place-display.ts \
+  src/entities/place/model/types.ts \
+  src/widgets/place-detail/lib/use-place-detail-platform-scrollspy.ts \
+  src/widgets/place-detail/model/types.ts
+```
+
+Expected: selected tests pass, `git diff --check` exits 0, and the path-scoped diff contains only the P4 type-boundary adaptations described in Step 12. Do not run or claim full typecheck yet; old place operation names are intentionally closed in `P5`.
+
+#### Work Package P5: Adapt place operations, mappers and contract tests
+
+**Checkpoint:** Steps 13–16 завершены; all focused consumer tests and `pnpm run typecheck` pass. Не создавать commit до compatibility/scope checks в `P6`.
 
 - [ ] **Step 13: Adapt place operations, response types and raw mapper DTOs**
 
@@ -768,7 +827,7 @@ TypeScript exits 0 with no generated or handwritten errors.
 
 The exact test count may increase by the new 422 case, but every selected file must pass.
 
-#### Luna Stage L4: Prove atomicity and commit the code migration
+#### Work Package P6: Prove atomicity and commit the code migration
 
 **Checkpoint:** old names отсутствуют в current source/config, snapshot hash сохранён, regeneration детерминирована, создан ровно один code commit.
 
@@ -862,7 +921,7 @@ Expected: no diff and the pinned SHA-256 remains unchanged. If a hook or generat
 - Produces: operator/developer documentation that names `/openapi.json`, `openapi.json`, exact sync overrides and the `/v1` rewrite boundary.
 - Produces: verified local-only acceptance evidence; no hosted/deployment claim.
 
-#### Luna Stage L5: Update only current integration documentation
+#### Work Package P7: Update only current integration documentation
 
 **Checkpoint:** Steps 1–4 завершены; четыре документа отформатированы, stale YAML/base URL matches отсутствуют. Commit пока не создавать.
 
@@ -981,7 +1040,7 @@ rg -n \
 
 Expected: no matches. Do not include historical `docs/superpowers/specs/**` or `docs/superpowers/plans/**` in this scan.
 
-#### Luna Stage L6: Run acceptance, local smoke and commit docs
+#### Work Package P8: Run acceptance, local smoke and commit docs
 
 **Checkpoint:** aggregate gates прошли; local smoke либо прошёл, либо отдельно зафиксирован как environment `BLOCKED`; создан docs commit. Никаких hosted/deployment выводов.
 
@@ -1020,7 +1079,7 @@ cd /Users/denischernykh/projects/pet/amazing-ekb-hub/backend-codex
 PATH=/Users/denischernykh/.nvm/versions/node/v24.18.0/bin:$PATH corepack pnpm@11.15.1 run dev:local
 ```
 
-From the active frontend checkout/worktree root where `L0` ran, start frontend in a second terminal with the new origin-only contract:
+From the active frontend checkout/worktree root where `P0` ran, start frontend in a second terminal with the new origin-only contract:
 
 ```bash
 API_BASE_URL=http://127.0.0.1:3000 pnpm dev
