@@ -9,19 +9,25 @@ function readWorkflow(filename: string): string {
 }
 
 describe('CI API base URL contract', () => {
-  it('passes the repository API_BASE_URL variable to pull request builds', () => {
+  it('uses the pinned local backend for pull request builds', () => {
     const workflow = readWorkflow('git-quality.yml');
 
     expect(workflow).toContain(
       [
         '  validate:',
         '    runs-on: ubuntu-latest',
+        '    timeout-minutes: 45',
         '',
         '    env:',
-        '      API_BASE_URL: ${{ vars.API_BASE_URL }}',
+        '      API_BASE_URL: http://127.0.0.1:3000',
       ].join('\n'),
     );
-    expect(workflow).toContain(missingApiBaseUrlError);
+    expect(workflow).toContain('repository: DenisChernykh/amazing-ekb-hub-backend');
+    expect(workflow).toContain('ref: 664304d19002aef542e9cef07e202e99e5693725');
+    expect(workflow).toContain('path: backend');
+    expect(workflow).toContain('docker compose --profile development up');
+    expect(workflow).toContain('name: Seed local backend build fixture');
+    expect(workflow).not.toContain(missingApiBaseUrlError);
   });
 
   it('passes the repository API_BASE_URL variable to production quality builds', () => {
