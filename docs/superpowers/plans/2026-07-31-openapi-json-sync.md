@@ -54,6 +54,45 @@
 - `src/shared/api/category-photo-contract.test.ts`, `src/shared/api/place-maps-url-contract.test.ts` — Zod/DTO contract assertions.
 - `README.md`, `docs/architecture/api-integration.md`, `docs/testing/test-strategy.md`, `docs/runbooks/local-setup.md` — текущая интеграционная документация.
 
+## Luna Execution Protocol
+
+Для `gpt-5.6-luna` использовать `superpowers:executing-plans` в одном frontend checkout или Codex worktree. Не запускать subagents: Luna выполняет один stage за раз, фиксирует checkpoint и продолжает автоматически только после `PASS` либо явно разрешённого `EXPECTED_RED`.
+
+Новая задача должна стартовать от текущего frontend working tree/HEAD, который содержит commit `d45a604` с этим implementation plan. Не стартовать от чистого `origin/stage`: там отсутствуют локальные design/plan commits.
+
+| Stage | Граница работы                                                    | Разрешённый результат                               | Commit           |
+| ----- | ----------------------------------------------------------------- | --------------------------------------------------- | ---------------- |
+| `L0`  | Только preflight backend/frontend                                 | `PASS` или `BLOCKED`                                | Нет              |
+| `L1`  | Sync CLI, formatting guard, generator config, base URL tests      | `PASS`: 8 focused tests                             | Нет              |
+| `L2`  | Canonical JSON snapshot и полная regeneration                     | `EXPECTED_RED`: только перечисленный consumer drift | Нет              |
+| `L3`  | Categories, place types/operations, 422 и Zod consumers           | `PASS`: focused consumers + typecheck               | Нет              |
+| `L4`  | Compatibility scan, scope review, atomic code commit, determinism | `PASS`: clean generated diff                        | Один code commit |
+| `L5`  | Только четыре текущих integration docs                            | `PASS`: docs scan                                   | Нет              |
+| `L6`  | Final aggregate gates, local smoke, docs commit                   | `PASS` или environment `BLOCKED` для smoke          | Один docs commit |
+
+Stages `L1`–`L4` являются одной атомарной миграцией Task 1. Не коммитить `L1`, `L2` или `L3` отдельно и не оставлять их как завершённую работу: после regeneration промежуточный consumer drift ожидаем и закрывается в `L3`.
+
+После каждого stage Luna сообщает:
+
+- stage и итоговый статус: `PASS`, `EXPECTED_RED` или `BLOCKED`;
+- изменённые tracked-файлы;
+- выполненные команды и exit codes;
+- почему следующий stage разрешён либо какое stop condition сработало.
+
+Stop conditions, при которых нельзя импровизировать:
+
+- backend HEAD/hash/schema assertions отличаются от pinned handoff;
+- Orval или TypeScript падает внутри generated файлов;
+- после `L3` остаются TypeScript errors;
+- `openapi.json` меняет pinned SHA-256;
+- для продолжения требуется backend fix, deployment, push, PR или merge.
+
+Handoff prompt для отдельной Luna-задачи:
+
+```text
+Исполни docs/superpowers/plans/2026-07-31-openapi-json-sync.md через superpowers:executing-plans. Работай последовательно по Luna stages L0-L6, на каждом checkpoint сообщай статус и продолжай только при PASS или документированном EXPECTED_RED. Сохрани атомарность L1-L4, не создавай промежуточные commits, не меняй backend и не выполняй push, PR, merge или deploy.
+```
+
 ---
 
 ### Task 1: Atomic JSON contract cutover
@@ -108,15 +147,20 @@
 - Produces: public generated operations `categoriesList`, `categoriesGet`, `placesList`, `placesGet`, `placeMaterialsList`.
 - Produces: stable entity types `Platform`, `MaterialType`, `PlaceCategory` from the new generated DTO unions.
 
+#### Luna Stage L0: Verify the immutable handoff
+
+**Checkpoint:** все команды и schema assertions проходят. Любое отличие — `BLOCKED`; Task 1 не начинается.
+
 - [ ] **Step 1: Re-verify the pinned handoff before copying any contract**
 
 Run:
 
 ```bash
-git -C ../backend-codex status --short --branch
-git -C ../backend-codex rev-parse HEAD
-shasum -a 256 ../backend-codex/docs/api/openapi.json
-git status --short --branch
+git merge-base --is-ancestor d45a604 HEAD
+git status --porcelain=v1
+git -C /Users/denischernykh/projects/pet/amazing-ekb-hub/backend-codex status --short --branch
+git -C /Users/denischernykh/projects/pet/amazing-ekb-hub/backend-codex rev-parse HEAD
+shasum -a 256 /Users/denischernykh/projects/pet/amazing-ekb-hub/backend-codex/docs/api/openapi.json
 ```
 
 Assert the two corrected schema boundaries:
@@ -127,7 +171,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const document = JSON.parse(
-  await readFile('../backend-codex/docs/api/openapi.json', 'utf8'),
+  await readFile(
+    '/Users/denischernykh/projects/pet/amazing-ekb-hub/backend-codex/docs/api/openapi.json',
+    'utf8',
+  ),
 );
 const schemas = document.components.schemas;
 
@@ -168,16 +215,19 @@ NODE
 Expected:
 
 ```text
+git merge-base exits 0
+git status reports no tracked changes; optional untracked entries are limited to .pnpm-store/ and .superpowers/
 ## stage...origin/stage
 664304d19002aef542e9cef07e202e99e5693725
-f922d7a030b3af37fd1594fdcd59f3ba831e69c7ba49055853f93e8dc3850e18  ../backend-codex/docs/api/openapi.json
-## stage...origin/stage [ahead 2]
-?? .pnpm-store/
-?? .superpowers/
+f922d7a030b3af37fd1594fdcd59f3ba831e69c7ba49055853f93e8dc3850e18  /Users/denischernykh/projects/pet/amazing-ekb-hub/backend-codex/docs/api/openapi.json
 backend OpenAPI handoff: valid
 ```
 
 If backend HEAD or artifact hash differs, stop and inspect the new backend diff before continuing. Do not silently pin a different document.
+
+#### Luna Stage L1: Make sync and routing behavior explicit
+
+**Checkpoint:** Steps 2–8 завершены, 2 focused files / 8 tests проходят. Не запускать regeneration и не создавать commit на этом stage.
 
 - [ ] **Step 2: Add failing black-box tests for JSON sync and origin-only rewrites**
 
@@ -426,13 +476,17 @@ pnpm exec vitest run src/openapi-sync-contract.test.ts src/next-config-rewrites.
 
 Expected: PASS, 2 test files / 8 tests.
 
+#### Luna Stage L2: Regenerate from the canonical JSON
+
+**Checkpoint:** Orval завершился без generated errors; hash совпал; Step 10 дал только документированный handwritten consumer drift. Это единственный разрешённый `EXPECTED_RED` во всём плане.
+
 - [ ] **Step 9: Replace YAML with the pinned backend JSON and regenerate everything**
 
 Run:
 
 ```bash
 git rm openapi.yaml
-OPENAPI_SPEC_SOURCE=../backend-codex/docs/api/openapi.json pnpm run api:update
+OPENAPI_SPEC_SOURCE=/Users/denischernykh/projects/pet/amazing-ekb-hub/backend-codex/docs/api/openapi.json pnpm run api:update
 shasum -a 256 openapi.json
 ```
 
@@ -467,6 +521,10 @@ pnpm run typecheck
 ```
 
 Expected: FAIL only on removed old operation/type/Zod names such as `listPlaces`, `getPlaceDetail`, `PlaceDetail`, `PublicMaterial`, `GetPlaceDetail200Response`; there must be no error inside `src/shared/api/generated/**`.
+
+#### Luna Stage L3: Cut handwritten consumers over to generated names
+
+**Checkpoint:** Steps 11–16 завершены; focused consumer tests и `pnpm run typecheck` проходят. Не создавать commit до compatibility/scope checks в `L4`.
 
 - [ ] **Step 11: Adapt category consumers to the new generated tag and DTO names**
 
@@ -710,6 +768,10 @@ TypeScript exits 0 with no generated or handwritten errors.
 
 The exact test count may increase by the new 422 case, but every selected file must pass.
 
+#### Luna Stage L4: Prove atomicity and commit the code migration
+
+**Checkpoint:** old names отсутствуют в current source/config, snapshot hash сохранён, regeneration детерминирована, создан ровно один code commit.
+
 - [ ] **Step 17: Prove there is no source/config compatibility layer**
 
 Run:
@@ -799,6 +861,10 @@ Expected: no diff and the pinned SHA-256 remains unchanged. If a hook or generat
 - Consumes: Task 1 `openapi.json`, JSON-only generation commands and origin-only `API_BASE_URL`.
 - Produces: operator/developer documentation that names `/openapi.json`, `openapi.json`, exact sync overrides and the `/v1` rewrite boundary.
 - Produces: verified local-only acceptance evidence; no hosted/deployment claim.
+
+#### Luna Stage L5: Update only current integration documentation
+
+**Checkpoint:** Steps 1–4 завершены; четыре документа отформатированы, stale YAML/base URL matches отсутствуют. Commit пока не создавать.
 
 - [ ] **Step 1: Update the README happy path and source-of-truth section**
 
@@ -915,6 +981,10 @@ rg -n \
 
 Expected: no matches. Do not include historical `docs/superpowers/specs/**` or `docs/superpowers/plans/**` in this scan.
 
+#### Luna Stage L6: Run acceptance, local smoke and commit docs
+
+**Checkpoint:** aggregate gates прошли; local smoke либо прошёл, либо отдельно зафиксирован как environment `BLOCKED`; создан docs commit. Никаких hosted/deployment выводов.
+
 - [ ] **Step 5: Run the one final aggregate frontend gate sequence**
 
 Run sequentially:
@@ -946,14 +1016,13 @@ Expected:
 If backend is not already running, start it in the backend checkout:
 
 ```bash
-cd ../backend-codex
+cd /Users/denischernykh/projects/pet/amazing-ekb-hub/backend-codex
 PATH=/Users/denischernykh/.nvm/versions/node/v24.18.0/bin:$PATH corepack pnpm@11.15.1 run dev:local
 ```
 
-In a second terminal, start frontend with the new origin-only contract:
+From the active frontend checkout/worktree root where `L0` ran, start frontend in a second terminal with the new origin-only contract:
 
 ```bash
-cd ../frontend-codex
 API_BASE_URL=http://127.0.0.1:3000 pnpm dev
 ```
 
