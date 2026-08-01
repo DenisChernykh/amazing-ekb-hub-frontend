@@ -13,11 +13,9 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
 
     env:
       API_BASE_URL: http://127.0.0.1:3000
-      COMPOSE_PROJECT_NAME: frontend-backend-${{ github.run_id }}
 
     steps:
       - name: Checkout
@@ -73,95 +71,19 @@ jobs:
       - name: Run typecheck
         run: pnpm run typecheck
 
-      - name: Validate backend checkout token
-        env:
-          BACKEND_REPO_READ_TOKEN: ${{ secrets.BACKEND_REPO_READ_TOKEN }}
+      - name: Run build with local catalog fixture
         run: |
-          if [ -z "${BACKEND_REPO_READ_TOKEN}" ]; then
-            echo "::error::BACKEND_REPO_READ_TOKEN repository secret is required to checkout the private backend repository."
-            exit 1
-          fi
+          node ./scripts/ci/catalog-build-fixture-server.mjs >"${RUNNER_TEMP}/catalog-build-fixture.log" 2>&1 &
+          fixture_pid=$!
+          trap 'kill "${fixture_pid}" 2>/dev/null || true' EXIT
 
-      - name: Checkout backend
-        uses: actions/checkout@v4
-        with:
-          repository: DenisChernykh/amazing-ekb-hub-backend
-          # Keep the build backend in lockstep with the canonical OpenAPI snapshot.
-          ref: 664304d19002aef542e9cef07e202e99e5693725
-          path: backend
-          fetch-depth: 1
-          persist-credentials: false
-          token: ${{ secrets.BACKEND_REPO_READ_TOKEN }}
-
-      - name: Start local backend
-        working-directory: backend
-        env:
-          OTEL_SDK_DISABLED: 'true'
-        run: |
-          cp .env.example .env
-          docker compose --profile development up --detach --build postgres redis-coordination api
-
-          for attempt in {1..60}; do
-            if curl --fail --silent --show-error http://127.0.0.1:3000/health/live >/dev/null; then
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error http://127.0.0.1:3000/__ci/ready >/dev/null; then
+              pnpm run build
               exit 0
             fi
-            sleep 2
+            sleep 1
           done
 
-          docker compose logs --no-color api migrator
+          cat "${RUNNER_TEMP}/catalog-build-fixture.log"
           exit 1
-
-      - name: Seed local backend build fixture
-        working-directory: backend
-        run: |
-          docker compose exec -T api corepack pnpm@11.15.1 exec tsx -e '
-          (async () => {
-            const { Pool } = await import("pg")
-            const { PrismaPg } = await import("@prisma/adapter-pg")
-            const { PrismaClient } = await import("./src/generated/prisma/client.ts")
-            const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-            const prisma = new PrismaClient({ adapter: new PrismaPg(pool) })
-            const category = await prisma.placeCategory.upsert({
-              where: { slug: "ci-spa" },
-              create: { slug: "ci-spa", title: "CI SPA", status: "active" },
-              update: { title: "CI SPA", status: "active" },
-              select: { id: true },
-            })
-            await prisma.place.upsert({
-              where: { slug: "ci-spa-place" },
-              create: {
-                slug: "ci-spa-place",
-                title: "CI SPA Place",
-                summary: "Deterministic local CI fixture",
-                tags: ["ci", "fixture"],
-                categoryId: category.id,
-                status: "active",
-              },
-              update: {
-                title: "CI SPA Place",
-                summary: "Deterministic local CI fixture",
-                tags: ["ci", "fixture"],
-                categoryId: category.id,
-                status: "active",
-              },
-            })
-            await prisma.$disconnect()
-            await pool.end()
-          })()
-          '
-
-      - name: Validate local backend
-        run: |
-          curl --fail --silent --show-error http://127.0.0.1:3000/health/live >/dev/null
-          curl --fail --silent --show-error http://127.0.0.1:3000/v1/categories | grep --fixed-strings --quiet 'ci-spa'
-          curl --fail --silent --show-error 'http://127.0.0.1:3000/v1/places?page=1&pageSize=100' | grep --fixed-strings --quiet 'ci-spa-place'
-
-      - name: Run build
-        run: pnpm run build
-
-      - name: Stop local backend
-        if: ${{ always() }}
-        run: |
-          if [ -f backend/.env ]; then
-            docker compose --project-directory backend --profile development down --volumes --remove-orphans
-          fi
