@@ -4,26 +4,26 @@
 
 1. Node.js 22+
 2. pnpm 10+
-3. Доступный локальный backend на `http://127.0.0.1:3000/v1`
+3. Доступный локальный backend на `http://127.0.0.1:3000`
 4. Для full-stack локальной отладки можно вместо remote backend поднять соседний backend на `http://127.0.0.1:3000`
 
 ## Первый запуск
 
 1. `pnpm install`
 2. `cp .env.example .env.local`
-3. Проверить, что в `.env.local` указано `API_BASE_URL=http://127.0.0.1:3000/v1`
+3. Проверить, что в `.env.local` указано `API_BASE_URL=http://127.0.0.1:3000`
 4. `pnpm dev`
 5. Открыть `http://localhost:3001`
 
 ## Локальная связка frontend -> backend
 
 1. Frontend dev server по умолчанию запускается на `3001`.
-2. По умолчанию frontend проксирует API-запросы на локальный backend `http://127.0.0.1:3000/v1`.
+2. По умолчанию frontend проксирует `/v1/*` на локальный backend `http://127.0.0.1:3000/v1/*`.
 3. Browser и frontend-клиент работают с same-origin путём `/v1`.
-4. В локальной разработке `next.config.ts` проксирует `/v1/:path*` на `API_BASE_URL`.
-5. Если `API_BASE_URL` не задан, frontend ожидает, что маршрут `/v1` уже настроен внешней инфраструктурой.
-6. Если нужно временно работать с удаленным backend, поменять `.env.local` на нужный `https://.../v1` origin и перезапустить `pnpm dev`.
-7. В production со схемой “frontend и backend на одном домене” проксирование `/v1/:path*` должно настраиваться на уровне reverse proxy / ingress.
+4. `API_BASE_URL` содержит только origin; Next добавляет `/v1` и в локальной разработке `next.config.ts` проксирует `/v1/:path*` на `${API_BASE_URL}/v1/:path*`.
+5. `API_BASE_URL` обязателен для build/runtime вызовов из Next server-side кода, даже если внешняя инфраструктура обслуживает browser-facing same-origin `/v1`.
+6. Если нужно временно работать с удаленным backend, поменять `.env.local` на origin без `/v1`, например `https://api.example.test`, и перезапустить `pnpm dev`.
+7. В production со схемой “frontend и backend на одном домене” reverse proxy / ingress отвечает только за browser-facing `/v1/:path*`; server-side вызовы продолжают использовать `API_BASE_URL`.
 
 ## Tooling setup
 
@@ -45,10 +45,11 @@
 
 ## Smoke check API proxy
 
-1. Проверить backend: `curl -I "http://127.0.0.1:3000/v1/health/live"`
-2. Запустить frontend: `pnpm dev`
-3. Проверить проксируемый endpoint: `curl -I "http://localhost:3001/v1/health/live"`
-4. Ожидать JSON-ответ backend без CORS-ошибок.
+1. Обновить snapshot перед проверкой proxy: `OPENAPI_SPEC_SOURCE=../backend-codex/docs/api/openapi.json pnpm run api:update`
+2. Проверить backend: `curl -fsS http://127.0.0.1:3000/v1/categories >/dev/null`
+3. Запустить frontend: `pnpm dev`
+4. Проверить проксируемый endpoint: `curl -fsS http://localhost:3001/v1/categories >/dev/null`
+5. Ожидать JSON-ответ backend без CORS-ошибок.
 
 ## Планируемый test workflow
 
