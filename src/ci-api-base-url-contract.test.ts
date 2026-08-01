@@ -29,6 +29,9 @@ describe('CI API base URL contract', () => {
     expect(workflow).toContain('persist-credentials: false');
     expect(workflow).toContain('docker compose --profile development up');
     expect(workflow).toContain('name: Seed local backend build fixture');
+    expect(workflow).toContain(
+      'docker compose --project-directory backend --profile development down',
+    );
     expect(workflow).not.toContain(missingApiBaseUrlError);
   });
 

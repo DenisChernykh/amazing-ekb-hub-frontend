@@ -161,8 +161,7 @@ jobs:
 
       - name: Stop local backend
         if: ${{ always() }}
-        working-directory: backend
         run: |
-          if [ -f .env ]; then
-            docker compose --profile development down --volumes --remove-orphans
+          if [ -f backend/.env ]; then
+            docker compose --project-directory backend --profile development down --volumes --remove-orphans
           fi
