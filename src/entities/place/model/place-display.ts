@@ -1,6 +1,4 @@
-import type { MaterialType } from '@/shared/api/generated/model/materialType';
-import type { Platform } from '@/shared/api/generated/model/platform';
-import type { PlaceDisplayMeta, PlatformCounters } from './types';
+import type { MaterialType, PlaceDisplayMeta, Platform, PlatformCounters } from './types';
 
 const PLATFORM_DISPLAY: Record<Platform, PlaceDisplayMeta> = {
   dzen: { label: 'Дзен', color: '#111827', backgroundColor: '#e5e7eb' },

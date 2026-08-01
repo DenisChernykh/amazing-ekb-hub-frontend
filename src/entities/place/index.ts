@@ -17,12 +17,14 @@ export {
 } from './model/place-display';
 export {
   PLACE_PLATFORMS,
+  type MaterialType,
   type PlaceCardModel,
   type PlaceCardVariant,
   type PlaceCategory,
   type PlaceDetailModel,
   type PlaceMaterialModel,
   type PlaceMaterialsByPlatform,
+  type Platform,
   type PlatformCounters,
 } from './model/types';
 export { PlaceCard } from './ui/place-card';

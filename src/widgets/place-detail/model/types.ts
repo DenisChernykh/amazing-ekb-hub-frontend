@@ -1,5 +1,4 @@
-import type { PlaceCategory } from '@/entities/place';
-import type { Platform } from '@/shared/api/generated/model/platform';
+import type { PlaceCategory, Platform } from '@/entities/place';
 
 /** Данные одной публикации для строки и декоративного preview. */
 export type PlaceDetailPreview = {

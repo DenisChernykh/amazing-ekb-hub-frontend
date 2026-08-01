@@ -1,10 +1,10 @@
-import { listPlaceMaterials } from '@/shared/api/generated/places/places';
+import { placeMaterialsList } from '@/shared/api/generated/places/places';
 import { cacheLife, cacheTag } from 'next/cache';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchPublicPlaceMaterials } from './fetch-public-place-materials';
 
 vi.mock('@/shared/api/generated/places/places', () => ({
-  listPlaceMaterials: vi.fn(),
+  placeMaterialsList: vi.fn(),
 }));
 
 vi.mock('next/cache', () => ({
@@ -12,19 +12,19 @@ vi.mock('next/cache', () => ({
   cacheTag: vi.fn(),
 }));
 
-const listPlaceMaterialsMock = vi.mocked(listPlaceMaterials);
+const placeMaterialsListMock = vi.mocked(placeMaterialsList);
 const cacheLifeMock = vi.mocked(cacheLife);
 const cacheTagMock = vi.mocked(cacheTag);
 
 describe('fetchPublicPlaceMaterials', () => {
   beforeEach(() => {
-    listPlaceMaterialsMock.mockReset();
+    placeMaterialsListMock.mockReset();
     cacheLifeMock.mockReset();
     cacheTagMock.mockReset();
   });
 
   it('shares the place tag with detail while keeping platform in the cache key', async () => {
-    listPlaceMaterialsMock.mockResolvedValueOnce({
+    placeMaterialsListMock.mockResolvedValueOnce({
       data: { items: [] },
       status: 200,
       headers: new Headers(),
@@ -41,18 +41,31 @@ describe('fetchPublicPlaceMaterials', () => {
       expire: 3600,
     });
     expect(cacheTagMock).toHaveBeenCalledWith('place:baden-baden-uktus');
-    expect(listPlaceMaterialsMock).toHaveBeenCalledWith(
+    expect(placeMaterialsListMock).toHaveBeenCalledWith(
       { placeSlug: 'baden-baden-uktus' },
       { platform: 'telegram' },
     );
   });
 
   it('keeps a technical failure in the uncached outer error union', async () => {
-    listPlaceMaterialsMock.mockRejectedValueOnce(new Error('backend offline'));
+    placeMaterialsListMock.mockRejectedValueOnce(new Error('backend offline'));
 
     await expect(fetchPublicPlaceMaterials('baden-baden-uktus', 'telegram')).resolves.toEqual({
       kind: 'unexpected_error',
       message: 'Не удалось загрузить материалы места.',
+    });
+  });
+
+  it('returns the declared validation error for a 422 API response', async () => {
+    const error = Object.assign(new Error('Validation failed'), {
+      status: 422,
+      info: { code: 'VALIDATION_FAILED', message: 'Validation failed' },
+    });
+    placeMaterialsListMock.mockRejectedValueOnce(error);
+
+    await expect(fetchPublicPlaceMaterials('baden-baden-uktus', 'telegram')).resolves.toEqual({
+      kind: 'validation_error',
+      data: { code: 'VALIDATION_FAILED', message: 'Validation failed' },
     });
   });
 });

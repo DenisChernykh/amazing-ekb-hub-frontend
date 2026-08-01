@@ -14,7 +14,7 @@ import { defineConfig } from 'orval';
 export default defineConfig({
   amazingEkbHub: {
     input: {
-      target: './openapi.yaml',
+      target: './openapi.json',
     },
     output: {
       target: './src/shared/api/generated/index.ts',
@@ -41,7 +41,7 @@ export default defineConfig({
 
   amazingEkbHubZod: {
     input: {
-      target: './openapi.yaml',
+      target: './openapi.json',
     },
     output: {
       target: './src/shared/api/generated-zod/index.ts',

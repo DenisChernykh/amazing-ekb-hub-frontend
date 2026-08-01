@@ -1,4 +1,4 @@
-import type { Platform } from '@/shared/api/generated/model/platform';
+import type { Platform } from '../model/types';
 
 /**
  * Это хелпер. Собирает id секции материалов платформы на странице места.

@@ -1,10 +1,10 @@
-import { getPlaceCategory } from '@/shared/api/generated/places/places';
+import { categoriesGet } from '@/shared/api/generated/categories/categories';
 import { cacheLife, cacheTag } from 'next/cache';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchPublicCategory } from './fetch-public-category';
 
-vi.mock('@/shared/api/generated/places/places', () => ({
-  getPlaceCategory: vi.fn(),
+vi.mock('@/shared/api/generated/categories/categories', () => ({
+  categoriesGet: vi.fn(),
 }));
 
 vi.mock('next/cache', () => ({
@@ -12,19 +12,19 @@ vi.mock('next/cache', () => ({
   cacheTag: vi.fn(),
 }));
 
-const getPlaceCategoryMock = vi.mocked(getPlaceCategory);
+const categoriesGetMock = vi.mocked(categoriesGet);
 const cacheLifeMock = vi.mocked(cacheLife);
 const cacheTagMock = vi.mocked(cacheTag);
 
 describe('fetchPublicCategory', () => {
   beforeEach(() => {
-    getPlaceCategoryMock.mockReset();
+    categoriesGetMock.mockReset();
     cacheLifeMock.mockReset();
     cacheTagMock.mockReset();
   });
 
   it('caches a successful category by its slug tag', async () => {
-    getPlaceCategoryMock.mockResolvedValueOnce({
+    categoriesGetMock.mockResolvedValueOnce({
       data: {
         id: 'category-spa',
         slug: 'family-spa',
@@ -48,7 +48,7 @@ describe('fetchPublicCategory', () => {
   });
 
   it('keeps a category 404 as null', async () => {
-    getPlaceCategoryMock.mockRejectedValueOnce(
+    categoriesGetMock.mockRejectedValueOnce(
       Object.assign(new Error('not found'), {
         status: 404,
         info: { code: 'CATEGORY_NOT_FOUND', message: 'Категория не найдена' },
@@ -60,7 +60,7 @@ describe('fetchPublicCategory', () => {
 
   it('rethrows a technical failure', async () => {
     const error = new Error('backend offline');
-    getPlaceCategoryMock.mockRejectedValueOnce(error);
+    categoriesGetMock.mockRejectedValueOnce(error);
 
     await expect(fetchPublicCategory('family-spa')).rejects.toBe(error);
   });

@@ -1,8 +1,15 @@
-import type { MaterialType } from '@/shared/api/generated/model/materialType';
-import type { PlaceCategory } from '@/shared/api/generated/model/placeCategory';
-import type { Platform } from '@/shared/api/generated/model/platform';
+import type { PlaceSummaryCategoryResponseDto } from '@/shared/api/generated/model/placeSummaryCategoryResponseDto';
+import type { PublicMaterialResponseDtoPlatform } from '@/shared/api/generated/model/publicMaterialResponseDtoPlatform';
+import type { PublicMaterialResponseDtoType } from '@/shared/api/generated/model/publicMaterialResponseDtoType';
 
-export type { PlaceCategory };
+/** Стабильный тип материала, принадлежащий сущности места. */
+export type MaterialType = PublicMaterialResponseDtoType;
+
+/** Стабильный тип категории, принадлежащий сущности места. */
+export type PlaceCategory = PlaceSummaryCategoryResponseDto;
+
+/** Стабильный тип платформы, принадлежащий сущности места. */
+export type Platform = PublicMaterialResponseDtoPlatform;
 
 /**
  * Счетчики материалов места по платформам.

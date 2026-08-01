@@ -1,6 +1,6 @@
 'use client';
 
-import type { Platform } from '@/shared/api/generated/model/platform';
+import type { Platform } from '@/entities/place';
 import type { RefObject } from 'react';
 import { useEffect, useState } from 'react';
 import type { PlaceDetailPlatformNavigationItem } from '../model/types';
