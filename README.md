@@ -18,17 +18,17 @@ Frontend для MVP "Гид по местам".
 
 1. `pnpm install`
 2. `cp .env.example .env.local`
-3. Убедиться, что в `.env.local` указан нужный backend origin; по умолчанию используется локальный `http://127.0.0.1:3000/v1`
+3. Убедиться, что в `.env.local` указан нужный backend origin без version path; по умолчанию используется локальный `http://127.0.0.1:3000`
 4. `pnpm dev`
 5. Открыть `http://localhost:3001`
 
 ## Локальная API-связка
 
 1. Frontend в dev-режиме по умолчанию запускается на `http://localhost:3001`.
-2. Backend origin задаётся server-only переменной `API_BASE_URL`; по умолчанию это локальный `http://127.0.0.1:3000/v1`.
+2. Backend origin задаётся server-only переменной `API_BASE_URL`; по умолчанию это локальный `http://127.0.0.1:3000` без `/v1`.
 3. Browser и frontend-клиент обращаются к backend через same-origin путь `/v1`.
-4. В локальной разработке Next rewrites проксируют `/v1/:path*` на `API_BASE_URL`.
-5. `API_BASE_URL` — server-only переменная; backend origin не должен публиковаться через `NEXT_PUBLIC_*`.
+4. В локальной разработке Next rewrite проксирует `/v1/:path*` на `${API_BASE_URL}/v1/:path*`.
+5. `API_BASE_URL` — server-only переменная без `/v1`; backend origin не должен публиковаться через `NEXT_PUBLIC_*`.
 6. В production со схемой “frontend и backend на одном домене” маршрут `/v1/:path*` должен проксироваться на backend внешней инфраструктурой.
 
 ## Основные команды
@@ -67,7 +67,7 @@ Frontend для MVP "Гид по местам".
 ## Источники истины
 
 - Product spec: backend product documentation
-- API contract snapshot: `openapi.yaml`
+- API contract snapshot: `openapi.json`
 - API contract update command: `pnpm run api:update`
 - Error standard: backend API documentation
 - Design artifacts: backend design documentation

@@ -9,7 +9,7 @@ function readWorkflow(filename: string): string {
 }
 
 describe('CI API base URL contract', () => {
-  it('passes the repository API_BASE_URL variable to pull request builds', () => {
+  it('runs pull request builds against a frontend-owned localhost fixture', () => {
     const workflow = readWorkflow('git-quality.yml');
 
     expect(workflow).toContain(
@@ -18,10 +18,16 @@ describe('CI API base URL contract', () => {
         '    runs-on: ubuntu-latest',
         '',
         '    env:',
-        '      API_BASE_URL: ${{ vars.API_BASE_URL }}',
+        '      API_BASE_URL: http://127.0.0.1:3000',
       ].join('\n'),
     );
-    expect(workflow).toContain(missingApiBaseUrlError);
+    expect(workflow).toContain('node ./scripts/ci/catalog-build-fixture-server.mjs');
+    expect(workflow).toContain('pnpm run build');
+    expect(workflow).not.toContain('api.strelchukgo.ru');
+    expect(workflow).not.toContain('amazing-ekb-hub-backend');
+    expect(workflow).not.toContain('BACKEND_REPO_READ_TOKEN');
+    expect(workflow).not.toContain('docker compose');
+    expect(workflow).not.toContain(missingApiBaseUrlError);
   });
 
   it('passes the repository API_BASE_URL variable to production quality builds', () => {

@@ -1,10 +1,10 @@
-import { listPlaces } from '@/shared/api/generated/places/places';
+import { placesList } from '@/shared/api/generated/places/places';
 import { cacheLife, cacheTag } from 'next/cache';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchPublicCategoryPlacePage } from './fetch-public-category-place-page';
 
 vi.mock('@/shared/api/generated/places/places', () => ({
-  listPlaces: vi.fn(),
+  placesList: vi.fn(),
 }));
 
 vi.mock('next/cache', () => ({
@@ -12,19 +12,19 @@ vi.mock('next/cache', () => ({
   cacheTag: vi.fn(),
 }));
 
-const listPlacesMock = vi.mocked(listPlaces);
+const placesListMock = vi.mocked(placesList);
 const cacheLifeMock = vi.mocked(cacheLife);
 const cacheTagMock = vi.mocked(cacheTag);
 
 describe('fetchPublicCategoryPlacePage', () => {
   beforeEach(() => {
-    listPlacesMock.mockReset();
+    placesListMock.mockReset();
     cacheLifeMock.mockReset();
     cacheTagMock.mockReset();
   });
 
   it('requests a fixed-size category page and maps backend summaries to the transport model', async () => {
-    listPlacesMock.mockResolvedValueOnce({
+    placesListMock.mockResolvedValueOnce({
       data: {
         items: [
           {
@@ -76,8 +76,8 @@ describe('fetchPublicCategoryPlacePage', () => {
       total: 1,
     });
 
-    expect(listPlacesMock).toHaveBeenCalledOnce();
-    expect(listPlacesMock).toHaveBeenCalledWith({
+    expect(placesListMock).toHaveBeenCalledOnce();
+    expect(placesListMock).toHaveBeenCalledWith({
       categoryId: 'category-spa',
       page: 1,
       pageSize: 20,

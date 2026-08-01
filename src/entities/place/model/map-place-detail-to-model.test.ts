@@ -1,12 +1,12 @@
-import type { PlaceDetail } from '@/shared/api/generated/model/placeDetail';
-import type { PublicMaterial } from '@/shared/api/generated/model/publicMaterial';
+import type { PlaceDetailResponseDto } from '@/shared/api/generated/model/placeDetailResponseDto';
+import type { PublicMaterialResponseDto } from '@/shared/api/generated/model/publicMaterialResponseDto';
 import { describe, expect, it } from 'vitest';
 import { mapPlaceDetailToModel } from './map-place-detail-to-model';
 
 const DIRECT_DZEN_URL = 'https://video.example.test/video/aquacity-start';
 const DZEN_REDIRECT_URL = '/v1/materials/material_dzen_001/go';
 
-const BASE_PLACE_DETAIL: PlaceDetail = {
+const BASE_PLACE_DETAIL: PlaceDetailResponseDto = {
   id: 'place_ekb_001',
   slug: 'baden-baden-uktus',
   title: 'Baden-Baden Uktus',
@@ -29,7 +29,7 @@ const BASE_PLACE_DETAIL: PlaceDetail = {
   pinnedMaterial: null,
 };
 
-const BASE_DZEN_MATERIAL: PublicMaterial = {
+const BASE_DZEN_MATERIAL: PublicMaterialResponseDto = {
   id: 'material_dzen_001',
   placeId: 'place_ekb_001',
   platform: 'dzen',
@@ -42,8 +42,9 @@ const BASE_DZEN_MATERIAL: PublicMaterial = {
 
 /** Создаёт Telegram-материал для сценариев нормализации mapper-а. */
 function createTelegramMaterial(
-  overrides: Partial<PublicMaterial> & Pick<PublicMaterial, 'id' | 'publishedAt'>,
-): PublicMaterial {
+  overrides: Partial<PublicMaterialResponseDto> &
+    Pick<PublicMaterialResponseDto, 'id' | 'publishedAt'>,
+): PublicMaterialResponseDto {
   return {
     ...BASE_DZEN_MATERIAL,
     platform: 'telegram',

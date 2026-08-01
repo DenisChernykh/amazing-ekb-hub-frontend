@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      API_BASE_URL: http://127.0.0.1:3000
 
     steps:
       - name: Checkout
@@ -71,12 +71,19 @@ jobs:
       - name: Run typecheck
         run: pnpm run typecheck
 
-      - name: Validate build environment
+      - name: Run build with local catalog fixture
         run: |
-          if [ -z "${API_BASE_URL}" ]; then
-            echo "::error::API_BASE_URL repository variable is required."
-            exit 1
-          fi
+          node ./scripts/ci/catalog-build-fixture-server.mjs >"${RUNNER_TEMP}/catalog-build-fixture.log" 2>&1 &
+          fixture_pid=$!
+          trap 'kill "${fixture_pid}" 2>/dev/null || true' EXIT
 
-      - name: Run build
-        run: pnpm run build
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error http://127.0.0.1:3000/__ci/ready >/dev/null; then
+              pnpm run build
+              exit 0
+            fi
+            sleep 1
+          done
+
+          cat "${RUNNER_TEMP}/catalog-build-fixture.log"
+          exit 1

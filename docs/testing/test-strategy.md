@@ -34,12 +34,14 @@
 ## API-testing policy
 
 1. Source of truth для frontend API-поведения:
-   - `openapi.yaml`
+   - backend code-first `docs/api/openapi.json`
+   - frontend snapshot `openapi.json`
    - backend API error standard
 2. Frontend не заводит собственный API-контракт, расходящийся с backend.
-3. Unit и component/integration тесты используют MSW и fixtures, совместимые с backend OpenAPI и error format.
-4. Ключевые e2e-сценарии должны прогоняться против реального backend с seed-данными.
-5. UI-проверки ориентируются на пользовательское поведение и корректную обработку `error.type`, `error.code`, `error.message`.
+3. Frontend никогда не форматирует и не исправляет generated contract вручную; повторный `pnpm run api:generate` не должен создавать diff.
+4. Unit и component/integration тесты используют MSW и fixtures, совместимые с backend OpenAPI и error format.
+5. Ключевые e2e-сценарии должны прогоняться против реального backend с seed-данными.
+6. UI-проверки ориентируются на пользовательское поведение и корректную обработку `error.type`, `error.code`, `error.message`.
 
 ## Обязательные MVP-сценарии
 

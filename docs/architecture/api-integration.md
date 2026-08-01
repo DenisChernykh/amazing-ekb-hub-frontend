@@ -2,16 +2,21 @@
 
 ## Source of Truth
 
-1. Backend OpenAPI document served from `/docs/openapi.yaml`.
-2. Local frontend snapshot: `openapi.yaml`.
+1. Backend code-first document served from `/openapi.json`.
+2. Backend canonical artifact: `backend-codex/docs/api/openapi.json`.
+3. Local frontend snapshot: `openapi.json`.
 
-Frontend не определяет собственный backend contract.
-Frontend только генерирует client schema, валидирует runtime payload и адаптирует backend responses под свой runtime flow.
+Frontend не определяет и не трансформирует backend contract. Он сохраняет байты snapshot без изменений,
+не форматирует `openapi.json` через Prettier и генерирует `openapi-typescript` и оба Orval output только из JSON.
 
 Локальный snapshot обновляется командой `pnpm run api:update`. По умолчанию она читает
-локальный backend `http://127.0.0.1:3000/docs/openapi.yaml`; для ручной синхронизации
-с другим источником можно передать `OPENAPI_SPEC_SOURCE=/path/to/openapi.yaml pnpm run api:update`
-или `OPENAPI_SPEC_SOURCE=https://example.test/docs/openapi.yaml pnpm run api:update`.
+локальный backend `http://127.0.0.1:3000/openapi.json`; для ручной синхронизации
+с другим источником можно передать:
+
+```sh
+OPENAPI_SPEC_SOURCE=../backend-codex/docs/api/openapi.json pnpm run api:update
+OPENAPI_SPEC_SOURCE=https://example.test/openapi.json pnpm run api:update
+```
 
 ## Core Rules
 
@@ -31,10 +36,11 @@ Frontend только генерирует client schema, валидирует r
 ## Base URL And Routing Model
 
 1. Browser runtime использует same-origin путь `/v1`.
-2. В локальной разработке Next rewrites проксируют `/v1/*` на backend target.
-3. В production same-origin `/v1` должен быть настроен внешней инфраструктурой.
-4. Server-side код Next не должен напрямую полагаться на относительный `/v1`.
-5. Server-side base URL должен строиться как absolute URL от текущего request origin.
+2. `API_BASE_URL` — server-only origin без `/v1`; generated paths уже включают `/v1`.
+3. В локальной разработке Next rewrite проксирует `/v1/*` на `${API_BASE_URL}/v1/*`.
+4. В production внешняя инфраструктура настраивает только browser-facing same-origin `/v1`.
+5. Server-side код Next не должен напрямую полагаться на относительный `/v1`.
+6. Generated server-side clients используют absolute backend origin из `API_BASE_URL`; request origin и относительный `/v1` автоматически не подставляются.
 
 ## Target Server-Side Data Flow
 

@@ -1,10 +1,10 @@
-import { listPlaceCategories } from '@/shared/api/generated/places/places';
+import { categoriesList } from '@/shared/api/generated/categories/categories';
 import { cacheLife, cacheTag } from 'next/cache';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchPublicCategories } from './fetch-public-categories';
 
-vi.mock('@/shared/api/generated/places/places', () => ({
-  listPlaceCategories: vi.fn(),
+vi.mock('@/shared/api/generated/categories/categories', () => ({
+  categoriesList: vi.fn(),
 }));
 
 vi.mock('next/cache', () => ({
@@ -12,19 +12,19 @@ vi.mock('next/cache', () => ({
   cacheTag: vi.fn(),
 }));
 
-const listPlaceCategoriesMock = vi.mocked(listPlaceCategories);
+const categoriesListMock = vi.mocked(categoriesList);
 const cacheLifeMock = vi.mocked(cacheLife);
 const cacheTagMock = vi.mocked(cacheTag);
 
 describe('fetchPublicCategories', () => {
   beforeEach(() => {
-    listPlaceCategoriesMock.mockReset();
+    categoriesListMock.mockReset();
     cacheLifeMock.mockReset();
     cacheTagMock.mockReset();
   });
 
   it('caches a successful category list with the shared life and categories tag', async () => {
-    listPlaceCategoriesMock.mockResolvedValueOnce({
+    categoriesListMock.mockResolvedValueOnce({
       data: {
         items: [{ id: 'category-spa', slug: 'spa', title: 'SPA', coverImageUrl: null }],
       },
@@ -48,7 +48,7 @@ describe('fetchPublicCategories', () => {
 
   it('does not convert a technical failure into a result object', async () => {
     const error = new Error('backend offline');
-    listPlaceCategoriesMock.mockRejectedValueOnce(error);
+    categoriesListMock.mockRejectedValueOnce(error);
 
     await expect(fetchPublicCategories()).rejects.toBe(error);
   });

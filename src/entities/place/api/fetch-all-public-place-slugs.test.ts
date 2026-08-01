@@ -1,17 +1,17 @@
-import { listPlaces } from '@/shared/api/generated/places/places';
+import { placesList } from '@/shared/api/generated/places/places';
 import { cacheLife } from 'next/cache';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchAllPublicPlaceSlugs } from './fetch-all-public-place-slugs';
 
 vi.mock('@/shared/api/generated/places/places', () => ({
-  listPlaces: vi.fn(),
+  placesList: vi.fn(),
 }));
 
 vi.mock('next/cache', () => ({
   cacheLife: vi.fn(),
 }));
 
-const listPlacesMock = vi.mocked(listPlaces);
+const placesListMock = vi.mocked(placesList);
 const cacheLifeMock = vi.mocked(cacheLife);
 
 /** Создаёт API-модель места для проверки build-time перечисления. */
@@ -31,12 +31,12 @@ function makePlace(index: number, status: 'active' | 'hidden' = 'active') {
 
 describe('fetchAllPublicPlaceSlugs', () => {
   beforeEach(() => {
-    listPlacesMock.mockReset();
+    placesListMock.mockReset();
     cacheLifeMock.mockReset();
   });
 
   it('enumerates 102 active public slugs over page-size-100 API calls', async () => {
-    listPlacesMock
+    placesListMock
       .mockResolvedValueOnce({
         data: {
           items: Array.from({ length: 100 }, (_, index) => makePlace(index + 1)),
@@ -63,9 +63,9 @@ describe('fetchAllPublicPlaceSlugs', () => {
     expect(slugs).toHaveLength(102);
     expect(slugs.at(0)).toBe('place-1');
     expect(slugs.at(-1)).toBe('place-102');
-    expect(listPlacesMock).toHaveBeenCalledTimes(2);
-    expect(listPlacesMock).toHaveBeenNthCalledWith(1, { page: 1, pageSize: 100 });
-    expect(listPlacesMock).toHaveBeenNthCalledWith(2, { page: 2, pageSize: 100 });
+    expect(placesListMock).toHaveBeenCalledTimes(2);
+    expect(placesListMock).toHaveBeenNthCalledWith(1, { page: 1, pageSize: 100 });
+    expect(placesListMock).toHaveBeenNthCalledWith(2, { page: 2, pageSize: 100 });
     expect(cacheLifeMock).toHaveBeenCalledWith({
       stale: 60,
       revalidate: 300,
@@ -74,7 +74,7 @@ describe('fetchAllPublicPlaceSlugs', () => {
   });
 
   it('filters hidden places without using the filtered count to stop pagination', async () => {
-    listPlacesMock
+    placesListMock
       .mockResolvedValueOnce({
         data: {
           items: [
@@ -105,11 +105,11 @@ describe('fetchAllPublicPlaceSlugs', () => {
     expect(slugs).not.toContain('place-100');
     expect(slugs).toContain('place-101');
     expect(slugs).not.toContain('place-102');
-    expect(listPlacesMock).toHaveBeenCalledTimes(2);
+    expect(placesListMock).toHaveBeenCalledTimes(2);
   });
 
   it('fails fast when an empty page arrives before the reported total', async () => {
-    listPlacesMock
+    placesListMock
       .mockResolvedValueOnce({
         data: {
           items: [],
@@ -125,12 +125,12 @@ describe('fetchAllPublicPlaceSlugs', () => {
     await expect(fetchAllPublicPlaceSlugs()).rejects.toThrow(
       'Public place slug enumeration stopped: page 1 returned no items before total 2 was reached',
     );
-    expect(listPlacesMock).toHaveBeenCalledOnce();
+    expect(placesListMock).toHaveBeenCalledOnce();
   });
 
   it('propagates a build-time API failure', async () => {
     const error = new Error('backend offline');
-    listPlacesMock.mockRejectedValueOnce(error);
+    placesListMock.mockRejectedValueOnce(error);
 
     await expect(fetchAllPublicPlaceSlugs()).rejects.toBe(error);
   });

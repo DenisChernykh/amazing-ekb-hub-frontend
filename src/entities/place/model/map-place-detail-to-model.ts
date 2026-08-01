@@ -1,5 +1,5 @@
-import type { PlaceDetail } from '@/shared/api/generated/model/placeDetail';
-import type { PublicMaterial } from '@/shared/api/generated/model/publicMaterial';
+import type { PlaceDetailResponseDto } from '@/shared/api/generated/model/placeDetailResponseDto';
+import type { PublicMaterialResponseDto } from '@/shared/api/generated/model/publicMaterialResponseDto';
 import { normalizeCoverImageUrl } from './normalize-cover-image-url';
 import { normalizeMapsUrl } from './normalize-maps-url';
 import { normalizeMaterialRedirectUrl } from './normalize-material-redirect-url';
@@ -10,12 +10,12 @@ import {
   type PlaceMaterialsByPlatform,
 } from './types';
 
-type PlaceDetailFields = PlaceDetail & {
+type PlaceDetailFields = PlaceDetailResponseDto & {
   coverImageUrl?: string | null;
 };
 
 type PlaceMaterialsByPlatformInput = Partial<
-  Record<PlaceMaterialModel['platform'], PublicMaterial[]>
+  Record<PlaceMaterialModel['platform'], PublicMaterialResponseDto[]>
 >;
 
 /**
@@ -24,7 +24,7 @@ type PlaceMaterialsByPlatformInput = Partial<
  * @param material - Материал из API.
  * @returns Данные материала для UI детальной страницы места.
  */
-function mapMaterialToModel(material: PublicMaterial): PlaceMaterialModel {
+function mapMaterialToModel(material: PublicMaterialResponseDto): PlaceMaterialModel {
   return {
     id: material.id,
     platform: material.platform,
@@ -39,7 +39,10 @@ function mapMaterialToModel(material: PublicMaterial): PlaceMaterialModel {
 /**
  * Это хелпер. Сортирует материалы от новых к старым со стабильным id tie-breaker.
  */
-function compareMaterials(left: PublicMaterial, right: PublicMaterial): number {
+function compareMaterials(
+  left: PublicMaterialResponseDto,
+  right: PublicMaterialResponseDto,
+): number {
   const dateComparison = right.publishedAt.localeCompare(left.publishedAt);
 
   return dateComparison || left.id.localeCompare(right.id);
@@ -49,8 +52,8 @@ function compareMaterials(left: PublicMaterial, right: PublicMaterial): number {
  * Это хелпер. Дедуплицирует и нормализует материалы одной платформы.
  */
 function normalizePlatformMaterials(
-  materials: PublicMaterial[],
-  pinnedMaterial: PublicMaterial | null,
+  materials: PublicMaterialResponseDto[],
+  pinnedMaterial: PublicMaterialResponseDto | null,
   platform: PlaceMaterialModel['platform'],
 ): PlaceMaterialModel[] {
   const uniqueMaterials = new Map(
@@ -74,7 +77,7 @@ function normalizePlatformMaterials(
  */
 function normalizeMaterialsByPlatform(
   materialsByPlatform: PlaceMaterialsByPlatformInput,
-  pinnedMaterial: PublicMaterial | null,
+  pinnedMaterial: PublicMaterialResponseDto | null,
 ): PlaceMaterialsByPlatform {
   return PLACE_PLATFORMS.reduce<PlaceMaterialsByPlatform>(
     (result, platform) => ({

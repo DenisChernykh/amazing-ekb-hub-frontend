@@ -1,10 +1,10 @@
-import { getPlaceDetail } from '@/shared/api/generated/places/places';
+import { placesGet } from '@/shared/api/generated/places/places';
 import { cacheLife, cacheTag } from 'next/cache';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchPublicPlaceDetail } from './fetch-public-place-detail';
 
 vi.mock('@/shared/api/generated/places/places', () => ({
-  getPlaceDetail: vi.fn(),
+  placesGet: vi.fn(),
 }));
 
 vi.mock('next/cache', () => ({
@@ -12,7 +12,7 @@ vi.mock('next/cache', () => ({
   cacheTag: vi.fn(),
 }));
 
-const getPlaceDetailMock = vi.mocked(getPlaceDetail);
+const placesGetMock = vi.mocked(placesGet);
 const cacheLifeMock = vi.mocked(cacheLife);
 const cacheTagMock = vi.mocked(cacheTag);
 
@@ -32,13 +32,13 @@ const PLACE_DETAIL = {
 
 describe('fetchPublicPlaceDetail', () => {
   beforeEach(() => {
-    getPlaceDetailMock.mockReset();
+    placesGetMock.mockReset();
     cacheLifeMock.mockReset();
     cacheTagMock.mockReset();
   });
 
   it('caches only the successful inner read under the place tag', async () => {
-    getPlaceDetailMock.mockResolvedValueOnce({
+    placesGetMock.mockResolvedValueOnce({
       data: PLACE_DETAIL,
       status: 200,
       headers: new Headers(),
@@ -55,11 +55,11 @@ describe('fetchPublicPlaceDetail', () => {
       expire: 3600,
     });
     expect(cacheTagMock).toHaveBeenCalledWith('place:baden-baden-uktus');
-    expect(getPlaceDetailMock).toHaveBeenCalledWith({ placeSlug: 'baden-baden-uktus' });
+    expect(placesGetMock).toHaveBeenCalledWith({ placeSlug: 'baden-baden-uktus' });
   });
 
   it('keeps a technical failure in the uncached outer error union', async () => {
-    getPlaceDetailMock.mockRejectedValueOnce(new Error('backend offline'));
+    placesGetMock.mockRejectedValueOnce(new Error('backend offline'));
 
     await expect(fetchPublicPlaceDetail('baden-baden-uktus')).resolves.toEqual({
       kind: 'unexpected_error',

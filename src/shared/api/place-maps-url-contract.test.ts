@@ -1,8 +1,8 @@
-import { GetPlaceDetail200Response } from '@/shared/api/generated-zod/places/places.zod';
-import type { PlaceDetail } from '@/shared/api/generated/model/placeDetail';
+import { PlacesGet200Response } from '@/shared/api/generated-zod/places/places.zod';
+import type { PlaceDetailResponseDto } from '@/shared/api/generated/model/placeDetailResponseDto';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 
-const BASE_PLACE_DETAIL: Omit<PlaceDetail, 'mapsUrl'> = {
+const BASE_PLACE_DETAIL: Omit<PlaceDetailResponseDto, 'mapsUrl'> = {
   id: 'place_ekb_001',
   slug: 'baden-baden-uktus',
   title: 'Baden-Baden Uktus',
@@ -28,14 +28,14 @@ describe('generated place maps URL contract', () => {
   it.each([null, 'https://yandex.ru/maps/org/baden_baden/123456789'])(
     'accepts the required nullable mapsUrl value %#',
     (mapsUrl) => {
-      const place: PlaceDetail = { ...BASE_PLACE_DETAIL, mapsUrl };
+      const place: PlaceDetailResponseDto = { ...BASE_PLACE_DETAIL, mapsUrl };
 
-      expect(GetPlaceDetail200Response.parse(place)).toEqual(place);
+      expect(PlacesGet200Response.parse(place)).toEqual(place);
       expectTypeOf(place.mapsUrl).toEqualTypeOf<string | null>();
     },
   );
 
   it('rejects a response that omits mapsUrl', () => {
-    expect(() => GetPlaceDetail200Response.parse(BASE_PLACE_DETAIL)).toThrow();
+    expect(() => PlacesGet200Response.parse(BASE_PLACE_DETAIL)).toThrow();
   });
 });

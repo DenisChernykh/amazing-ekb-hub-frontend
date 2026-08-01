@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/v1/:path*',
-        destination: `${normalizeApiBaseUrl(apiBaseUrl)}/:path*`,
+        destination: `${normalizeApiBaseUrl(apiBaseUrl)}/v1/:path*`,
       },
     ];
   },

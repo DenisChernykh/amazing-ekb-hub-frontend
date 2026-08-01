@@ -1,4 +1,4 @@
-import { listPlaces } from '@/shared/api/generated/places/places';
+import { placesList } from '@/shared/api/generated/places/places';
 import { PUBLIC_CATALOG_CACHE_LIFE } from '@/shared/lib/cache';
 import { cacheLife } from 'next/cache';
 
@@ -14,7 +14,7 @@ export async function fetchAllPublicPlaceSlugs(): Promise<string[]> {
   let page = 1;
 
   while (true) {
-    const response = await listPlaces({ page, pageSize: BUILD_PAGE_SIZE });
+    const response = await placesList({ page, pageSize: BUILD_PAGE_SIZE });
     const { items, total } = response.data;
 
     if (items.length === 0 && seenItems < total) {

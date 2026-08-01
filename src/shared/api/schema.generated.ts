@@ -11,11 +11,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Liveness probe
-     * @description Проверяет, что процесс приложения запущен и HTTP-слой отвечает на запросы.
-     */
-    get: operations['getLiveness'];
+    /** Check process liveness */
+    get: operations['healthLive'];
     put?: never;
     post?: never;
     delete?: never;
@@ -31,11 +28,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Readiness probe
-     * @description Проверяет готовность приложения обслуживать запросы, включая доступность базы данных.
-     */
-    get: operations['getReadiness'];
+    /** Check bounded dependency readiness */
+    get: operations['healthReady'];
     put?: never;
     post?: never;
     delete?: never;
@@ -44,7 +38,61 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/auth/login': {
+  '/health/startup': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Check the startup latch */
+    get: operations['healthStartup'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/categories': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Administrative category list. */
+    get: operations['adminCategoriesList'];
+    put?: never;
+    /** Created category. */
+    post: operations['adminCategoriesCreate'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/categories/{categoryId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Administrative category. */
+    get: operations['adminCategoriesGet'];
+    put?: never;
+    post?: never;
+    /** Deleted category. */
+    delete: operations['adminCategoriesDelete'];
+    options?: never;
+    head?: never;
+    /** Updated category. */
+    patch: operations['adminCategoriesUpdate'];
+    trace?: never;
+  };
+  '/v1/admin/categories/{categoryId}/photo': {
     parameters: {
       query?: never;
       header?: never;
@@ -53,540 +101,33 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Login
-     * @description Аутентифицирует пользователя по email и паролю, ставит access/refresh HttpOnly cookies и возвращает публичный профиль.
-     */
-    post: operations['login'];
+    /** Category with replaced cover photo. */
+    post: operations['adminCategoriesUploadPhoto'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/auth/refresh': {
+  '/v1/admin/content-sources': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** Administrative content source list. */
+    get: operations['adminContentSourcesList'];
     put?: never;
-    /**
-     * Refresh tokens
-     * @description Обновляет access/refresh HttpOnly cookies по валидной refresh cookie.
-     */
-    post: operations['refreshTokens'];
+    /** Created content source. */
+    post: operations['adminContentSourcesCreate'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/auth/logout': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Logout
-     * @description Выполняет logout, отзывает refresh token из cookie и очищает auth cookies.
-     */
-    post: operations['logout'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/auth/me': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get current user
-     * @description Возвращает публичный профиль текущего аутентифицированного пользователя.
-     */
-    get: operations['getCurrentUser'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/categories': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * List place categories
-     * @description Возвращает публичный справочник категорий мест для фильтров и бейджей.
-     */
-    get: operations['listPlaceCategories'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/categories/{categorySlug}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get place category
-     * @description Возвращает публичную категорию места по её slug.
-     */
-    get: operations['getPlaceCategory'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/categories/{categorySlug}/photo': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get place category photo
-     * @description Возвращает бинарную cover-фотографию категории с сохранённым MIME-типом. Неизвестная категория, пустые metadata и отсутствующий файл возвращают 404.
-     */
-    get: operations['getPlaceCategoryPhoto'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/places': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * List places
-     * @description Возвращает публичный список мест с пагинацией, поиском и фильтрацией по категории в стабильном порядке `title ASC, id ASC`.
-     */
-    get: operations['listPlaces'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/places/{placeSlug}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get place details
-     * @description Возвращает детальную карточку публичного места по его slug.
-     */
-    get: operations['getPlaceDetail'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/places/{placeSlug}/photo': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get place cover photo
-     * @description Возвращает бинарное содержимое публичного cover-фото активного места.
-     */
-    get: operations['getPlaceCoverPhoto'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/places/{placeSlug}/materials': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * List place materials
-     * @description Возвращает до 100 материалов, связанных с указанным активным местом, с опциональным фильтром по платформе.
-     */
-    get: operations['listPlaceMaterials'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/materials/{materialId}/go': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Redirect to material URL
-     * @description Выполняет временный redirect на сохраненный URL публичного материала. Endpoint не принимает внешний URL от клиента и работает только для материалов активных мест с безопасной https-ссылкой платформы.
-     */
-    get: operations['redirectMaterial'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/favorites': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * List favorites
-     * @description Возвращает список избранных мест текущего аутентифицированного пользователя.
-     */
-    get: operations['listFavorites'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/favorites/{placeId}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Add favorite
-     * @description Добавляет место в избранное текущего пользователя.
-     */
-    post: operations['addFavorite'];
-    /**
-     * Remove favorite
-     * @description Удаляет место из избранного текущего пользователя.
-     */
-    delete: operations['removeFavorite'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/categories': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * List admin place categories
-     * @description Возвращает административный справочник категорий мест.
-     */
-    get: operations['listAdminPlaceCategories'];
-    put?: never;
-    /**
-     * Create place category
-     * @description Создает категорию места. Операция доступна только администратору.
-     */
-    post: operations['createPlaceCategory'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/categories/{categoryId}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get admin place category
-     * @description Возвращает категорию места по идентификатору.
-     */
-    get: operations['getAdminPlaceCategory'];
-    put?: never;
-    post?: never;
-    /**
-     * Delete place category
-     * @description Удаляет категорию места, если она не используется местами.
-     */
-    delete: operations['deletePlaceCategory'];
-    options?: never;
-    head?: never;
-    /**
-     * Update place category
-     * @description Частично обновляет категорию места.
-     */
-    patch: operations['updatePlaceCategory'];
-    trace?: never;
-  };
-  '/admin/categories/{categoryId}/photo': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Upload place category photo
-     * @description Загружает или заменяет cover-фотографию категории. Принимаются JPEG, PNG и WebP размером не более 5 MB.
-     */
-    post: operations['uploadPlaceCategoryPhoto'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/place-imports/yandex-maps': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Start Yandex Maps place import
-     * @description Создает durable queued operation для одной карточки организации. URL проверяется и очищается до persistence. Endpoint требует trusted Origin/Referer; feature по умолчанию выключена.
-     */
-    post: operations['startYandexMapsPlaceImport'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/place-imports/{operationId}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get place import operation */
-    get: operations['getPlaceImportOperation'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/place-imports/{operationId}/events': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Read place import journal
-     * @description Polling fallback и reconnect delta после известной operation version.
-     */
-    get: operations['readPlaceImportEvents'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/place-imports/{operationId}/events/stream': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Stream place import updates
-     * @description SSE `place-import.updated` использует subscribe → read → read handshake, Redis version hints и периодическое PostgreSQL reconciliation. Terminal status закрывает stream.
-     */
-    get: operations['streamPlaceImportEvents'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/place-imports/{operationId}/confirm': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Confirm immutable place import preview
-     * @description Без request body атомарно создает hidden Place, external reference и при необходимости draft-категорию. Требует trusted Origin/Referer.
-     */
-    post: operations['confirmPlaceImport'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/place-imports/{operationId}/cancel': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Cancel place import
-     * @description Durable cancellation; Redis notification является только latency hint. Требует trusted Origin/Referer.
-     */
-    post: operations['cancelPlaceImport'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/place-imports/{operationId}/viewer-access': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Create one-time CAPTCHA viewer access
-     * @description Выдает один capability во fragment отдельного viewer-origin. Повторная выдача блокируется до revoke/expiry.
-     */
-    post: operations['createPlaceImportViewerAccess'];
-    /** Revoke CAPTCHA viewer access */
-    delete: operations['revokePlaceImportViewerAccess'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/places': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * List admin places
-     * @description Возвращает административный список мест с пагинацией и опциональной фильтрацией по статусу. Если `status` не указан, возвращаются и активные, и скрытые места.
-     */
-    get: operations['listAdminPlaces'];
-    put?: never;
-    /**
-     * Create place
-     * @description Создаёт новое место в каталоге. Операция доступна только администратору.
-     */
-    post: operations['createPlace'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/places/{placeId}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get admin place details
-     * @description Возвращает детальную карточку места для администратора независимо от публичного статуса места.
-     */
-    get: operations['getAdminPlaceDetail'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Update place
-     * @description Частично обновляет место по идентификатору. Операция доступна только администратору.
-     */
-    patch: operations['updatePlace'];
-    trace?: never;
-  };
-  '/admin/places/{placeId}/status': {
+  '/v1/admin/content-sources/{sourceId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -599,14 +140,11 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /**
-     * Update place status
-     * @description Меняет статус публикации места. Операция доступна только администратору.
-     */
-    patch: operations['updatePlaceStatus'];
+    /** Updated content source. */
+    patch: operations['adminContentSourcesUpdate'];
     trace?: never;
   };
-  '/admin/places/{placeId}/photo': {
+  '/v1/admin/content-sources/{sourceId}/imports/telegram': {
     parameters: {
       query?: never;
       header?: never;
@@ -615,42 +153,15 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Upload place cover photo
-     * @description Загружает или заменяет cover-фото места. Операция доступна только администратору.
-     */
-    post: operations['uploadPlaceCoverPhoto'];
+    /** Queued Telegram import run. */
+    post: operations['adminTelegramImportsEnqueue'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/admin/content-sources': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * List admin content sources
-     * @description Возвращает до 100 пользовательских content sources. Источник — это управляемый канал/ресурс пользователя, а не случайная внешняя ссылка.
-     */
-    get: operations['listContentSources'];
-    put?: never;
-    /**
-     * Create content source
-     * @description Создает пользовательский content source для будущих импортов материалов.
-     */
-    post: operations['createContentSource'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/content-sources/{sourceId}': {
+  '/v1/admin/content-sources/{sourceId}/status': {
     parameters: {
       query?: never;
       header?: never;
@@ -663,45 +174,19 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /**
-     * Update content source
-     * @description Частично обновляет content source. Platform и import cursor-поля в этом endpoint не изменяются.
-     */
-    patch: operations['updateContentSource'];
+    /** Content source with updated status. */
+    patch: operations['adminContentSourcesUpdateStatus'];
     trace?: never;
   };
-  '/admin/content-sources/{sourceId}/status': {
+  '/v1/admin/import-runs': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Update content source status
-     * @description Переключает content source между `active` и `disabled` без удаления записи.
-     */
-    patch: operations['updateContentSourceStatus'];
-    trace?: never;
-  };
-  '/admin/import-runs': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * List import runs
-     * @description Возвращает до 100 диагностических записей попыток импорта материалов.
-     */
-    get: operations['listImportRuns'];
+    /** Administrative import run list. */
+    get: operations['adminImportRunsList'];
     put?: never;
     post?: never;
     delete?: never;
@@ -710,22 +195,15 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/admin/import-runs/{runId}/events': {
+  '/v1/admin/import-runs/{runId}/events': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /**
-     * Stream import run updates
-     * @description Открывает Server-Sent Events stream для одного import run. Stream сразу отправляет initial snapshot текущего `ImportRun`, затем runtime-обновления `import-run.updated` при изменении статуса или счетчиков.
-     *
-     *     Если подписка не может быть подготовлена, NestJS SSE handler отправляет `event: error` и закрывает stream.
-     *
-     *     БД и `GET /admin/import-runs` остаются источником истины и fallback для refresh/reconnect; in-memory SSE доставляет только обновления текущего backend process.
-     */
-    get: operations['streamImportRunEvents'];
+    /** Import run server-sent events. */
+    get: operations['adminImportRunsStreamEvents'];
     put?: never;
     post?: never;
     delete?: never;
@@ -734,38 +212,15 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/admin/content-sources/{sourceId}/imports/telegram': {
+  '/v1/admin/materials': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Import Telegram channel posts
-     * @description Создает durable queued one-click Telegram import/backfill run для active Telegram content source. HTTP не ждет GramJS/Telegram processing; worker позже переведет run в `running`, обработает до 20 внутренних batch-ов по `limit` логических постов, сохраняя cursor после каждого успешного непустого batch-а, и остановится при исчерпании истории, safety cap или final failure. Fresh active `queued/running` run того же source возвращает `409 Conflict`; stale `queued/running` runs старше консервативного timeout закрываются как `failed` перед созданием новой queued попытки.
-     */
-    post: operations['importTelegramChannel'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/admin/materials': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * List admin material library
-     * @description Возвращает страницу материалов общей библиотеки. Если передать `placeId`, каждый item содержит статус связи с этим местом.
-     */
-    get: operations['listAdminMaterialLibrary'];
+    /** Administrative material library. */
+    get: operations['adminMaterialsList'];
     put?: never;
     post?: never;
     delete?: never;
@@ -774,31 +229,58 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/admin/places/{placeId}/materials': {
+  '/v1/admin/materials/{materialId}': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /**
-     * List admin place materials
-     * @description Возвращает до 100 материалов указанного места для администратора, включая скрытые места.
-     */
-    get: operations['listAdminPlaceMaterials'];
+    get?: never;
     put?: never;
-    /**
-     * Create material for place
-     * @description Создаёт новый материал для указанного места. Операция доступна только администратору.
-     */
-    post: operations['createPlaceMaterial'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Updated material. */
+    patch: operations['adminMaterialsUpdate'];
+    trace?: never;
+  };
+  '/v1/admin/materials/{materialId}/admin-status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Material with updated review status. */
+    patch: operations['adminMaterialsUpdateStatus'];
+    trace?: never;
+  };
+  '/v1/admin/place-imports/{operationId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Place import operation snapshot. */
+    get: operations['adminPlaceImportsGet'];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/admin/places/{placeId}/materials/{materialId}': {
+  '/v1/admin/place-imports/{operationId}/cancel': {
     parameters: {
       query?: never;
       header?: never;
@@ -806,27 +288,227 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /**
-     * Link material to place
-     * @description Создает или реактивирует связь существующего библиотечного материала с местом. Повторный active-link запрос идемпотентен.
-     */
-    put: operations['linkPlaceMaterial'];
-    post?: never;
-    /**
-     * Hide place-material link
-     * @description Скрывает активную связь материала с местом без удаления материала из общей библиотеки.
-     */
-    delete: operations['hidePlaceMaterialLink'];
+    put?: never;
+    /** Cancelled place import operation. */
+    post: operations['adminPlaceImportsCancel'];
+    delete?: never;
     options?: never;
     head?: never;
-    /**
-     * Update place-material link
-     * @description Обновляет активную связь материала с местом: закрепление и ручной порядок отображения.
-     */
-    patch: operations['updatePlaceMaterialLink'];
+    patch?: never;
     trace?: never;
   };
-  '/admin/materials/{materialId}': {
+  '/v1/admin/place-imports/{operationId}/confirm': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Confirmed place import operation. */
+    post: operations['adminPlaceImportsConfirm'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/place-imports/{operationId}/events': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Place import event delta. */
+    get: operations['adminPlaceImportsGetEvents'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/place-imports/{operationId}/events/stream': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Place import server-sent events. */
+    get: operations['adminPlaceImportsStreamEvents'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/place-imports/{operationId}/viewer-access': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Place import viewer capability. */
+    post: operations['adminPlaceImportsCreateViewerAccess'];
+    /** Revoked place import viewer capability. */
+    delete: operations['adminPlaceImportsRevokeViewerAccess'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/place-imports/active': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Active place import operation. */
+    get: operations['adminPlaceImportsGetActive'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/place-imports/yandex-maps': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Accepted place import operation. */
+    post: operations['adminPlaceImportsStart'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/places': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Administrative place list. */
+    get: operations['adminPlacesList'];
+    put?: never;
+    /** Created place. */
+    post: operations['adminPlacesCreate'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/places/{placeId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Administrative place detail. */
+    get: operations['adminPlacesGet'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Updated place. */
+    patch: operations['adminPlacesUpdate'];
+    trace?: never;
+  };
+  '/v1/admin/places/{placeId}/materials': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Administrative place material list. */
+    get: operations['adminPlaceMaterialsList'];
+    put?: never;
+    /** Created place material. */
+    post: operations['adminPlaceMaterialsCreate'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/places/{placeId}/materials/{materialId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Linked place material. */
+    put: operations['adminPlaceMaterialsLink'];
+    post?: never;
+    /** Hidden place material link. */
+    delete: operations['adminPlaceMaterialsHide'];
+    options?: never;
+    head?: never;
+    /** Updated place material link. */
+    patch: operations['adminPlaceMaterialsUpdateLink'];
+    trace?: never;
+  };
+  '/v1/admin/places/{placeId}/photo': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Place with replaced cover photo. */
+    post: operations['adminPlacesUploadPhoto'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/places/{placeId}/pinned-material': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Place without pinned material. */
+    delete: operations['adminPlacesClearPinnedMaterial'];
+    options?: never;
+    head?: never;
+    /** Place with pinned material. */
+    patch: operations['adminPlacesSetPinnedMaterial'];
+    trace?: never;
+  };
+  '/v1/admin/places/{placeId}/status': {
     parameters: {
       query?: never;
       header?: never;
@@ -839,34 +521,114 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /**
-     * Update material
-     * @description Частично обновляет материал по идентификатору. Операция доступна только администратору.
-     */
-    patch: operations['updateMaterial'];
+    /** Place with updated publication status. */
+    patch: operations['adminPlacesUpdateStatus'];
     trace?: never;
   };
-  '/admin/materials/{materialId}/admin-status': {
+  '/v1/auth/csrf': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** Get the current session-bound CSRF token */
+    get: operations['authGetCsrfToken'];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /**
-     * Update material admin status
-     * @description Обновляет review-статус материала в административной библиотеке. Статус не удаляет материал и сам по себе не меняет публичную видимость уже существующих `PlaceMaterial` связей.
-     */
-    patch: operations['updateMaterialAdminStatus'];
+    patch?: never;
     trace?: never;
   };
-  '/admin/places/{placeId}/pinned-material': {
+  '/v1/auth/login': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create a browser session */
+    post: operations['authLogin'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/auth/logout': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Revoke the current browser session */
+    post: operations['authLogout'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/auth/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get the current authenticated identity */
+    get: operations['authGetMe'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/auth/password': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Change the current account password */
+    put: operations['authChangePassword'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/auth/sessions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List browser sessions owned by the current user */
+    get: operations['authListSessions'];
+    put?: never;
+    post?: never;
+    /** Revoke every browser session for the current user */
+    delete: operations['authLogoutAll'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/auth/sessions/{sessionId}': {
     parameters: {
       query?: never;
       header?: never;
@@ -876,1246 +638,900 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Clear pinned material for place
-     * @description Снимает закреплённый материал с места. Операция доступна только администратору.
-     */
-    delete: operations['clearPinnedMaterial'];
+    /** Revoke one owned browser session */
+    delete: operations['authRevokeSession'];
     options?: never;
     head?: never;
-    /**
-     * Set pinned material for place
-     * @description Назначает закреплённый материал для места. Операция доступна только администратору.
-     */
-    patch: operations['setPinnedMaterial'];
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/categories': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Public category list. */
+    get: operations['categoriesList'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/categories/{categorySlug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Public category. */
+    get: operations['categoriesGet'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/categories/{categorySlug}/photo': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Category cover image. */
+    get: operations['categoriesGetPhoto'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/favorites': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Current principal favorite places. */
+    get: operations['favoritesList'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/favorites/{placeId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Place added to favorites. */
+    post: operations['favoritesAdd'];
+    /** Place removed from favorites. */
+    delete: operations['favoritesRemove'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/materials/{materialId}/go': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Temporary redirect to an allowlisted material URL. */
+    get: operations['materialsRedirect'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/places': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Public place list. */
+    get: operations['placesList'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/places/{placeSlug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Public place detail. */
+    get: operations['placesGet'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/places/{placeSlug}/materials': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Public place materials. */
+    get: operations['placeMaterialsList'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/places/{placeSlug}/photo': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Place cover image. */
+    get: operations['placesGetPhoto'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /**
-     * @description Роль пользователя в системе.
-     * @example admin
-     * @enum {string}
-     */
-    Role: 'admin' | 'user';
-    /** @description Публичная категория места для фильтров. */
-    PlaceCategory: {
-      /**
-       * @description Идентификатор категории.
-       * @example category_spa
-       */
-      id: string;
-      /**
-       * @description Человекочитаемый slug категории.
-       * @example spa
-       */
-      slug: string;
-      /**
-       * @description Название категории для интерфейса.
-       * @example SPA
-       */
-      title: string;
-      /**
-       * @description Versioned URL cover-фотографии категории или `null`, если фото отсутствует.
-       * @example /v1/categories/spa/photo?v=23b991827df4
-       */
-      coverImageUrl: string | null;
+    AdminMaterialLibraryListResponseDto: {
+      items: components['schemas']['AdminMaterialLibraryResponseDto'][];
+      page: number;
+      pageSize: number;
+      total: number;
     };
-    AdminPlaceCategory: components['schemas']['PlaceCategory'] & {
+    AdminMaterialLibraryResponseDto: {
+      /** @enum {string} */
+      adminStatus: 'pending' | 'approved' | 'rejected' | 'archived';
+      durationSec: number | null;
+      excerpt: string | null;
+      externalId: string | null;
+      id: string;
+      linked: boolean;
+      mediaKind: string | null;
+      /** Format: uri */
+      mediaPreviewUrl: string | null;
+      /** @enum {string|null} */
+      placeLink: 'active' | 'hidden' | null;
+      /** @enum {string} */
+      platform: 'dzen' | 'telegram' | 'instagram';
+      /** Format: date */
+      publishedAt: string;
+      source: components['schemas']['MaterialContentSourceResponseDto'] | null;
+      text: string | null;
+      title: string | null;
+      /** @enum {string} */
+      type: 'post' | 'reel' | 'video';
+      /** Format: uri */
+      url: string;
+    };
+    AdminPlaceListResponseDto: {
+      items: components['schemas']['AdminPlaceSummaryResponseDto'][];
+      page: number;
+      pageSize: number;
+      total: number;
+    };
+    AdminPlaceSummaryResponseDto: {
+      category: components['schemas']['PlaceSummaryCategoryResponseDto'];
+      coverImageUrl: string | null;
+      id: string;
+      /** Format: uri */
+      mapsUrl: string | null;
+      slug: string;
+      /** @enum {string} */
+      status: 'active' | 'hidden';
+      summary: string;
+      tags: string[];
+      title: string;
+    };
+    AuthMutationResponseDto: {
       /**
-       * @description Draft-категория скрыта из public API до публикации первого места.
-       * @example active
-       * @enum {string}
+       * @description Whether best-effort Redis session cleanup completed after the durable mutation.
+       * @example true
        */
-      status: 'draft' | 'active';
+      cleanupComplete: boolean;
+    };
+    BrowserSessionResponseDto: {
       /**
        * Format: date-time
-       * @description Время создания категории.
-       * @example 2026-07-03T10:00:00.000Z
+       * @example 2026-08-20T12:00:00.000Z
+       */
+      absoluteExpiresAt: string;
+      /**
+       * Format: date-time
+       * @example 2026-07-21T12:00:00.000Z
        */
       createdAt: string;
+      /** @example true */
+      current: boolean;
+      /** @example Safari on macOS */
+      deviceLabel: string;
       /**
        * Format: date-time
-       * @description Время последнего обновления категории.
-       * @example 2026-07-03T10:00:00.000Z
+       * @example 2026-07-21T12:05:00.000Z
        */
+      lastSeenAt: string;
+      /** @example AbCdEfGhIjKlMnOpQrStUv */
+      publicId: string;
+    };
+    ChangePasswordRequestDto: {
+      /**
+       * Format: password
+       * @example current correct horse battery staple
+       */
+      currentPassword: string;
+      /**
+       * Format: password
+       * @example new correct horse battery staple
+       */
+      newPassword: string;
+    };
+    ContentSourceListResponseDto: {
+      items: components['schemas']['ContentSourceResponseDto'][];
+    };
+    ContentSourceResponseDto: {
+      channelId: string | null;
+      /** Format: date-time */
+      createdAt: string;
+      displayName: string;
+      externalId: string | null;
+      handle: string | null;
+      id: string;
+      lastCursor: string | null;
+      /** Format: date-time */
+      lastImportedAt: string | null;
+      /** @enum {string} */
+      platform: 'telegram' | 'dzen' | 'instagram' | 'tiktok' | 'vk' | 'pinterest';
+      /** @enum {string} */
+      status: 'active' | 'disabled';
+      /** Format: date-time */
       updatedAt: string;
+      /** Format: uri */
+      url: string;
     };
-    /** @description Публичный список категорий мест. */
-    PlaceCategoryListResponse: {
-      items: components['schemas']['PlaceCategory'][];
+    CreateContentSourceDto: {
+      channelId?: string | null;
+      displayName: string;
+      externalId?: string | null;
+      handle?: string | null;
+      /** @enum {string} */
+      platform: 'telegram' | 'dzen' | 'instagram' | 'tiktok' | 'vk' | 'pinterest';
+      /** Format: uri */
+      url: string;
     };
-    /** @description Административный список категорий мест. */
-    AdminPlaceCategoryListResponse: {
-      items: components['schemas']['AdminPlaceCategory'][];
+    CreateMaterialDto: {
+      durationSec?: number | null;
+      /** @enum {string} */
+      platform: 'dzen' | 'telegram' | 'instagram';
+      /** Format: date */
+      publishedAt: string;
+      title: string;
+      /** @enum {string} */
+      type: 'post' | 'reel' | 'video';
+      /** Format: uri */
+      url: string;
     };
-    /**
-     * @description Статус публикации места.
-     * @example active
-     * @enum {string}
-     */
-    PlaceStatus: 'active' | 'hidden';
-    /**
-     * @description Платформа, на которой опубликован материал.
-     * @example telegram
-     * @enum {string}
-     */
-    Platform: 'dzen' | 'telegram' | 'instagram';
-    /**
-     * @description Тип материала.
-     * @example post
-     * @enum {string}
-     */
-    MaterialType: 'post' | 'reel' | 'video';
-    /**
-     * @description Review-статус материала в административной библиотеке.
-     * @example approved
-     * @enum {string}
-     */
-    MaterialAdminStatus: 'pending' | 'approved' | 'rejected' | 'archived';
-    /**
-     * @description Статус связи библиотечного материала с конкретным местом.
-     * @example active
-     * @enum {string}
-     */
-    PlaceMaterialLinkStatus: 'active' | 'hidden';
-    /**
-     * @description Платформа пользовательского источника контента. Этот enum отделен от material `Platform`, чтобы будущие источники не меняли публичные счетчики материалов.
-     * @example telegram
-     * @enum {string}
-     */
-    ContentSourcePlatform: 'telegram' | 'dzen' | 'instagram' | 'tiktok' | 'vk' | 'pinterest';
-    /**
-     * @description Статус пользовательского content source.
-     * @example active
-     * @enum {string}
-     */
-    ContentSourceStatus: 'active' | 'disabled';
-    /**
-     * @description Статус попытки импорта материалов.
-     * @example completed
-     * @enum {string}
-     */
-    ImportRunStatus: 'queued' | 'running' | 'completed' | 'failed';
-    /** @description Стандартный JSON body, который NestJS возвращает для `HttpException`. */
-    NestErrorResponse: {
-      /**
-       * @description HTTP status code ответа.
-       * @example 400
-       */
-      statusCode: number;
-      /**
-       * @description Сообщение ошибки. Для DTO validation NestJS обычно возвращает массив строк.
-       * @example Bad Request
-       */
-      message: string | string[];
-      /**
-       * @description Стандартное HTTP reason summary от NestJS.
-       * @example Bad Request
-       */
-      error?: string;
+    CreatePlaceCategoryDto: {
+      slug?: string | null;
+      title: string;
     };
-    /** @description Данные для входа пользователя по email и паролю. */
-    AuthLoginRequest: {
+    CreatePlaceDto: {
+      categoryId: string;
+      slug?: string | null;
+      summary?: string;
+      tags?: string[];
+      title: string;
+    };
+    CsrfTokenResponseDto: {
+      /** @example AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI */
+      csrfToken: string;
+    };
+    CurrentUserResponseDto: {
       /**
        * Format: email
-       * @description Email пользователя.
-       * @example admin@example.test
+       * @example admin@example.com
+       */
+      normalizedEmail: string;
+      /**
+       * @example [
+       *       "system.docs.read"
+       *     ]
+       */
+      permissions: string[];
+      /**
+       * @example [
+       *       "admin"
+       *     ]
+       */
+      roleKeys: string[];
+      /**
+       * Format: uuid
+       * @example 8dc70a15-d91f-4c67-b5a6-479faa42433c
+       */
+      userId: string;
+    };
+    FavoriteCategoryResponseDto: {
+      coverImageUrl: string | null;
+      id: string;
+      slug: string;
+      title: string;
+    };
+    FavoriteListResponseDto: {
+      items: components['schemas']['FavoritePlaceResponseDto'][];
+      page: number;
+      pageSize: number;
+      total: number;
+    };
+    FavoritePlaceResponseDto: {
+      category: components['schemas']['FavoriteCategoryResponseDto'];
+      coverImageUrl: string | null;
+      id: string;
+      slug: string;
+      /** @enum {string} */
+      status: 'active' | 'hidden';
+      summary: string;
+      tags: string[];
+      title: string;
+    };
+    ImportRunListResponseDto: {
+      items: components['schemas']['ImportRunResponseDto'][];
+    };
+    ImportRunResponseDto: {
+      /** Format: date-time */
+      createdAt: string;
+      createdCount: number;
+      errorMessage: string | null;
+      /** Format: date-time */
+      finishedAt: string | null;
+      foundCount: number;
+      id: string;
+      skippedDuplicateCount: number;
+      sourceId: string;
+      /** Format: date-time */
+      startedAt: string | null;
+      /** @enum {string} */
+      status: 'queued' | 'running' | 'completed' | 'failed';
+      /** Format: date-time */
+      updatedAt: string;
+      updatedCount: number;
+    };
+    IssuedSessionResponseDto: {
+      /**
+       * Format: date-time
+       * @example 2026-08-20T12:00:00.000Z
+       */
+      absoluteExpiresAt: string;
+      /** @example AbCdEfGhIjKlMnOpQrStUv */
+      publicId: string;
+    };
+    LivenessResponseDto: {
+      /**
+       * @example ok
+       * @enum {string}
+       */
+      status: 'ok';
+    };
+    LoginRequestDto: {
+      /**
+       * Format: email
+       * @example admin@example.com
        */
       email: string;
       /**
-       * @description Пароль пользователя. Login не раскрывает password policy и возвращает generic credentials error для неверного пароля любой длины.
-       * @example replace_me_password
+       * Format: password
+       * @example correct horse battery staple
        */
       password: string;
     };
-    /** @description Публичный профиль текущего пользователя. */
-    AuthMeResponse: {
-      /**
-       * @description Идентификатор пользователя.
-       * @example user_admin_001
-       */
-      id: string;
-      /**
-       * Format: email
-       * @description Email пользователя.
-       * @example admin@example.test
-       */
-      email: string;
-      role: components['schemas']['Role'];
+    LoginResponseDto: {
+      /** @example AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE */
+      csrfToken: string;
+      session: components['schemas']['IssuedSessionResponseDto'];
     };
-    /** @description Краткая карточка места, используемая в списках. */
-    PlaceSummary: {
-      /**
-       * @description Идентификатор места.
-       * @example place_ekb_001
-       */
+    MaterialContentSourceResponseDto: {
+      displayName: string;
       id: string;
-      /**
-       * @description Публичный slug места.
-       * @example baden-baden-uktus
-       */
-      slug: string;
-      /**
-       * @description Название места.
-       * @example Bаден-Баден Уктус
-       */
-      title: string;
-      /**
-       * @description Короткое описание для каталога.
-       * @example Термальный комплекс с открытыми бассейнами и SPA-зоной.
-       */
-      summary: string;
-      /**
-       * @description Набор тегов для поиска и фильтрации.
-       * @example [
-       *       "термы",
-       *       "spa",
-       *       "бассейн"
-       *     ]
-       */
-      tags: string[];
-      category: components['schemas']['PlaceCategory'];
-      status: components['schemas']['PlaceStatus'];
-      /**
-       * @description Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.
-       * @example /v1/places/baden-baden-uktus/photo
-       */
-      coverImageUrl: string | null;
-    };
-    AdminPlaceSummary: components['schemas']['PlaceSummary'] & {
-      /**
-       * Format: uri
-       * @description Canonical Yandex Maps URL импортированного места; `null` для мест без такой external reference.
-       * @example https://yandex.ru/maps/org/baden_baden/123456789
-       */
-      mapsUrl: string | null;
-    };
-    /** @description Краткая публичная карточка места со счетчиками материалов по платформам. */
-    PublicPlaceSummary: {
-      /**
-       * @description Идентификатор места.
-       * @example place_ekb_001
-       */
-      id: string;
-      /**
-       * @description Публичный slug места.
-       * @example baden-baden-uktus
-       */
-      slug: string;
-      /**
-       * @description Название места.
-       * @example Bаден-Баден Уктус
-       */
-      title: string;
-      /**
-       * @description Короткое описание для каталога.
-       * @example Термальный комплекс с открытыми бассейнами и SPA-зоной.
-       */
-      summary: string;
-      /**
-       * @description Набор тегов для поиска и фильтрации.
-       * @example [
-       *       "термы",
-       *       "spa",
-       *       "бассейн"
-       *     ]
-       */
-      tags: string[];
-      category: components['schemas']['PlaceCategory'];
-      status: components['schemas']['PlaceStatus'];
-      /**
-       * @description Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.
-       * @example /v1/places/baden-baden-uktus/photo
-       */
-      coverImageUrl: string | null;
-      /** @description Количество материалов по платформам. */
-      counters: {
-        /** @example 12 */
-        dzen: number;
-        /** @example 7 */
-        telegram: number;
-        /** @example 3 */
-        instagram: number;
-      };
-    };
-    /** @description Административный материал, связанный с местом. Содержит исходную внешнюю ссылку для внутренних сценариев управления. */
-    Material: {
-      /**
-       * @description Идентификатор материала.
-       * @example material_telegram_001
-       */
-      id: string;
-      /**
-       * @description Идентификатор места, к которому относится материал.
-       * @example place_ekb_001
-       */
-      placeId: string;
-      platform: components['schemas']['Platform'];
-      type: components['schemas']['MaterialType'];
-      /**
-       * @description Заголовок материала. Для импортированных материалов может быть `null`, если источник не дает надежный ручной title.
-       * @example null
-       */
-      title: string | null;
-      /**
-       * Format: date
-       * @description Календарная дата публикации материала в формате `YYYY-MM-DD`.
-       * @example 2026-03-20
-       */
-      publishedAt: string;
-      /**
-       * @description Длительность в секундах для видеоформатов.
-       * @example 183
-       */
-      durationSec: number | null;
-      /**
-       * Format: uri
-       * @description Исходная внешняя ссылка на материал. Допускаются только абсолютные http/https URL.
-       * @example https://t.me/amazing_ekb/321
-       */
+      platform: string;
+      /** Format: uri */
       url: string;
     };
-    /** @description Публичный материал, связанный с местом. Исходный внешний URL не отдается; публичные клиенты должны использовать `redirectUrl`. */
-    PublicMaterial: {
-      /**
-       * @description Идентификатор материала.
-       * @example material_telegram_001
-       */
-      id: string;
-      /**
-       * @description Идентификатор места, к которому относится материал.
-       * @example place_ekb_001
-       */
-      placeId: string;
-      platform: components['schemas']['Platform'];
-      type: components['schemas']['MaterialType'];
-      /**
-       * @description Заголовок материала. Для импортированных материалов может быть `null`, если источник не дает надежный ручной title.
-       * @example null
-       */
-      title: string | null;
-      /**
-       * Format: date
-       * @description Календарная дата публикации материала в формате `YYYY-MM-DD`.
-       * @example 2026-03-20
-       */
-      publishedAt: string;
-      /**
-       * @description Длительность в секундах для видеоформатов.
-       * @example 183
-       */
+    MaterialListResponseDto: {
+      items: components['schemas']['MaterialResponseDto'][];
+    };
+    MaterialResponseDto: {
       durationSec: number | null;
-      /**
-       * @description Same-origin redirect URL для публичного открытия материала без прямого внешнего href. Поле заполняется только для публично безопасных target URL.
-       * @example /v1/materials/material_telegram_001/go
-       */
+      id: string;
+      placeId: string;
+      /** @enum {string} */
+      platform: 'dzen' | 'telegram' | 'instagram';
+      /** Format: date */
+      publishedAt: string;
       redirectUrl: string | null;
-    };
-    /** @description Краткое представление content source для imported material. */
-    MaterialContentSourceSummary: {
-      /**
-       * @description Идентификатор content source.
-       * @example source_telegram_001
-       */
-      id: string;
-      platform: components['schemas']['ContentSourcePlatform'];
-      /**
-       * @description Административное имя source.
-       * @example Amazing EKB Telegram
-       */
-      displayName: string;
-      /**
-       * Format: uri
-       * @description URL source.
-       * @example https://t.me/amazing_ekb
-       */
+      title: string | null;
+      /** @enum {string} */
+      type: 'post' | 'reel' | 'video';
+      /** Format: uri */
       url: string;
     };
-    /** @description Материал из общей библиотеки для административного интерфейса. */
-    AdminMaterialLibraryItem: {
-      /**
-       * @description Идентификатор материала.
-       * @example material_telegram_001
-       */
-      id: string;
-      platform: components['schemas']['Platform'];
-      type: components['schemas']['MaterialType'];
-      /**
-       * @description Заголовок материала. Для импортированных материалов может быть `null`.
-       * @example null
-       */
-      title: string | null;
-      /**
-       * Format: date
-       * @description Календарная дата публикации материала в формате `YYYY-MM-DD`.
-       * @example 2026-03-20
-       */
-      publishedAt: string;
-      /**
-       * @description Длительность в секундах для видеоформатов.
-       * @example 183
-       */
+    PinnedMaterialResponseDto: {
       durationSec: number | null;
-      /**
-       * Format: uri
-       * @description Публичная ссылка на материал.
-       * @example https://t.me/amazing_ekb/321
-       */
-      url: string;
-      /** @description Content source, из которого импортирован материал. Для manual materials возвращается `null`. */
-      source: components['schemas']['MaterialContentSourceSummary'] | null;
-      /**
-       * @description Платформенный id материала внутри source, например Telegram message id.
-       * @example 321
-       */
-      externalId: string | null;
-      /**
-       * @description Полный текст импортированного материала, если он есть.
-       * @example Пост из Telegram-канала Amazing EKB
-       */
-      text: string | null;
-      /**
-       * @description Короткий текстовый preview для админского списка.
-       * @example Пост из Telegram-канала Amazing EKB
-       */
-      excerpt: string | null;
-      /**
-       * @description Нормализованный тип media из импортера без скачивания бинарных файлов.
-       * @example photo
-       */
-      mediaKind: string | null;
-      /**
-       * Format: uri
-       * @description URL preview media, если адаптер смог безопасно его получить.
-       * @example null
-       */
-      mediaPreviewUrl: string | null;
-      adminStatus: components['schemas']['MaterialAdminStatus'];
-      /**
-       * @description Есть ли у материала хотя бы одна связь `PlaceMaterial` с любым местом, включая hidden-связи.
-       * @example false
-       */
-      linked: boolean;
-      /** @description Статус связи с `placeId` из query. Если `placeId` не передан или связи нет, возвращается `null`. */
-      placeLink: components['schemas']['PlaceMaterialLinkStatus'] | null;
-    };
-    /** @description Пагинированный административный список материалов общей библиотеки. */
-    AdminMaterialLibraryListResponse: {
-      /** @description Материалы библиотеки на текущей странице. */
-      items: components['schemas']['AdminMaterialLibraryItem'][];
-      /**
-       * @description Общее количество материалов, подходящих под фильтры.
-       * @example 42
-       */
-      total: number;
-      /**
-       * @description Текущая страница.
-       * @example 1
-       */
-      page: number;
-      /**
-       * @description Размер страницы.
-       * @example 100
-       */
-      pageSize: number;
-    };
-    /** @description Пользовательский управляемый источник контента: Telegram-канал, Dzen-канал/профиль или будущий platform resource. */
-    ContentSource: {
-      /**
-       * @description Идентификатор content source.
-       * @example source_telegram_001
-       */
       id: string;
-      platform: components['schemas']['ContentSourcePlatform'];
-      /**
-       * @description Административное имя источника, отдельное от заголовков материалов.
-       * @example Amazing EKB Telegram
-       */
-      displayName: string;
-      /**
-       * Format: uri
-       * @description Публичный URL управляемого источника. Допускаются только абсолютные http/https URL.
-       * @example https://t.me/amazing_ekb
-       */
-      url: string;
-      /**
-       * @description Платформенный идентификатор источника, если известен.
-       * @example 123456
-       */
-      externalId: string | null;
-      /**
-       * @description Человекочитаемый handle источника, если он есть.
-       * @example amazing_ekb
-       */
-      handle: string | null;
-      /**
-       * @description Дополнительный channel id для платформ, где он отличается от externalId/handle.
-       * @example null
-       */
-      channelId: string | null;
-      status: components['schemas']['ContentSourceStatus'];
-      /**
-       * Format: date-time
-       * @description Время последнего успешного import batch.
-       * @example null
-       */
-      lastImportedAt: string | null;
-      /**
-       * @description JSON cursor последнего Telegram import batch или cursor будущего платформенного импортера.
-       * @example null
-       */
-      lastCursor: string | null;
-      /**
-       * Format: date-time
-       * @description Время создания записи.
-       * @example 2026-05-20T10:00:00.000Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Время последнего обновления записи.
-       * @example 2026-05-20T10:00:00.000Z
-       */
-      updatedAt: string;
-    };
-    /** @description Ограниченный административный список пользовательских content sources. */
-    ContentSourceListResponse: {
-      /** @description Content sources в стабильном порядке. */
-      items: components['schemas']['ContentSource'][];
-    };
-    /** @description Диагностическая запись одной попытки импорта материалов. */
-    ImportRun: {
-      /**
-       * @description Идентификатор import run.
-       * @example import_run_001
-       */
-      id: string;
-      /**
-       * @description Идентификатор content source, для которого выполнялся импорт.
-       * @example source_telegram_001
-       */
-      sourceId: string;
-      status: components['schemas']['ImportRunStatus'];
-      /**
-       * Format: date-time
-       * @description Время начала фактической обработки. Для queued run может быть `null`.
-       * @example 2026-05-26T05:00:00.000Z
-       */
-      startedAt: string | null;
-      /**
-       * Format: date-time
-       * @description Время завершения успешной или failed попытки.
-       * @example 2026-05-26T05:01:00.000Z
-       */
-      finishedAt: string | null;
-      /**
-       * @description Сколько материалов адаптер обнаружил во внешнем источнике.
-       * @example 7
-       */
-      foundCount: number;
-      /**
-       * @description Сколько новых материалов создано в библиотеке.
-       * @example 2
-       */
-      createdCount: number;
-      /**
-       * @description Сколько существующих материалов обновлено.
-       * @example 4
-       */
-      updatedCount: number;
-      /**
-       * @description Сколько найденных материалов пропущено как дубликаты.
-       * @example 1
-       */
-      skippedDuplicateCount: number;
-      /**
-       * @description Безопасная однострочная диагностика failed run без stack trace и secret-значений.
-       * @example null
-       */
-      errorMessage: string | null;
-      /**
-       * Format: date-time
-       * @description Время создания записи.
-       * @example 2026-05-26T05:00:00.000Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Время последнего обновления записи.
-       * @example 2026-05-26T05:01:00.000Z
-       */
-      updatedAt: string;
-    };
-    /** @description Ограниченный административный список попыток импорта. */
-    ImportRunListResponse: {
-      /** @description Import runs в порядке от новых к старым. */
-      items: components['schemas']['ImportRun'][];
-    };
-    /** @description Детальная карточка места с публично-безопасным pinned material без исходного внешнего URL и счетчиками по платформам. */
-    PlaceDetail: {
-      /**
-       * @description Идентификатор места.
-       * @example place_ekb_001
-       */
-      id: string;
-      /**
-       * @description Публичный slug места.
-       * @example baden-baden-uktus
-       */
-      slug: string;
-      /**
-       * @description Название места.
-       * @example Bаден-Баден Уктус
-       */
-      title: string;
-      /**
-       * @description Короткое описание для каталога.
-       * @example Термальный комплекс с открытыми бассейнами и SPA-зоной.
-       */
-      summary: string;
-      /**
-       * @description Набор тегов для поиска и фильтрации.
-       * @example [
-       *       "термы",
-       *       "spa",
-       *       "бассейн"
-       *     ]
-       */
-      tags: string[];
-      category: components['schemas']['PlaceCategory'];
-      status: components['schemas']['PlaceStatus'];
-      /**
-       * @description Публичный cover-фото места. Если фото отсутствует или не должно отдаться публично, возвращается `null`.
-       * @example /v1/places/baden-baden-uktus/photo
-       */
-      coverImageUrl: string | null;
-      /**
-       * Format: uri
-       * @description Canonical URL карточки Яндекс Карт, если место создано через импорт.
-       * @example https://yandex.ru/maps/org/baden_baden/123456789
-       */
-      mapsUrl: string | null;
-      /** @description Количество материалов по платформам. */
-      counters: {
-        /** @example 12 */
-        dzen: number;
-        /** @example 7 */
-        telegram: number;
-        /** @example 3 */
-        instagram: number;
-      };
-      /** @description Закреплённый материал места, если он назначен. Исходный внешний URL не отдается; клиенты должны использовать только `redirectUrl`, когда он доступен. */
-      pinnedMaterial: components['schemas']['PublicMaterial'] | null;
-    };
-    /** @description Детальная карточка места для администратора. Shape совпадает с `PlaceDetail`: исходный внешний URL закрепленного материала не отдается. */
-    AdminPlaceDetail: components['schemas']['PlaceDetail'];
-    /** @description Пагинированный список мест. */
-    PlaceListResponse: {
-      /** @description Элементы текущей страницы. */
-      items: components['schemas']['PlaceSummary'][];
-      /**
-       * @description Общее количество доступных элементов.
-       * @example 2
-       */
-      total: number;
-      /**
-       * @description Текущая страница.
-       * @example 1
-       */
-      page: number;
-      /**
-       * @description Размер страницы.
-       * @example 20
-       */
-      pageSize: number;
-    };
-    /** @description Административный пагинированный список мест с nullable Yandex Maps URL. */
-    AdminPlaceListResponse: {
-      /** @description Элементы текущей страницы. */
-      items: components['schemas']['AdminPlaceSummary'][];
-      /**
-       * @description Общее количество доступных элементов.
-       * @example 2
-       */
-      total: number;
-      /**
-       * @description Текущая страница.
-       * @example 1
-       */
-      page: number;
-      /**
-       * @description Размер страницы.
-       * @example 20
-       */
-      pageSize: number;
-    };
-    /** @description Публичный пагинированный список мест со счетчиками материалов. */
-    PublicPlaceListResponse: {
-      /** @description Элементы текущей страницы. */
-      items: components['schemas']['PublicPlaceSummary'][];
-      /**
-       * @description Общее количество доступных элементов.
-       * @example 2
-       */
-      total: number;
-      /**
-       * @description Текущая страница.
-       * @example 1
-       */
-      page: number;
-      /**
-       * @description Размер страницы.
-       * @example 20
-       */
-      pageSize: number;
-    };
-    /** @description Ограниченный список материалов места без исходного внешнего URL. */
-    MaterialListResponse: {
-      /** @description Материалы места в стабильном порядке отображения. */
-      items: components['schemas']['PublicMaterial'][];
-    };
-    /** @description Payload создания нового места. */
-    CreatePlaceRequest: {
-      /**
-       * @description Необязательный ручной slug. Если поле отсутствует, backend генерирует slug из title.
-       * @example baden-baden-uktus
-       */
-      slug?: string;
-      /**
-       * @description Название места.
-       * @example Bаден-Баден Уктус
-       */
-      title: string;
-      /**
-       * @description Короткое описание места. Если поле не передано, backend сохранит пустую строку.
-       * @example Термальный комплекс с открытыми бассейнами и SPA-зоной.
-       */
-      summary?: string;
-      /**
-       * @description Теги для поиска и фильтрации. Если поле не передано, backend сохранит пустой массив.
-       * @example [
-       *       "термы",
-       *       "spa",
-       *       "бассейн"
-       *     ]
-       */
-      tags?: string[];
-      /**
-       * @description Идентификатор существующей категории места.
-       * @example category_spa
-       */
-      categoryId: string;
-    };
-    /** @description Payload частичного обновления места. */
-    UpdatePlaceRequest: {
-      /**
-       * @description Новый публичный slug места.
-       * @example baden-baden-uktus-premium
-       */
-      slug?: string;
-      /**
-       * @description Новое название места.
-       * @example Bаден-Баден Уктус Premium
-       */
-      title?: string;
-      /**
-       * @description Обновлённое краткое описание.
-       * @example Обновлённое описание места для карточки.
-       */
-      summary?: string;
-      /**
-       * @description Новый набор тегов.
-       * @example [
-       *       "термы",
-       *       "premium"
-       *     ]
-       */
-      tags?: string[];
-      /**
-       * @description Новый идентификатор существующей категории места.
-       * @example category_spa
-       */
-      categoryId?: string;
-    };
-    /** @description Payload создания категории места. */
-    CreatePlaceCategoryRequest: {
-      /**
-       * @description Необязательный ручной slug категории из lowercase букв, цифр и одиночных дефисов. Если поле отсутствует, backend генерирует slug из `title`.
-       * @example family-spa
-       */
-      slug?: string;
-      /**
-       * @description Название категории.
-       * @example Family SPA
-       */
-      title: string;
-    };
-    /** @description Payload частичного обновления категории места. */
-    UpdatePlaceCategoryRequest: {
-      /**
-       * @description Новый slug категории.
-       * @example family-spa
-       */
-      slug?: string;
-      /**
-       * @description Новое название категории.
-       * @example Family SPA
-       */
-      title?: string;
-    };
-    /** @description Payload изменения статуса места. */
-    UpdatePlaceStatusRequest: {
-      status: components['schemas']['PlaceStatus'];
-    };
-    /** @description Ссылка на одну карточку организации Яндекс Карт. */
-    StartPlaceImportRequest: {
-      /**
-       * Format: uri
-       * @example https://yandex.ru/maps/org/aqua_city/123456789
-       */
-      url: string;
-    };
-    /** @enum {string} */
-    PlaceImportStatus:
-      | 'queued'
-      | 'parsing'
-      | 'awaiting_captcha'
-      | 'preview_ready'
-      | 'completed'
-      | 'failed'
-      | 'expired'
-      | 'cancelled';
-    /** @enum {string} */
-    PlaceImportCategoryResolution: 'existing' | 'will_create' | 'created';
-    /** @enum {string|null} */
-    PlaceImportOutcome: 'created' | 'already_exists' | null;
-    /** @enum {string} */
-    PlaceImportErrorCode:
-      | 'invalid_url'
-      | 'not_organization_url'
-      | 'redirect_not_allowed'
-      | 'source_not_found'
-      | 'captcha_session_expired'
-      | 'source_blocked'
-      | 'source_timeout'
-      | 'parse_failed'
-      | 'missing_title'
-      | 'missing_primary_category'
-      | 'missing_organization_id'
-      | 'category_conflict'
-      | 'external_identity_conflict'
-      | 'confirmation_expired'
-      | 'internal_error';
-    PlaceImportCategoryPreview: {
-      id: string | null;
-      title: string;
-      /** @enum {string|null} */
-      status: 'draft' | 'active' | null;
-      resolution: components['schemas']['PlaceImportCategoryResolution'];
-    };
-    PlaceImportPossibleDuplicate: {
       placeId: string;
+      /** @enum {string} */
+      platform: 'dzen' | 'telegram' | 'instagram';
+      /** Format: date */
+      publishedAt: string;
+      redirectUrl: string | null;
+      title: string | null;
+      /** @enum {string} */
+      type: 'post' | 'reel' | 'video';
+    };
+    PlaceCategoryListResponseDto: {
+      items: components['schemas']['PlaceCategoryResponseDto'][];
+    };
+    PlaceCategoryPublicResponseDto: {
+      coverImageUrl: string | null;
+      id: string;
+      slug: string;
       title: string;
     };
-    PlaceImportError: {
-      code: components['schemas']['PlaceImportErrorCode'];
-      /** @description Безопасная диагностика без URL query, HTML, cookies, screenshot/HAR и browser state. */
-      message: string;
-    };
-    /** @description Read-only snapshot; preview-поля нельзя подменить при confirm. */
-    PlaceImportOperation: {
+    PlaceCategoryResponseDto: {
+      coverImageUrl: string | null;
+      /** Format: date-time */
+      createdAt: string;
       id: string;
-      status: components['schemas']['PlaceImportStatus'];
-      version: number;
-      attempt: number;
-      /**
-       * Format: uri
-       * @description Sanitized URL без credentials, fragment и произвольных query-параметров.
-       */
-      sourceUrl: string;
-      title: string | null;
+      slug: string;
+      /** @enum {string} */
+      status: 'draft' | 'active';
+      title: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    PlaceCountersResponseDto: {
+      dzen: number;
+      instagram: number;
+      telegram: number;
+    };
+    PlaceDetailResponseDto: {
+      category: components['schemas']['PlaceSummaryCategoryResponseDto'];
+      counters: components['schemas']['PlaceCountersResponseDto'];
+      coverImageUrl: string | null;
+      id: string;
       /** Format: uri */
       mapsUrl: string | null;
-      organizationId: string | null;
-      category: components['schemas']['PlaceImportCategoryPreview'] | null;
-      possibleDuplicate: components['schemas']['PlaceImportPossibleDuplicate'] | null;
-      /** Format: date-time */
-      captchaExpiresAt: string | null;
-      /** Format: date-time */
-      previewExpiresAt: string | null;
-      outcome: components['schemas']['PlaceImportOutcome'];
-      resultPlaceId: string | null;
-      error: components['schemas']['PlaceImportError'] | null;
+      pinnedMaterial: components['schemas']['PinnedMaterialResponseDto'] | null;
+      slug: string;
+      /** @enum {string} */
+      status: 'active' | 'hidden';
+      summary: string;
+      tags: string[];
+      title: string;
+    };
+    PlaceImportCategoryPreviewResponseDto: {
+      id: string | null;
+      /** @enum {string} */
+      resolution: 'existing' | 'will_create' | 'created';
+      /** @enum {string|null} */
+      status: 'draft' | 'active' | null;
+      title: string;
+    };
+    PlaceImportEventResponseDto: {
       /** Format: date-time */
       createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
-    };
-    PlaceImportEvent: {
       id: string;
       operationId: string;
       seq: number;
+      /** @enum {string} */
+      status:
+        | 'queued'
+        | 'parsing'
+        | 'awaiting_captcha'
+        | 'preview_ready'
+        | 'completed'
+        | 'failed'
+        | 'expired'
+        | 'cancelled';
       type: string;
       version: number;
-      status: components['schemas']['PlaceImportStatus'];
+    };
+    PlaceImportEventsResponseDto: {
+      events: components['schemas']['PlaceImportEventResponseDto'][];
+      operation: components['schemas']['PlaceImportOperationResponseDto'];
+    };
+    PlaceImportOperationErrorResponseDto: {
+      /** @enum {string} */
+      code:
+        | 'invalid_url'
+        | 'not_organization_url'
+        | 'redirect_not_allowed'
+        | 'source_not_found'
+        | 'captcha_session_expired'
+        | 'source_blocked'
+        | 'source_timeout'
+        | 'parse_failed'
+        | 'missing_title'
+        | 'missing_primary_category'
+        | 'missing_organization_id'
+        | 'category_conflict'
+        | 'external_identity_conflict'
+        | 'confirmation_expired'
+        | 'internal_error';
+      message: string;
+    };
+    PlaceImportOperationResponseDto: {
+      attempt: number;
+      /** Format: date-time */
+      captchaExpiresAt: string | null;
+      category: components['schemas']['PlaceImportCategoryPreviewResponseDto'] | null;
       /** Format: date-time */
       createdAt: string;
+      error: components['schemas']['PlaceImportOperationErrorResponseDto'] | null;
+      id: string;
+      /** Format: uri */
+      mapsUrl: string | null;
+      organizationId: string | null;
+      /** @enum {string|null} */
+      outcome: 'created' | 'already_exists' | null;
+      possibleDuplicate: components['schemas']['PlaceImportPossibleDuplicateResponseDto'] | null;
+      /** Format: date-time */
+      previewExpiresAt: string | null;
+      resultPlaceId: string | null;
+      /** Format: uri */
+      sourceUrl: string;
+      /** @enum {string} */
+      status:
+        | 'queued'
+        | 'parsing'
+        | 'awaiting_captcha'
+        | 'preview_ready'
+        | 'completed'
+        | 'failed'
+        | 'expired'
+        | 'cancelled';
+      title: string | null;
+      /** Format: date-time */
+      updatedAt: string;
+      version: number;
     };
-    PlaceImportEventsResponse: {
-      operation: components['schemas']['PlaceImportOperation'];
-      events: components['schemas']['PlaceImportEvent'][];
+    PlaceImportPossibleDuplicateResponseDto: {
+      placeId: string;
+      title: string;
     };
-    PlaceImportViewerAccess: {
-      /**
-       * Format: uri
-       * @description URL отдельного viewer-origin; one-time capability находится только во fragment.
-       */
-      viewerUrl: string;
+    PlaceImportViewerAccessResponseDto: {
       /** Format: date-time */
       expiresAt: string;
+      /** Format: uri */
+      viewerUrl: string;
     };
-    /** @description Payload создания пользовательского content source. */
-    CreateContentSourceRequest: {
-      platform: components['schemas']['ContentSourcePlatform'];
-      /**
-       * @description Административное имя источника.
-       * @example Amazing EKB Telegram
-       */
-      displayName: string;
-      /**
-       * Format: uri
-       * @description Публичный URL источника. Допускаются только абсолютные http/https URL.
-       * @example https://t.me/amazing_ekb
-       */
-      url: string;
-      /**
-       * @description Платформенный идентификатор источника, если известен.
-       * @example 123456
-       */
-      externalId?: string | null;
-      /**
-       * @description Человекочитаемый handle источника, если он есть.
-       * @example amazing_ekb
-       */
-      handle?: string | null;
-      /**
-       * @description Дополнительный channel id для платформ, где он отличается от externalId/handle.
-       * @example null
-       */
-      channelId?: string | null;
+    PlaceSummaryCategoryResponseDto: {
+      coverImageUrl: string | null;
+      id: string;
+      slug: string;
+      title: string;
     };
-    /** @description Payload частичного обновления content source. `platform`, `lastImportedAt` и `lastCursor` здесь не редактируются. После старта импортов identity-поля `url`, `externalId`, `handle` и `channelId` заблокированы, чтобы не смешивать cursor и imported-material dedupe разных источников. */
-    UpdateContentSourceRequest: {
-      /**
-       * @description Новое административное имя источника.
-       * @example Amazing EKB Telegram Updated
-       */
-      displayName?: string;
-      /**
-       * Format: uri
-       * @description Новый публичный URL источника. Допускаются только абсолютные http/https URL.
-       * @example https://t.me/amazing_ekb
-       */
-      url?: string;
-      /**
-       * @description Новый платформенный идентификатор или `null`, чтобы очистить поле.
-       * @example null
-       */
-      externalId?: string | null;
-      /**
-       * @description Новый handle или `null`, чтобы очистить поле.
-       * @example amazing_ekb
-       */
-      handle?: string | null;
-      /**
-       * @description Новый channel id или `null`, чтобы очистить поле.
-       * @example null
-       */
-      channelId?: string | null;
+    PlaceSummaryResponseDto: {
+      category: components['schemas']['PlaceSummaryCategoryResponseDto'];
+      coverImageUrl: string | null;
+      id: string;
+      slug: string;
+      /** @enum {string} */
+      status: 'active' | 'hidden';
+      summary: string;
+      tags: string[];
+      title: string;
     };
-    /** @description Payload переключения статуса content source без удаления записи. */
-    UpdateContentSourceStatusRequest: {
-      status: components['schemas']['ContentSourceStatus'];
+    ProblemFieldErrorResponseDto: {
+      /** @example invalid_email */
+      code: string;
+      /** @example The field must be a valid email address. */
+      detail: string;
+      /** @example /email */
+      pointer: string;
     };
-    /** @description Payload создания нового материала для места. */
-    CreateMaterialRequest: {
-      platform: components['schemas']['Platform'];
-      type: components['schemas']['MaterialType'];
+    ProblemResponseDto: {
       /**
-       * @description Заголовок материала.
-       * @example Обзор комплекса и советы по посещению
+       * @example AUTHENTICATION_REQUIRED
+       * @enum {string}
        */
+      code:
+        | 'ACTIVE_IMPORT_EXISTS'
+        | 'AUTHENTICATION_REQUIRED'
+        | 'AUTHORIZATION_DENIED'
+        | 'CATEGORY_IN_USE'
+        | 'CATEGORY_NOT_FOUND'
+        | 'CATEGORY_SLUG_CONFLICT'
+        | 'CONFLICT'
+        | 'CONTENT_SOURCE_ALREADY_EXISTS'
+        | 'CONTENT_SOURCE_IDENTITY_LOCKED'
+        | 'CONTENT_SOURCE_NOT_FOUND'
+        | 'DEPENDENCY_UNAVAILABLE'
+        | 'FAVORITE_PLACE_NOT_FOUND'
+        | 'IMPORT_CONTENT_SOURCE_NOT_FOUND'
+        | 'IMPORT_RUN_NOT_FOUND'
+        | 'INTERNAL_ERROR'
+        | 'MALFORMED_REQUEST'
+        | 'MATERIAL_NOT_FOUND'
+        | 'MATERIAL_PLACE_NOT_FOUND'
+        | 'NOT_FOUND'
+        | 'PAYLOAD_TOO_LARGE'
+        | 'PINNED_MATERIAL_NOT_FOUND'
+        | 'PINNED_MATERIAL_NOT_LINKED'
+        | 'PLACE_CATEGORY_NOT_FOUND'
+        | 'PLACE_IMPORTS_UNAVAILABLE'
+        | 'PLACE_IMPORT_ALREADY_ACTIVE'
+        | 'PLACE_IMPORT_IDENTITY_CONFLICT'
+        | 'PLACE_IMPORT_INPUT_INVALID'
+        | 'PLACE_IMPORT_NOT_FOUND'
+        | 'PLACE_IMPORT_PREVIEW_EXPIRED'
+        | 'PLACE_IMPORT_PREVIEW_NOT_READY'
+        | 'PLACE_IMPORT_VIEWER_UNAVAILABLE'
+        | 'PLACE_MATERIAL_LINK_NOT_FOUND'
+        | 'PLACE_NOT_FOUND'
+        | 'PLACE_SLUG_CONFLICT'
+        | 'RATE_LIMIT_EXCEEDED'
+        | 'TELEGRAM_IMPORT_SOURCE_INVALID'
+        | 'TELEGRAM_IMPORT_UNAVAILABLE'
+        | 'UNSUPPORTED_MEDIA_TYPE'
+        | 'VALIDATION_FAILED';
+      /** @example Valid authentication is required for this request. */
+      detail: string;
+      /**
+       * Format: uri-reference
+       * @example urn:request:01J3G1TQ9YQ7R7FQZ5P6M2K8A4
+       */
+      instance: string;
+      /** @example 01J3G1TQ9YQ7R7FQZ5P6M2K8A4 */
+      requestId: string;
+      /** @example 401 */
+      status: number;
+      /** @example Authentication required */
       title: string;
       /**
-       * Format: date
-       * @description Календарная дата публикации материала в формате `YYYY-MM-DD`.
-       * @example 2026-03-20
+       * Format: uri
+       * @example https://errors.amazing-ekb.local/problems/authentication-required
        */
+      type: string;
+    };
+    PublicMaterialListResponseDto: {
+      items: components['schemas']['PublicMaterialResponseDto'][];
+    };
+    PublicMaterialResponseDto: {
+      durationSec: number | null;
+      id: string;
+      placeId: string;
+      /** @enum {string} */
+      platform: 'dzen' | 'telegram' | 'instagram';
+      /** Format: date */
       publishedAt: string;
-      /**
-       * @description Длительность в секундах для видеоформатов.
-       * @example 183
-       */
-      durationSec?: number | null;
-      /**
-       * Format: uri
-       * @description Публичная ссылка на материал. Допускаются только абсолютные http/https URL.
-       * @example https://t.me/amazing_ekb/321
-       */
-      url: string;
+      redirectUrl: string | null;
+      title: string | null;
+      /** @enum {string} */
+      type: 'post' | 'reel' | 'video';
     };
-    /** @description Payload частичного обновления материала. */
-    UpdateMaterialRequest: {
-      platform?: components['schemas']['Platform'];
-      type?: components['schemas']['MaterialType'];
-      /**
-       * @description Новый заголовок материала.
-       * @example Обновлённый обзор комплекса
-       */
-      title?: string;
-      /**
-       * Format: date
-       * @description Новая календарная дата публикации в формате `YYYY-MM-DD`.
-       * @example 2026-03-22
-       */
-      publishedAt?: string;
-      /**
-       * @description Новая длительность в секундах.
-       * @example 240
-       */
-      durationSec?: number | null;
-      /**
-       * Format: uri
-       * @description Новая публичная ссылка на материал. Допускаются только абсолютные http/https URL.
-       * @example https://t.me/amazing_ekb/400
-       */
-      url?: string;
+    PublicPlaceCategoryListResponseDto: {
+      items: components['schemas']['PlaceCategoryPublicResponseDto'][];
     };
-    /** @description Payload обновления review-статуса материала в административной библиотеке. */
-    UpdateMaterialAdminStatusRequest: {
-      adminStatus: components['schemas']['MaterialAdminStatus'];
+    PublicPlaceListResponseDto: {
+      items: components['schemas']['PublicPlaceSummaryResponseDto'][];
+      page: number;
+      pageSize: number;
+      total: number;
     };
-    /** @description Payload обновления активной связи материала с местом. */
-    UpdatePlaceMaterialLinkRequest: {
-      /**
-       * @description Нужно ли закрепить материал в блоке “Начни отсюда”. Если `true`, backend снимет закрепление с других материалов этого места.
-       * @example true
-       */
-      isPinned?: boolean;
-      /**
-       * @description Ручной порядок отображения в списках материалов места.
-       * @example 10
-       */
-      sortOrder?: number;
+    PublicPlaceSummaryResponseDto: {
+      category: components['schemas']['PlaceSummaryCategoryResponseDto'];
+      counters: components['schemas']['PlaceCountersResponseDto'];
+      coverImageUrl: string | null;
+      id: string;
+      slug: string;
+      /** @enum {string} */
+      status: 'active' | 'hidden';
+      summary: string;
+      tags: string[];
+      title: string;
     };
-    /** @description Payload назначения закреплённого материала для места. */
-    SetPinnedMaterialRequest: {
+    ReadinessResponseDto: {
       /**
-       * @description Идентификатор материала, который нужно закрепить.
-       * @example material_telegram_001
+       * @description Extensible map of registered dependency names to their bounded check status.
+       * @example {
+       *       "draining": "up",
+       *       "postgresql": "up",
+       *       "redis-coordination": "up",
+       *       "startup": "up"
+       *     }
        */
+      checks: {
+        [key: string]: 'up' | 'down' | 'skipped';
+      };
+      /**
+       * @example ok
+       * @enum {string}
+       */
+      status: 'ok' | 'unavailable';
+    };
+    SessionsResponseDto: {
+      sessions: components['schemas']['BrowserSessionResponseDto'][];
+    };
+    SetPinnedMaterialDto: {
       materialId: string;
     };
-    /** @description Multipart payload для загрузки cover-фото места. */
-    PlacePhotoUploadRequest: {
-      /**
-       * Format: binary
-       * @description Файл cover-фото в формате JPEG, PNG или WebP размеров до 5 MB.
-       */
-      photo: string;
+    StartPlaceImportDto: {
+      url: string;
     };
-    /** @description Ответ liveness-пробы. Показывает, что процесс приложения запущен. */
-    HealthLiveResponse: {
+    StartupResponseDto: {
       /**
-       * @description Признак живости приложения.
        * @example ok
+       * @enum {string}
        */
-      status: string;
+      status: 'ok' | 'starting' | 'unavailable';
     };
-    /** @description Ответ readiness-пробы. Показывает готовность приложения обслуживать запросы. */
-    HealthReadyResponse: {
+    UpdateContentSourceDto: {
+      channelId?: string | null;
+      displayName?: string;
+      externalId?: string | null;
+      handle?: string | null;
+      /** Format: uri */
+      url?: string;
+    };
+    UpdateContentSourceStatusDto: {
+      /** @enum {string} */
+      status: 'active' | 'disabled';
+    };
+    UpdateMaterialAdminStatusDto: {
+      /** @enum {string} */
+      adminStatus: 'pending' | 'approved' | 'rejected' | 'archived';
+    };
+    UpdateMaterialDto: {
+      durationSec?: number | null;
+      /** @enum {string|null} */
+      platform?: 'dzen' | 'telegram' | 'instagram' | null;
+      /** Format: date */
+      publishedAt?: string;
+      title?: string | null;
+      /** @enum {string|null} */
+      type?: 'post' | 'reel' | 'video' | null;
+      /** Format: uri */
+      url?: string | null;
+    };
+    UpdatePlaceCategoryDto: {
+      slug?: string;
+      title?: string;
+    };
+    UpdatePlaceDto: {
+      categoryId?: string | null;
+      slug?: string;
+      summary?: string | null;
+      tags?: string[] | null;
+      title?: string | null;
+    };
+    UpdatePlaceMaterialLinkDto: {
+      isPinned?: boolean;
+      sortOrder?: number;
+    };
+    UpdatePlaceStatusDto: {
+      /** @enum {string} */
+      status: 'active' | 'hidden';
+    };
+    ValidationProblemResponseDto: {
       /**
-       * @description Общий статус готовности.
-       * @example ok
+       * @example AUTHENTICATION_REQUIRED
+       * @enum {string}
        */
-      status: string;
-      /** @description Результаты инфраструктурных проверок. */
-      checks: {
-        /**
-         * @description Статус подключения к базе данных.
-         * @example up
-         */
-        database: string;
-      };
+      code:
+        | 'ACTIVE_IMPORT_EXISTS'
+        | 'AUTHENTICATION_REQUIRED'
+        | 'AUTHORIZATION_DENIED'
+        | 'CATEGORY_IN_USE'
+        | 'CATEGORY_NOT_FOUND'
+        | 'CATEGORY_SLUG_CONFLICT'
+        | 'CONFLICT'
+        | 'CONTENT_SOURCE_ALREADY_EXISTS'
+        | 'CONTENT_SOURCE_IDENTITY_LOCKED'
+        | 'CONTENT_SOURCE_NOT_FOUND'
+        | 'DEPENDENCY_UNAVAILABLE'
+        | 'FAVORITE_PLACE_NOT_FOUND'
+        | 'IMPORT_CONTENT_SOURCE_NOT_FOUND'
+        | 'IMPORT_RUN_NOT_FOUND'
+        | 'INTERNAL_ERROR'
+        | 'MALFORMED_REQUEST'
+        | 'MATERIAL_NOT_FOUND'
+        | 'MATERIAL_PLACE_NOT_FOUND'
+        | 'NOT_FOUND'
+        | 'PAYLOAD_TOO_LARGE'
+        | 'PINNED_MATERIAL_NOT_FOUND'
+        | 'PINNED_MATERIAL_NOT_LINKED'
+        | 'PLACE_CATEGORY_NOT_FOUND'
+        | 'PLACE_IMPORTS_UNAVAILABLE'
+        | 'PLACE_IMPORT_ALREADY_ACTIVE'
+        | 'PLACE_IMPORT_IDENTITY_CONFLICT'
+        | 'PLACE_IMPORT_INPUT_INVALID'
+        | 'PLACE_IMPORT_NOT_FOUND'
+        | 'PLACE_IMPORT_PREVIEW_EXPIRED'
+        | 'PLACE_IMPORT_PREVIEW_NOT_READY'
+        | 'PLACE_IMPORT_VIEWER_UNAVAILABLE'
+        | 'PLACE_MATERIAL_LINK_NOT_FOUND'
+        | 'PLACE_NOT_FOUND'
+        | 'PLACE_SLUG_CONFLICT'
+        | 'RATE_LIMIT_EXCEEDED'
+        | 'TELEGRAM_IMPORT_SOURCE_INVALID'
+        | 'TELEGRAM_IMPORT_UNAVAILABLE'
+        | 'UNSUPPORTED_MEDIA_TYPE'
+        | 'VALIDATION_FAILED';
+      /** @example Valid authentication is required for this request. */
+      detail: string;
+      errors: components['schemas']['ProblemFieldErrorResponseDto'][];
+      /**
+       * Format: uri-reference
+       * @example urn:request:01J3G1TQ9YQ7R7FQZ5P6M2K8A4
+       */
+      instance: string;
+      /** @example 01J3G1TQ9YQ7R7FQZ5P6M2K8A4 */
+      requestId: string;
+      /** @example 401 */
+      status: number;
+      /** @example Authentication required */
+      title: string;
+      /**
+       * Format: uri
+       * @example https://errors.amazing-ekb.local/problems/authentication-required
+       */
+      type: string;
     };
   };
-  responses: {
-    /** @description Ошибка валидации входных параметров или тела запроса. */
-    ValidationError: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-    /** @description Пользователь не аутентифицирован или auth cookie отсутствует/некорректна. */
-    Unauthorized: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-    /** @description У текущего пользователя недостаточно прав для выполнения операции. */
-    Forbidden: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-    /** @description Слишком много auth-запросов за короткий промежуток времени. */
-    TooManyRequests: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-    /** @description Указанное место не найдено. */
-    PlaceNotFound: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-    /** @description Указанная категория не найдена. */
-    CategoryNotFound: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-    /** @description Категория конфликтует с существующей записью или используется местами. */
-    CategoryConflict: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-    /** @description Указанный материал не найден. */
-    MaterialNotFound: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-    /** @description Указанный content source не найден. */
-    ContentSourceNotFound: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-    /** @description Content source с такой platform/url уже существует или identity source уже нельзя менять после старта импортов. */
-    ContentSourceConflict: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-    /** @description Для этого content source уже есть active queued/running Telegram import run. */
-    TelegramImportAlreadyRunning: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-    /** @description Сервис временно не готов обрабатывать запросы. */
-    ServiceUnavailable: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/json': components['schemas']['NestErrorResponse'];
-      };
-    };
-  };
-  parameters: {
-    /**
-     * @description Идентификатор места.
-     * @example place_ekb_001
-     */
-    PlaceId: string;
-    /**
-     * @description Публичный slug места.
-     * @example baden-baden-uktus
-     */
-    PlaceSlug: string;
-    /**
-     * @description Идентификатор категории места.
-     * @example category_spa
-     */
-    CategoryId: string;
-    /**
-     * @description Публичный slug категории места.
-     * @example spa
-     */
-    CategorySlug: string;
-    /**
-     * @description Идентификатор материала.
-     * @example material_telegram_001
-     */
-    MaterialId: string;
-    /**
-     * @description Идентификатор content source.
-     * @example source_telegram_001
-     */
-    ContentSourceId: string;
-    /**
-     * @description Идентификатор операции автоматического создания места.
-     * @example cmrvo_place_import_001
-     */
-    PlaceImportOperationId: string;
-    /**
-     * @description Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.
-     * @example 1
-     */
-    Page: number;
-    /**
-     * @description Размер страницы. Допустимый диапазон от `1` до `100`.
-     * @example 20
-     */
-    PageSize: number;
-  };
+  responses: never;
+  parameters: never;
   requestBodies: never;
   headers: never;
   pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  getLiveness: {
+  healthLive: {
     parameters: {
       query?: never;
       header?: never;
@@ -2124,18 +1540,27 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Приложение живо и принимает запросы. */
+      /** @description The HTTP process is alive. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HealthLiveResponse'];
+          'application/json': components['schemas']['LivenessResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
     };
   };
-  getReadiness: {
+  healthReady: {
     parameters: {
       query?: never;
       header?: never;
@@ -2144,603 +1569,562 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Приложение готово обслуживать запросы. */
+      /** @description All required readiness indicators are available. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HealthReadyResponse'];
+          'application/json': components['schemas']['ReadinessResponseDto'];
         };
       };
-      503: components['responses']['ServiceUnavailable'];
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description One or more required indicators are unavailable or skipped. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReadinessResponseDto'];
+        };
+      };
     };
   };
-  login: {
+  healthStartup: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** @description Учетные данные пользователя. */
+    requestBody?: never;
+    responses: {
+      /** @description Startup completed successfully. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StartupResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Startup is incomplete or has failed. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StartupResponseDto'];
+        };
+      };
+    };
+  };
+  adminCategoriesList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Administrative category list. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceCategoryListResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCategoriesCreate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
     requestBody: {
       content: {
-        'application/json': components['schemas']['AuthLoginRequest'];
+        'application/json': components['schemas']['CreatePlaceCategoryDto'];
       };
     };
     responses: {
-      /** @description Успешная аутентификация. Ответ устанавливает `aeh_access_token` и `aeh_refresh_token`. */
-      200: {
-        headers: {
-          /** @description HttpOnly auth cookies для access и refresh токенов. */
-          'Set-Cookie'?: string;
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['AuthMeResponse'];
-        };
-      };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      429: components['responses']['TooManyRequests'];
-    };
-  };
-  refreshTokens: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Cookies успешно перевыпущены. */
-      204: {
-        headers: {
-          /** @description Новые HttpOnly auth cookies для access и refresh токенов. */
-          'Set-Cookie'?: string;
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      401: components['responses']['Unauthorized'];
-      429: components['responses']['TooManyRequests'];
-    };
-  };
-  logout: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Refresh token отозван, auth cookies очищены. */
-      204: {
-        headers: {
-          /** @description Очистка `aeh_access_token` и `aeh_refresh_token`. */
-          'Set-Cookie'?: string;
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  getCurrentUser: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Профиль текущего пользователя. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['AuthMeResponse'];
-        };
-      };
-      401: components['responses']['Unauthorized'];
-    };
-  };
-  listPlaceCategories: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Список категорий мест. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['PlaceCategoryListResponse'];
-        };
-      };
-    };
-  };
-  getPlaceCategory: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Публичный slug категории места.
-         * @example spa
-         */
-        categorySlug: components['parameters']['CategorySlug'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Категория места. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['PlaceCategory'];
-        };
-      };
-      404: components['responses']['CategoryNotFound'];
-    };
-  };
-  getPlaceCategoryPhoto: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Публичный slug категории места.
-         * @example spa
-         */
-        categorySlug: components['parameters']['CategorySlug'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Бинарное содержимое cover-фотографии категории. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'image/jpeg': string;
-          'image/png': string;
-          'image/webp': string;
-        };
-      };
-      404: components['responses']['CategoryNotFound'];
-    };
-  };
-  listPlaces: {
-    parameters: {
-      query?: {
-        /**
-         * @description Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.
-         * @example 1
-         */
-        page?: components['parameters']['Page'];
-        /**
-         * @description Размер страницы. Допустимый диапазон от `1` до `100`.
-         * @example 20
-         */
-        pageSize?: components['parameters']['PageSize'];
-        /**
-         * @description Полнотекстовый поиск по названию и описанию места. Максимум 100 символов.
-         * @example термы
-         */
-        search?: string;
-        /**
-         * @description Фильтр по идентификатору категории места.
-         * @example category_spa
-         */
-        categoryId?: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Пагинированный список мест. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['PublicPlaceListResponse'];
-        };
-      };
-      400: components['responses']['ValidationError'];
-    };
-  };
-  getPlaceDetail: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Публичный slug места.
-         * @example baden-baden-uktus
-         */
-        placeSlug: components['parameters']['PlaceSlug'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Детальная карточка места. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['PlaceDetail'];
-        };
-      };
-      404: components['responses']['PlaceNotFound'];
-    };
-  };
-  getPlaceCoverPhoto: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Публичный slug места.
-         * @example baden-baden-uktus
-         */
-        placeSlug: components['parameters']['PlaceSlug'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Бинарное содержимое публичного cover-фото. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'image/jpeg': string;
-          'image/png': string;
-          'image/webp': string;
-        };
-      };
-      404: components['responses']['PlaceNotFound'];
-    };
-  };
-  listPlaceMaterials: {
-    parameters: {
-      query?: {
-        /**
-         * @description Фильтр по платформе публикации материала.
-         * @example telegram
-         */
-        platform?: components['schemas']['Platform'];
-      };
-      header?: never;
-      path: {
-        /**
-         * @description Публичный slug места.
-         * @example baden-baden-uktus
-         */
-        placeSlug: components['parameters']['PlaceSlug'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Список материалов места. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['MaterialListResponse'];
-        };
-      };
-      400: components['responses']['ValidationError'];
-      404: components['responses']['PlaceNotFound'];
-    };
-  };
-  redirectMaterial: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор материала.
-         * @example material_telegram_001
-         */
-        materialId: components['parameters']['MaterialId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Временный redirect на сохраненный внешний URL материала. */
-      302: {
-        headers: {
-          /** @description Безопасный абсолютный https URL материала. */
-          Location?: string;
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      404: components['responses']['MaterialNotFound'];
-    };
-  };
-  listFavorites: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Список избранных мест. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['PlaceListResponse'];
-        };
-      };
-      401: components['responses']['Unauthorized'];
-    };
-  };
-  addFavorite: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Место добавлено в избранное. */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      401: components['responses']['Unauthorized'];
-      404: components['responses']['PlaceNotFound'];
-    };
-  };
-  removeFavorite: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Место удалено из избранного. */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      401: components['responses']['Unauthorized'];
-    };
-  };
-  listAdminPlaceCategories: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Список категорий мест. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['AdminPlaceCategoryListResponse'];
-        };
-      };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-    };
-  };
-  createPlaceCategory: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description Данные новой категории. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['CreatePlaceCategoryRequest'];
-      };
-    };
-    responses: {
-      /** @description Категория создана. */
+      /** @description Created category. */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AdminPlaceCategory'];
+          'application/json': components['schemas']['PlaceCategoryResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      409: components['responses']['CategoryConflict'];
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Category slug conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
     };
   };
-  getAdminPlaceCategory: {
+  adminCategoriesGet: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        /**
-         * @description Идентификатор категории места.
-         * @example category_spa
-         */
-        categoryId: components['parameters']['CategoryId'];
+        categoryId: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Категория найдена. */
+      /** @description Administrative category. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AdminPlaceCategory'];
+          'application/json': components['schemas']['PlaceCategoryResponseDto'];
         };
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['CategoryNotFound'];
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Category not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
     };
   };
-  deletePlaceCategory: {
+  adminCategoriesDelete: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        /**
-         * @description Идентификатор категории места.
-         * @example category_spa
-         */
-        categoryId: components['parameters']['CategoryId'];
+        categoryId: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Категория удалена. */
+      /** @description Deleted category. */
       204: {
         headers: {
           [name: string]: unknown;
         };
         content?: never;
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['CategoryNotFound'];
-      409: components['responses']['CategoryConflict'];
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Category not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Category in use */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
     };
   };
-  updatePlaceCategory: {
+  adminCategoriesUpdate: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        /**
-         * @description Идентификатор категории места.
-         * @example category_spa
-         */
-        categoryId: components['parameters']['CategoryId'];
+        categoryId: string;
       };
       cookie?: never;
     };
-    /** @description Поля категории для обновления. */
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdatePlaceCategoryRequest'];
+        'application/json': components['schemas']['UpdatePlaceCategoryDto'];
       };
     };
     responses: {
-      /** @description Категория обновлена. */
+      /** @description Updated category. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AdminPlaceCategory'];
+          'application/json': components['schemas']['PlaceCategoryResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['CategoryNotFound'];
-      409: components['responses']['CategoryConflict'];
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Category not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Category slug conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
     };
   };
-  uploadPlaceCategoryPhoto: {
+  adminCategoriesUploadPhoto: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        /**
-         * @description Идентификатор категории места.
-         * @example category_spa
-         */
-        categoryId: components['parameters']['CategoryId'];
+        categoryId: string;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
         'multipart/form-data': {
-          /**
-           * Format: binary
-           * @description JPEG, PNG или WebP файл размером не более 5 MB.
-           */
+          /** Format: binary */
           photo: string;
         };
       };
     };
     responses: {
-      /** @description Фотография загружена, category metadata и versioned URL обновлены. */
+      /** @description Category with replaced cover photo. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AdminPlaceCategory'];
+          'application/json': components['schemas']['PlaceCategoryResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['CategoryNotFound'];
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Category not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Payload too large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Unsupported media type */
+      415: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
     };
   };
-  startYandexMapsPlaceImport: {
+  adminContentSourcesList: {
+    parameters: {
+      query?: {
+        platform?: 'telegram' | 'dzen' | 'instagram' | 'tiktok' | 'vk' | 'pinterest';
+        status?: 'active' | 'disabled';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Administrative content source list. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ContentSourceListResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminContentSourcesCreate: {
     parameters: {
       query?: never;
       header?: never;
@@ -2749,650 +2133,345 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['StartPlaceImportRequest'];
+        'application/json': components['schemas']['CreateContentSourceDto'];
       };
     };
     responses: {
-      /** @description Operation committed; delivery может быть повторена dispatcher-ом. */
-      202: {
+      /** @description Created content source. */
+      201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceImportOperation'];
+          'application/json': components['schemas']['ContentSourceResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description У администратора уже есть активная operation. */
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Content source already exists */
       409: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
       };
-      503: components['responses']['ServiceUnavailable'];
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
     };
   };
-  getPlaceImportOperation: {
+  adminContentSourcesUpdate: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        /**
-         * @description Идентификатор операции автоматического создания места.
-         * @example cmrvo_place_import_001
-         */
-        operationId: components['parameters']['PlaceImportOperationId'];
+        sourceId: string;
       };
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateContentSourceDto'];
+      };
+    };
     responses: {
-      /** @description Текущий source-of-truth snapshot. */
+      /** @description Updated content source. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceImportOperation'];
+          'application/json': components['schemas']['ContentSourceResponseDto'];
         };
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description Operation не найдена или принадлежит другому пользователю. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      503: components['responses']['ServiceUnavailable'];
-    };
-  };
-  readPlaceImportEvents: {
-    parameters: {
-      query?: {
-        afterVersion?: number;
-      };
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор операции автоматического создания места.
-         * @example cmrvo_place_import_001
-         */
-        operationId: components['parameters']['PlaceImportOperationId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Snapshot и append-only journal delta. */
-      200: {
+      /** @description Malformed request */
+      400: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceImportEventsResponse'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description Operation не найдена. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  streamPlaceImportEvents: {
-    parameters: {
-      query?: {
-        afterVersion?: number;
-      };
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор операции автоматического создания места.
-         * @example cmrvo_place_import_001
-         */
-        operationId: components['parameters']['PlaceImportOperationId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description SSE stream; `data` соответствует PlaceImportEventsResponse. */
-      200: {
+      /** @description Authentication required */
+      401: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example id: 3
-           *     event: place-import.updated
-           *     data: {"operation":{"id":"cmrvo_place_import_001","status":"preview_ready","version":3},"events":[]}
-           */
-          'text/event-stream': string;
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-    };
-  };
-  confirmPlaceImport: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор операции автоматического создания места.
-         * @example cmrvo_place_import_001
-         */
-        operationId: components['parameters']['PlaceImportOperationId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Создано hidden место либо возвращено строго существующее. */
-      201: {
+      /** @description Authorization denied */
+      403: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceImportOperation'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description Operation не найдена. */
+      /** @description Content source not found */
       404: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
       };
-      /** @description Preview не готов или обнаружен external identity conflict. */
+      /** @description Content source already exists; Content source identity locked */
       409: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
-      };
-      /** @description Preview TTL истёк. */
-      410: {
-        headers: {
-          [name: string]: unknown;
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
-        content?: never;
       };
-      503: components['responses']['ServiceUnavailable'];
-    };
-  };
-  cancelPlaceImport: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор операции автоматического создания места.
-         * @example cmrvo_place_import_001
-         */
-        operationId: components['parameters']['PlaceImportOperationId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Cancelled или ранее terminal snapshot. */
-      201: {
+      /** @description Validation failed */
+      422: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceImportOperation'];
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
         };
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description Operation не найдена. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  createPlaceImportViewerAccess: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор операции автоматического создания места.
-         * @example cmrvo_place_import_001
-         */
-        operationId: components['parameters']['PlaceImportOperationId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Viewer capability создан. */
-      201: {
+      /** @description Internal server error */
+      500: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceImportViewerAccess'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
-      };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description CAPTCHA state/solver lease не допускает выдачу. */
-      409: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
       };
     };
   };
-  revokePlaceImportViewerAccess: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор операции автоматического создания места.
-         * @example cmrvo_place_import_001
-         */
-        operationId: components['parameters']['PlaceImportOperationId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Capability/session удалены, старый WebSocket закрывается. */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description Активный solver lease отсутствует. */
-      409: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  listAdminPlaces: {
+  adminTelegramImportsEnqueue: {
     parameters: {
       query?: {
-        /**
-         * @description Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.
-         * @example 1
-         */
-        page?: components['parameters']['Page'];
-        /**
-         * @description Размер страницы. Допустимый диапазон от `1` до `100`.
-         * @example 20
-         */
-        pageSize?: components['parameters']['PageSize'];
-        /**
-         * @description Фильтр по статусу места. Если параметр отсутствует, возвращаются все статусы.
-         * @example hidden
-         */
-        status?: components['schemas']['PlaceStatus'];
+        limit?: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        sourceId: string;
+      };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Пагинированный административный список мест. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['AdminPlaceListResponse'];
-        };
-      };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-    };
-  };
-  createPlace: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description Данные нового места. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['CreatePlaceRequest'];
-      };
-    };
-    responses: {
-      /** @description Место успешно создано. */
+      /** @description Queued Telegram import run. */
       201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceSummary'];
+          'application/json': components['schemas']['ImportRunResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['CategoryNotFound'];
-    };
-  };
-  getAdminPlaceDetail: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Детальная карточка места для администратора. */
-      200: {
+      /** @description Telegram import source invalid */
+      400: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AdminPlaceDetail'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['PlaceNotFound'];
-    };
-  };
-  updatePlace: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-      };
-      cookie?: never;
-    };
-    /** @description Набор полей для частичного обновления места. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdatePlaceRequest'];
-      };
-    };
-    responses: {
-      /** @description Место успешно обновлено. */
-      200: {
+      /** @description Authentication required */
+      401: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceSummary'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description Место или категория не найдены. */
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Import content source not found; Import run not found */
       404: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['NestErrorResponse'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Active import exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Telegram import unavailable; Dependency unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
     };
   };
-  updatePlaceStatus: {
+  adminContentSourcesUpdateStatus: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
+        sourceId: string;
       };
       cookie?: never;
     };
-    /** @description Новый статус места. */
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdatePlaceStatusRequest'];
+        'application/json': components['schemas']['UpdateContentSourceStatusDto'];
       };
     };
     responses: {
-      /** @description Статус места успешно обновлён. */
+      /** @description Content source with updated status. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceSummary'];
+          'application/json': components['schemas']['ContentSourceResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['PlaceNotFound'];
-    };
-  };
-  uploadPlaceCoverPhoto: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-      };
-      cookie?: never;
-    };
-    /** @description Multipart payload с одиночным файлом в поле `photo`. */
-    requestBody: {
-      content: {
-        'multipart/form-data': components['schemas']['PlacePhotoUploadRequest'];
-      };
-    };
-    responses: {
-      /** @description Cover-фото места успешно загружено или заменено. */
-      200: {
+      /** @description Malformed request */
+      400: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PlaceSummary'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['PlaceNotFound'];
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Content source not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
     };
   };
-  listContentSources: {
+  adminImportRunsList: {
     parameters: {
       query?: {
-        /**
-         * @description Фильтр по платформе источника.
-         * @example telegram
-         */
-        platform?: components['schemas']['ContentSourcePlatform'];
-        /**
-         * @description Фильтр по статусу источника.
-         * @example active
-         */
-        status?: components['schemas']['ContentSourceStatus'];
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Список content sources. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ContentSourceListResponse'];
-        };
-      };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-    };
-  };
-  createContentSource: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description Данные нового content source. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['CreateContentSourceRequest'];
-      };
-    };
-    responses: {
-      /** @description Content source создан. */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ContentSource'];
-        };
-      };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      409: components['responses']['ContentSourceConflict'];
-    };
-  };
-  updateContentSource: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор content source.
-         * @example source_telegram_001
-         */
-        sourceId: components['parameters']['ContentSourceId'];
-      };
-      cookie?: never;
-    };
-    /** @description Поля content source, которые нужно обновить. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateContentSourceRequest'];
-      };
-    };
-    responses: {
-      /** @description Content source обновлен. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ContentSource'];
-        };
-      };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['ContentSourceNotFound'];
-      409: components['responses']['ContentSourceConflict'];
-    };
-  };
-  updateContentSourceStatus: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор content source.
-         * @example source_telegram_001
-         */
-        sourceId: components['parameters']['ContentSourceId'];
-      };
-      cookie?: never;
-    };
-    /** @description Новый статус content source. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateContentSourceStatusRequest'];
-      };
-    };
-    responses: {
-      /** @description Статус content source обновлен. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ContentSource'];
-        };
-      };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['ContentSourceNotFound'];
-    };
-  };
-  listImportRuns: {
-    parameters: {
-      query?: {
-        /**
-         * @description Фильтр по content source.
-         * @example source_telegram_001
-         */
         sourceId?: string;
-        /**
-         * @description Фильтр по статусу import run.
-         * @example completed
-         */
-        status?: components['schemas']['ImportRunStatus'];
+        status?: 'queued' | 'running' | 'completed' | 'failed';
       };
       header?: never;
       path?: never;
@@ -3400,36 +2479,65 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Список import runs. */
+      /** @description Administrative import run list. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ImportRunListResponse'];
+          'application/json': components['schemas']['ImportRunListResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
     };
   };
-  streamImportRunEvents: {
+  adminImportRunsStreamEvents: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        /**
-         * @description Идентификатор import run.
-         * @example import_run_001
-         */
         runId: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Server-Sent Events stream. Каждое событие `import-run.updated` содержит JSON-serialized `ImportRun` в `data`; ошибка подготовки подписки приходит как SSE `error` event. */
+      /** @description Import run server-sent events. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -3438,88 +2546,52 @@ export interface operations {
           'text/event-stream': string;
         };
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-    };
-  };
-  importTelegramChannel: {
-    parameters: {
-      query?: {
-        /**
-         * @description Размер одного внутреннего batch-а в логических Telegram-постах; одиночный message считается одним постом, album/media group с общим groupedId тоже считается одним постом. Один queued run может обработать несколько batch-ов подряд и останавливается при исчерпании истории или safety cap 20 batch-ов.
-         * @example 50
-         */
-        limit?: number;
-      };
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор content source.
-         * @example source_telegram_001
-         */
-        sourceId: components['parameters']['ContentSourceId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Telegram import job поставлен в очередь; response содержит queued import run reference. */
-      201: {
+      /** @description Authentication required */
+      401: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ImportRun'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['ContentSourceNotFound'];
-      409: components['responses']['TelegramImportAlreadyRunning'];
-      /** @description Import run создан, но job не удалось поставить в queue; run переведен в failed с безопасной диагностикой. */
-      503: {
+      /** @description Authorization denied */
+      403: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['NestErrorResponse'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Import run not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
     };
   };
-  listAdminMaterialLibrary: {
+  adminMaterialsList: {
     parameters: {
       query?: {
-        /**
-         * @description Фильтр по платформе публикации материала.
-         * @example telegram
-         */
-        platform?: components['schemas']['Platform'];
-        /**
-         * @description Идентификатор места, для которого нужно вернуть статус связи `placeLink`.
-         * @example place_ekb_001
-         */
+        platform?: 'dzen' | 'telegram' | 'instagram';
         placeId?: string;
-        /**
-         * @description Фильтр по review-статусу материала. Для selector-а привязки обычно используется `approved`.
-         * @example approved
-         */
-        adminStatus?: components['schemas']['MaterialAdminStatus'];
-        /**
-         * @description Фильтр по глобальному наличию `PlaceMaterial` связи. `false` означает, что у материала нет ни одной связи с любым place, включая hidden.
-         * @example false
-         */
+        adminStatus?: 'pending' | 'approved' | 'rejected' | 'archived';
         linked?: boolean;
-        /**
-         * @description Номер страницы пагинации. Допустимый диапазон от `1` до `1000`.
-         * @example 1
-         */
-        page?: components['parameters']['Page'];
-        /**
-         * @description Размер страницы. Допустимый диапазон от `1` до `100`. По умолчанию `100`, чтобы сохранить прежний bounded list размер без явной пагинации.
-         * @example 100
-         */
+        page?: number;
         pageSize?: number;
       };
       header?: never;
@@ -3528,376 +2600,2869 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Список материалов общей библиотеки. */
+      /** @description Administrative material library. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AdminMaterialLibraryListResponse'];
+          'application/json': components['schemas']['AdminMaterialLibraryListResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['PlaceNotFound'];
-    };
-  };
-  listAdminPlaceMaterials: {
-    parameters: {
-      query?: {
-        /**
-         * @description Фильтр по платформе публикации материала.
-         * @example telegram
-         */
-        platform?: components['schemas']['Platform'];
-      };
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Список материалов места для администратора. */
-      200: {
+      /** @description Authentication required */
+      401: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['MaterialListResponse'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['PlaceNotFound'];
-    };
-  };
-  createPlaceMaterial: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-      };
-      cookie?: never;
-    };
-    /** @description Данные нового материала. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['CreateMaterialRequest'];
-      };
-    };
-    responses: {
-      /** @description Материал успешно создан. */
-      201: {
+      /** @description Authorization denied */
+      403: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Material'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['PlaceNotFound'];
-    };
-  };
-  linkPlaceMaterial: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-        /**
-         * @description Идентификатор материала.
-         * @example material_telegram_001
-         */
-        materialId: components['parameters']['MaterialId'];
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Материал связан с местом. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Material'];
-        };
-      };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description Место или материал не найдены. */
+      /** @description Material place not found */
       404: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['NestErrorResponse'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
     };
   };
-  hidePlaceMaterialLink: {
+  adminMaterialsUpdate: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-        /**
-         * @description Идентификатор материала.
-         * @example material_telegram_001
-         */
-        materialId: components['parameters']['MaterialId'];
+        materialId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateMaterialDto'];
+      };
+    };
+    responses: {
+      /** @description Updated material. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MaterialResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Material not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminMaterialsUpdateStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        materialId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateMaterialAdminStatusDto'];
+      };
+    };
+    responses: {
+      /** @description Material with updated review status. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminMaterialLibraryResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Material not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceImportsGet: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        operationId: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Связь скрыта, тело ответа отсутствует. */
+      /** @description Place import operation snapshot. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportOperationResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place import not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place imports unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceImportsCancel: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        operationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cancelled place import operation. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportOperationResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place import not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place imports unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceImportsConfirm: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        operationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Confirmed place import operation. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportOperationResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place import not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place import preview not ready; Place import identity conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place import preview expired */
+      410: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place imports unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceImportsGetEvents: {
+    parameters: {
+      query?: {
+        afterVersion?: number;
+      };
+      header?: never;
+      path: {
+        operationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Place import event delta. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportEventsResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place import not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place imports unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceImportsStreamEvents: {
+    parameters: {
+      query?: {
+        afterVersion?: number;
+      };
+      header?: never;
+      path: {
+        operationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Place import server-sent events. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'text/event-stream': string;
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place import not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place imports unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceImportsCreateViewerAccess: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        operationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Place import viewer capability. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportViewerAccessResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place import viewer unavailable */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place imports unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceImportsRevokeViewerAccess: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        operationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Revoked place import viewer capability. */
       204: {
         headers: {
           [name: string]: unknown;
         };
         content?: never;
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description Место, материал или активная связь не найдены. */
-      404: {
+      /** @description Authentication required */
+      401: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['NestErrorResponse'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place import viewer unavailable */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place imports unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
     };
   };
-  updatePlaceMaterialLink: {
+  adminPlaceImportsGetActive: {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-        /**
-         * @description Идентификатор материала.
-         * @example material_telegram_001
-         */
-        materialId: components['parameters']['MaterialId'];
-      };
-      cookie?: never;
-    };
-    /** @description Поля связи, которые нужно обновить. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdatePlaceMaterialLinkRequest'];
-      };
-    };
-    responses: {
-      /** @description Связь материала с местом обновлена. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Material'];
-        };
-      };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description Место, материал или активная связь не найдены. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['NestErrorResponse'];
-        };
-      };
-    };
-  };
-  updateMaterial: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор материала.
-         * @example material_telegram_001
-         */
-        materialId: components['parameters']['MaterialId'];
-      };
-      cookie?: never;
-    };
-    /** @description Набор полей для частичного обновления материала. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateMaterialRequest'];
-      };
-    };
-    responses: {
-      /** @description Материал успешно обновлён. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['Material'];
-        };
-      };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['MaterialNotFound'];
-    };
-  };
-  updateMaterialAdminStatus: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор материала.
-         * @example material_telegram_001
-         */
-        materialId: components['parameters']['MaterialId'];
-      };
-      cookie?: never;
-    };
-    /** @description Новый review-статус материала. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateMaterialAdminStatusRequest'];
-      };
-    };
-    responses: {
-      /** @description Review-статус материала обновлен. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['AdminMaterialLibraryItem'];
-        };
-      };
-      400: components['responses']['ValidationError'];
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['MaterialNotFound'];
-    };
-  };
-  clearPinnedMaterial: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-      };
+      path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Закреплённый материал успешно очищен. */
+      /** @description Active place import operation. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AdminPlaceDetail'];
+          'application/json': components['schemas']['PlaceImportOperationResponseDto'];
         };
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description Место не найдено. */
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place import not found */
       404: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['NestErrorResponse'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-    };
-  };
-  setPinnedMaterial: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /**
-         * @description Идентификатор места.
-         * @example place_ekb_001
-         */
-        placeId: components['parameters']['PlaceId'];
-      };
-      cookie?: never;
-    };
-    /** @description Идентификатор материала, который нужно закрепить за местом. */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SetPinnedMaterialRequest'];
-      };
-    };
-    responses: {
-      /** @description Закреплённый материал успешно обновлён. */
-      200: {
+      /** @description Internal server error */
+      500: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AdminPlaceDetail'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      /** @description Ошибка валидации или нарушение бизнес-правила. */
+      /** @description Place imports unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceImportsStart: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StartPlaceImportDto'];
+      };
+    };
+    responses: {
+      /** @description Accepted place import operation. */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceImportOperationResponseDto'];
+        };
+      };
+      /** @description Malformed request; Place import input invalid */
       400: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['NestErrorResponse'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      401: components['responses']['Unauthorized'];
-      403: components['responses']['Forbidden'];
-      /** @description Место или материал не найдены. */
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place import already active */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place imports unavailable; Dependency unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlacesList: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        status?: 'active' | 'hidden';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Administrative place list. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminPlaceListResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlacesCreate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreatePlaceDto'];
+      };
+    };
+    responses: {
+      /** @description Created place. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceSummaryResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place category not found */
       404: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['NestErrorResponse'];
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place slug conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlacesGet: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Administrative place detail. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceDetailResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlacesUpdate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePlaceDto'];
+      };
+    };
+    responses: {
+      /** @description Updated place. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceSummaryResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place not found; Place category not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place slug conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceMaterialsList: {
+    parameters: {
+      query?: {
+        platform?: 'dzen' | 'telegram' | 'instagram';
+      };
+      header?: never;
+      path: {
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Administrative place material list. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MaterialListResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Material place not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceMaterialsCreate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateMaterialDto'];
+      };
+    };
+    responses: {
+      /** @description Created place material. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MaterialResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Material place not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceMaterialsLink: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        materialId: string;
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Linked place material. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MaterialResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Material place not found; Material not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceMaterialsHide: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        materialId: string;
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Hidden place material link. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Material place not found; Material not found; Place material link not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceMaterialsUpdateLink: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        materialId: string;
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePlaceMaterialLinkDto'];
+      };
+    };
+    responses: {
+      /** @description Updated place material link. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MaterialResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Material place not found; Material not found; Place material link not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlacesUploadPhoto: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': {
+          /** Format: binary */
+          photo: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Place with replaced cover photo. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceSummaryResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Payload too large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Unsupported media type */
+      415: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlacesClearPinnedMaterial: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Place without pinned material. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceDetailResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlacesSetPinnedMaterial: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetPinnedMaterialDto'];
+      };
+    };
+    responses: {
+      /** @description Place with pinned material. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceDetailResponseDto'];
+        };
+      };
+      /** @description Malformed request; Pinned material not linked */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place not found; Pinned material not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlacesUpdateStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePlaceStatusDto'];
+      };
+    };
+    responses: {
+      /** @description Place with updated publication status. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceSummaryResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Place not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  authGetCsrfToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Session-bound CSRF token for unsafe browser requests. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CsrfTokenResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Dependency unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  authLogin: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LoginRequestDto'];
+      };
+    };
+    responses: {
+      /** @description Browser session created and its HttpOnly cookie issued. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['LoginResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Payload too large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Unsupported media type */
+      415: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Dependency unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  authLogout: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Current session revoked and its browser cookie cleared. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Unsupported media type */
+      415: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Dependency unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  authGetMe: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Fresh current-user projection. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CurrentUserResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Dependency unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  authChangePassword: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ChangePasswordRequestDto'];
+      };
+    };
+    responses: {
+      /** @description Password changed durably and session cleanup attempted. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AuthMutationResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Request conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Payload too large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Unsupported media type */
+      415: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Dependency unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  authListSessions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Owned browser sessions with safe device metadata. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SessionsResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Dependency unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  authLogoutAll: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description All sessions revoked durably and Redis cleanup attempted. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AuthMutationResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Unsupported media type */
+      415: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Dependency unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  authRevokeSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sessionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Owned session revoked if present. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Unsupported media type */
+      415: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Dependency unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  categoriesList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Public category list. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicPlaceCategoryListResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  categoriesGet: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        categorySlug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Public category. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceCategoryPublicResponseDto'];
+        };
+      };
+      /** @description Category not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  categoriesGetPhoto: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        categorySlug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Category cover image. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/*': string;
+        };
+      };
+      /** @description Category not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  favoritesList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Current principal favorite places. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FavoriteListResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  favoritesAdd: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Place added to favorites. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Favorite place not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  favoritesRemove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Place removed from favorites. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  materialsRedirect: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        materialId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Temporary redirect to an allowlisted material URL. */
+      302: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Material not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  placesList: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        categoryId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Public place list. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicPlaceListResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  placesGet: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeSlug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Public place detail. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PlaceDetailResponseDto'];
+        };
+      };
+      /** @description Place not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  placeMaterialsList: {
+    parameters: {
+      query?: {
+        platform?: 'dzen' | 'telegram' | 'instagram';
+      };
+      header?: never;
+      path: {
+        placeSlug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Public place materials. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicMaterialListResponseDto'];
+        };
+      };
+      /** @description Material place not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  placesGetPhoto: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeSlug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Place cover image. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/*': string;
+        };
+      };
+      /** @description Place not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
     };
