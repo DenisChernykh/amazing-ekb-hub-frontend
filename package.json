@@ -1,8 +1,12 @@
 {
   "name": "amazing-ekb-hub-frontend",
   "version": "0.1.0",
-  "packageManager": "pnpm@11.7.0",
+  "packageManager": "pnpm@11.15.1",
   "private": true,
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": "11.15.1"
+  },
   "scripts": {
     "dev": "next dev --webpack --port 3001",
     "build": "next build --webpack",

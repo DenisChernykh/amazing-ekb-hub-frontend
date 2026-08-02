@@ -1,6 +1,8 @@
 packages:
   - '.'
 
+verifyDepsBeforeRun: error
+
 overrides:
   postcss: 8.5.10
   'yaml@1': 1.10.3
