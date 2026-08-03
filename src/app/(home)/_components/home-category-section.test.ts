@@ -29,6 +29,8 @@ describe('HomeCategorySection', () => {
     expect(html).toContain('>Все категории<');
     expect(html).toContain('href="/categories"');
     expect(html).toContain('yekaterinburg-panorama.png');
+    expect(html.match(/<main\b/g)).toHaveLength(1);
+    expect(html.indexOf('<main')).toBeLessThan(html.indexOf('home-hero'));
   });
 
   it('renders eight category links and the two-layer all-categories action', () => {
