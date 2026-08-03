@@ -13,6 +13,8 @@ describe('SiteHeader', () => {
     expect(html).toContain('href="/categories"');
     expect(html).toContain('>Категории<');
     expect(html).toContain('site-header-expanded');
+    expect(html).toContain('border-border');
+    expect(html).not.toContain('border-transparent');
     expect(html).not.toMatch(/hamburger|backdrop-blur|shadow/);
   });
 });

@@ -162,6 +162,31 @@
 }
 
 @layer components {
+  .home-hero {
+    min-height: min(720px, calc(100svh - var(--spacing-site-header-expanded)));
+  }
+
+  .home-hero-image {
+    object-fit: cover;
+    animation: home-hero-image-drift 18s var(--ease-catalog) both;
+  }
+
+  .home-hero-scrim {
+    background:
+      linear-gradient(90deg, rgb(0 0 0 / 72%) 0%, rgb(0 0 0 / 36%) 48%, rgb(0 0 0 / 14%) 100%),
+      linear-gradient(0deg, rgb(0 0 0 / 42%) 0%, transparent 58%);
+  }
+
+  .home-hero-content {
+    animation: home-hero-content-in 800ms var(--ease-catalog) both;
+  }
+
+  .home-hero-title {
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    letter-spacing: -0.065em;
+    line-height: 0.9;
+  }
+
   .category-card-media {
     aspect-ratio: 4 / 3;
   }
@@ -295,6 +320,28 @@
   }
 }
 
+@keyframes home-hero-image-drift {
+  from {
+    transform: scale(1.06);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes home-hero-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (min-width: 64rem) {
   .place-feed-module {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -307,6 +354,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home-hero-image,
+  .home-hero-content {
+    animation: none;
+  }
+
   .catalog-primary-action-inverse {
     transition: none;
   }
@@ -318,5 +370,11 @@
 
   .place-detail-platform-navigation {
     transition: none;
+  }
+}
+
+@media (max-width: 40rem) {
+  .home-hero-image {
+    object-position: 32% center;
   }
 }

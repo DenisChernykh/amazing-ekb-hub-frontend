@@ -4,7 +4,7 @@ import Link from 'next/link';
 function ActionContent() {
   return (
     <>
-      <span>Показать все категории</span>
+      <span>Все категории</span>
       <ArrowRight aria-hidden="true" className="size-5" />
     </>
   );
