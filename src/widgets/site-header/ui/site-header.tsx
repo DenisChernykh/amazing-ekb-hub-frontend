@@ -33,8 +33,8 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 border-b bg-white transition duration-site-header ease-catalog motion-reduce:transition-none',
-        compact ? 'site-header-compact border-border' : 'site-header-expanded border-transparent',
+        'sticky top-0 z-50 border-b border-border bg-white transition duration-site-header ease-catalog motion-reduce:transition-none',
+        compact ? 'site-header-compact' : 'site-header-expanded',
       )}
     >
       <nav
