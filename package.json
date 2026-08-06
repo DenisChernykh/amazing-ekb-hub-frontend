@@ -12,6 +12,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "lint:tsdoc": "eslint . --config eslint.tsdoc.config.mjs",
     "lint:strict": "eslint . --max-warnings=0",
     "typecheck": "pnpm run typegen && tsc --noEmit",
     "prepare": "husky",

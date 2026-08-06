@@ -117,6 +117,13 @@ Helpers должны быть маленькими, pure и жить рядом 
 - feature helpers — `src/features/<name>/lib`;
 - generic helpers — `src/shared/lib`.
 
+## Отдельная задача TSDoc
+
+Не добавлять и не обновлять TSDoc по умолчанию. Делать это только по явной
+задаче пользователя; тогда использовать `docs/architecture/tsdoc-guidelines.md`
+и `pnpm run lint:tsdoc`. Команда выводит warnings и не входит в `pnpm run lint`
+или `pnpm run lint:strict`.
+
 ## Git
 
 Целевая история:
