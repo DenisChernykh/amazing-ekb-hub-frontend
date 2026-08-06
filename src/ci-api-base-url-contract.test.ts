@@ -67,6 +67,15 @@ describe('CI API base URL contract', () => {
     );
   });
 
+  it('passes the public origin through the production frontend runtime override', () => {
+    const workflow = readWorkflow('deploy-production.yml');
+
+    expect(workflow).toContain('PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:?PUBLIC_BASE_URL is required}');
+    expect(workflow).toContain(
+      'CACHE_REVALIDATION_SECRET: ${CACHE_REVALIDATION_SECRET:?CACHE_REVALIDATION_SECRET is required}',
+    );
+  });
+
   it('keeps the collection build fixture on the optional-cover contract path', () => {
     const fixture = readFileSync(
       resolve(process.cwd(), 'scripts/ci/catalog-build-fixture-server.mjs'),

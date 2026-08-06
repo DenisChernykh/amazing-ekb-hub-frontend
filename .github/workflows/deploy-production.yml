@@ -201,6 +201,7 @@ jobs:
           services:
             frontend:
               environment:
+                PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:?PUBLIC_BASE_URL is required}
                 CACHE_REVALIDATION_SECRET: ${CACHE_REVALIDATION_SECRET:?CACHE_REVALIDATION_SECRET is required}
           COMPOSE
           chmod 600 "${FRONTEND_COMPOSE_OVERRIDE_PATH}"
