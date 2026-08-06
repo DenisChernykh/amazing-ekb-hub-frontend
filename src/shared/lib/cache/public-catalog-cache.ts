@@ -20,10 +20,17 @@ export const PUBLIC_CATALOG_CACHE_LIFE = {
 
 /** Возвращает cache tag списка категорий. */
 export const getCategoriesCacheTag = () => 'categories';
+/** Возвращает cache tag списка публичных подборок. */
+export const getCollectionsCacheTag = () => 'collections';
 /** Возвращает ограниченный cache tag конкретной категории. */
 export const getCategoryCacheTag = (slug: string) => buildBoundedSlugCacheTag('category', slug);
 /** Возвращает ограниченный cache tag ленты мест категории. */
 export const getCategoryPlacesCacheTag = (slug: string) =>
   buildBoundedSlugCacheTag('category-places', slug);
+/** Возвращает ограниченный cache tag конкретной подборки. */
+export const getCollectionCacheTag = (slug: string) => buildBoundedSlugCacheTag('collection', slug);
+/** Возвращает ограниченный cache tag мест подборки. */
+export const getCollectionPlacesCacheTag = (slug: string) =>
+  buildBoundedSlugCacheTag('collection-places', slug);
 /** Возвращает ограниченный cache tag конкретного места. */
 export const getPlaceCacheTag = (slug: string) => buildBoundedSlugCacheTag('place', slug);

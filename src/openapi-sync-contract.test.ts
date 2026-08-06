@@ -8,6 +8,29 @@ import { afterEach, describe, expect, it } from 'vitest';
 const syncScriptPath = fileURLToPath(new URL('../scripts/api/sync-openapi.mjs', import.meta.url));
 const temporaryDirectories: string[] = [];
 
+function createValidOpenApiDocument() {
+  return {
+    openapi: '3.1.0',
+    info: {},
+    paths: {
+      '/v1/collections': { get: { operationId: 'collectionsList' } },
+      '/v1/collections/{collectionSlug}': { get: { operationId: 'collectionsGet' } },
+      '/v1/collections/{collectionSlug}/photo': { get: { operationId: 'collectionsGetPhoto' } },
+    },
+    components: {
+      schemas: {
+        PublicCollectionDetailResponseDto: {
+          properties: {
+            items: {
+              items: { $ref: '#/components/schemas/PublicPlaceSummaryResponseDto' },
+            },
+          },
+        },
+      },
+    },
+  };
+}
+
 async function createTemporaryDirectory(): Promise<string> {
   const directory = await mkdtemp(resolve(tmpdir(), 'openapi-sync-contract-'));
   temporaryDirectories.push(directory);
@@ -38,7 +61,7 @@ describe('sync-openapi CLI contract', () => {
   it('persists a local JSON source byte-for-byte', async () => {
     const directory = await createTemporaryDirectory();
     const sourcePath = resolve(directory, 'source.json');
-    const source = '{\n  "openapi": "3.1.0",\n  "info": {},\n  "paths": {}\n}';
+    const source = JSON.stringify(createValidOpenApiDocument(), null, 2);
     await writeFile(sourcePath, source);
 
     const result = syncOpenApi(directory, sourcePath);
@@ -76,5 +99,46 @@ describe('sync-openapi CLI contract', () => {
 
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain('OpenAPI source must contain openapi, info and paths');
+  });
+
+  it.each(['collectionsList', 'collectionsGet', 'collectionsGetPhoto'])(
+    'rejects a document missing the %s operation',
+    async (operationId) => {
+      const directory = await createTemporaryDirectory();
+      const sourcePath = resolve(directory, 'missing-operation.json');
+      const document = createValidOpenApiDocument();
+      const pathItems = document.paths as Record<string, Record<string, { operationId?: string }>>;
+
+      for (const [path, methods] of Object.entries(pathItems)) {
+        for (const [method, operation] of Object.entries(methods)) {
+          if (operation.operationId === operationId) {
+            delete pathItems[path][method];
+          }
+        }
+      }
+
+      await writeFile(sourcePath, JSON.stringify(document));
+
+      const result = syncOpenApi(directory, sourcePath);
+
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain(`OpenAPI source must expose ${operationId}`);
+    },
+  );
+
+  it('rejects collection detail items that do not use the canonical place summary schema', async () => {
+    const directory = await createTemporaryDirectory();
+    const sourcePath = resolve(directory, 'wrong-collection-items.json');
+    const document = createValidOpenApiDocument();
+    document.components.schemas.PublicCollectionDetailResponseDto.properties.items.items.$ref =
+      '#/components/schemas/CollectionPublicPlaceSummaryResponseDto';
+    await writeFile(sourcePath, JSON.stringify(document));
+
+    const result = syncOpenApi(directory, sourcePath);
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain(
+      'OpenAPI source must use PublicPlaceSummaryResponseDto for collection detail items',
+    );
   });
 });

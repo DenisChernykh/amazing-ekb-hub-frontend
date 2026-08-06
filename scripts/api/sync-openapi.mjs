@@ -17,6 +17,13 @@ function isRecord(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+const REQUIRED_PUBLIC_COLLECTION_OPERATION_IDS = [
+  'collectionsList',
+  'collectionsGet',
+  'collectionsGetPhoto',
+];
+const PUBLIC_COLLECTION_DETAIL_ITEMS_REF = '#/components/schemas/PublicPlaceSummaryResponseDto';
+
 function validateOpenApiDocument(openApiSpec) {
   let document;
 
@@ -33,6 +40,28 @@ function validateOpenApiDocument(openApiSpec) {
     !isRecord(document.paths)
   ) {
     throw new Error('OpenAPI source must contain openapi, info and paths');
+  }
+
+  for (const operationId of REQUIRED_PUBLIC_COLLECTION_OPERATION_IDS) {
+    const operationExists = Object.values(document.paths).some(
+      (pathItem) =>
+        isRecord(pathItem) &&
+        Object.values(pathItem).some(
+          (operation) => isRecord(operation) && operation.operationId === operationId,
+        ),
+    );
+
+    if (!operationExists) {
+      throw new Error(`OpenAPI source must expose ${operationId}`);
+    }
+  }
+
+  const detailItemsRef =
+    document.components?.schemas?.PublicCollectionDetailResponseDto?.properties?.items?.items?.$ref;
+  if (detailItemsRef !== PUBLIC_COLLECTION_DETAIL_ITEMS_REF) {
+    throw new Error(
+      'OpenAPI source must use PublicPlaceSummaryResponseDto for collection detail items',
+    );
   }
 }
 

@@ -109,6 +109,147 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/v1/admin/collections': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Administrative collection list. */
+    get: operations['adminCollectionsList'];
+    put?: never;
+    /** Created draft collection. */
+    post: operations['adminCollectionsCreate'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/collections/{collectionId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Administrative collection detail. */
+    get: operations['adminCollectionsGet'];
+    put?: never;
+    post?: never;
+    /** Deleted collection. */
+    delete: operations['adminCollectionsDelete'];
+    options?: never;
+    head?: never;
+    /** Updated collection metadata. */
+    patch: operations['adminCollectionsUpdate'];
+    trace?: never;
+  };
+  '/v1/admin/collections/{collectionId}/photo': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Administrative collection cover image. */
+    get: operations['adminCollectionsGetPhoto'];
+    put?: never;
+    /** Collection with replaced cover photo. */
+    post: operations['adminCollectionsUploadPhoto'];
+    /** Removed collection cover photo. */
+    delete: operations['adminCollectionsRemovePhoto'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/collections/{collectionId}/places': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Added place to collection. */
+    post: operations['adminCollectionsAddPlace'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/collections/{collectionId}/places/{placeId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Removed place from collection. */
+    delete: operations['adminCollectionsRemovePlace'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/collections/{collectionId}/places/order': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Reordered places in a collection. */
+    put: operations['adminCollectionsReorderPlaces'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/collections/{collectionId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Updated collection lifecycle status. */
+    patch: operations['adminCollectionsUpdateStatus'];
+    trace?: never;
+  };
+  '/v1/admin/collections/order': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Reordered collections. */
+    put: operations['adminCollectionsReorder'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/v1/admin/content-sources': {
     parameters: {
       query?: never;
@@ -436,6 +577,23 @@ export interface paths {
     patch: operations['adminPlacesUpdate'];
     trace?: never;
   };
+  '/v1/admin/places/{placeId}/collections': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Replaced all collections assigned to a place. */
+    put: operations['adminPlaceCollectionsReplace'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/v1/admin/places/{placeId}/materials': {
     parameters: {
       query?: never;
@@ -696,6 +854,57 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/v1/collections': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Public collection list. */
+    get: operations['collectionsList'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/collections/{collectionSlug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Public collection detail. */
+    get: operations['collectionsGet'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/collections/{collectionSlug}/photo': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Public collection cover image. */
+    get: operations['collectionsGetPhoto'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/v1/favorites': {
     parameters: {
       query?: never;
@@ -820,6 +1029,49 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    AddCollectionPlaceDto: {
+      placeId: string;
+    };
+    AdminCollectionDetailResponseDto: {
+      activePlaceCount: number;
+      coverImageUrl: string | null;
+      /** Format: date-time */
+      createdAt: string;
+      description: string | null;
+      hiddenPlaceCount: number;
+      id: string;
+      places: components['schemas']['AdminCollectionPlaceResponseDto'][];
+      position: number;
+      slug: string;
+      /** @enum {string} */
+      status: 'draft' | 'active';
+      title: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    AdminCollectionListResponseDto: {
+      items: components['schemas']['AdminCollectionSummaryResponseDto'][];
+    };
+    AdminCollectionPlaceResponseDto: {
+      place: components['schemas']['PlaceSummaryResponseDto'];
+      position: number;
+    };
+    AdminCollectionSummaryResponseDto: {
+      activePlaceCount: number;
+      coverImageUrl: string | null;
+      /** Format: date-time */
+      createdAt: string;
+      description: string | null;
+      hiddenPlaceCount: number;
+      id: string;
+      position: number;
+      slug: string;
+      /** @enum {string} */
+      status: 'draft' | 'active';
+      title: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
     AdminMaterialLibraryListResponseDto: {
       items: components['schemas']['AdminMaterialLibraryResponseDto'][];
       page: number;
@@ -851,6 +1103,12 @@ export interface components {
       /** Format: uri */
       url: string;
     };
+    AdminPlaceCollectionSummaryResponseDto: {
+      id: string;
+      /** @enum {string} */
+      status: 'draft' | 'active';
+      title: string;
+    };
     AdminPlaceListResponseDto: {
       items: components['schemas']['AdminPlaceSummaryResponseDto'][];
       page: number;
@@ -859,6 +1117,7 @@ export interface components {
     };
     AdminPlaceSummaryResponseDto: {
       category: components['schemas']['PlaceSummaryCategoryResponseDto'];
+      collections: components['schemas']['AdminPlaceCollectionSummaryResponseDto'][];
       coverImageUrl: string | null;
       id: string;
       /** Format: uri */
@@ -934,6 +1193,11 @@ export interface components {
       updatedAt: string;
       /** Format: uri */
       url: string;
+    };
+    CreateCollectionDto: {
+      description?: string | null;
+      slug?: string;
+      title: string;
     };
     CreateContentSourceDto: {
       channelId?: string | null;
@@ -1234,6 +1498,7 @@ export interface components {
         | 'failed'
         | 'expired'
         | 'cancelled';
+      targetCollection: components['schemas']['PlaceImportTargetResponseDto'] | null;
       title: string | null;
       /** Format: date-time */
       updatedAt: string;
@@ -1241,6 +1506,11 @@ export interface components {
     };
     PlaceImportPossibleDuplicateResponseDto: {
       placeId: string;
+      title: string;
+    };
+    PlaceImportTargetResponseDto: {
+      id: string | null;
+      slug: string;
       title: string;
     };
     PlaceImportViewerAccessResponseDto: {
@@ -1286,6 +1556,12 @@ export interface components {
         | 'CATEGORY_IN_USE'
         | 'CATEGORY_NOT_FOUND'
         | 'CATEGORY_SLUG_CONFLICT'
+        | 'COLLECTION_HAS_ACTIVE_IMPORT'
+        | 'COLLECTION_MEMBERSHIP_CONFLICT'
+        | 'COLLECTION_NOT_FOUND'
+        | 'COLLECTION_PUBLISH_REQUIRES_ACTIVE_PLACE'
+        | 'COLLECTION_REORDER_CONFLICT'
+        | 'COLLECTION_SLUG_CONFLICT'
         | 'CONFLICT'
         | 'CONTENT_SOURCE_ALREADY_EXISTS'
         | 'CONTENT_SOURCE_IDENTITY_LOCKED'
@@ -1337,6 +1613,28 @@ export interface components {
        * @example https://errors.amazing-ekb.local/problems/authentication-required
        */
       type: string;
+    };
+    PublicCollectionDetailResponseDto: {
+      coverImageUrl: string | null;
+      description: string | null;
+      id: string;
+      items: components['schemas']['PublicPlaceSummaryResponseDto'][];
+      page: number;
+      pageSize: number;
+      slug: string;
+      title: string;
+      total: number;
+    };
+    PublicCollectionListResponseDto: {
+      items: components['schemas']['PublicCollectionSummaryResponseDto'][];
+    };
+    PublicCollectionSummaryResponseDto: {
+      coverImageUrl: string | null;
+      description: string | null;
+      id: string;
+      placeCount: number;
+      slug: string;
+      title: string;
     };
     PublicMaterialListResponseDto: {
       items: components['schemas']['PublicMaterialResponseDto'][];
@@ -1394,6 +1692,15 @@ export interface components {
        */
       status: 'ok' | 'unavailable';
     };
+    ReorderCollectionPlacesDto: {
+      placeIds: string[];
+    };
+    ReorderCollectionsDto: {
+      collectionIds: string[];
+    };
+    ReplacePlaceCollectionsDto: {
+      collectionIds: string[];
+    };
     SessionsResponseDto: {
       sessions: components['schemas']['BrowserSessionResponseDto'][];
     };
@@ -1401,6 +1708,7 @@ export interface components {
       materialId: string;
     };
     StartPlaceImportDto: {
+      targetCollectionId?: string;
       url: string;
     };
     StartupResponseDto: {
@@ -1409,6 +1717,15 @@ export interface components {
        * @enum {string}
        */
       status: 'ok' | 'starting' | 'unavailable';
+    };
+    UpdateCollectionDto: {
+      description?: string | null;
+      slug?: string;
+      title?: string;
+    };
+    UpdateCollectionStatusDto: {
+      /** @enum {string} */
+      status: 'draft' | 'active';
     };
     UpdateContentSourceDto: {
       channelId?: string | null;
@@ -1469,6 +1786,12 @@ export interface components {
         | 'CATEGORY_IN_USE'
         | 'CATEGORY_NOT_FOUND'
         | 'CATEGORY_SLUG_CONFLICT'
+        | 'COLLECTION_HAS_ACTIVE_IMPORT'
+        | 'COLLECTION_MEMBERSHIP_CONFLICT'
+        | 'COLLECTION_NOT_FOUND'
+        | 'COLLECTION_PUBLISH_REQUIRES_ACTIVE_PLACE'
+        | 'COLLECTION_REORDER_CONFLICT'
+        | 'COLLECTION_SLUG_CONFLICT'
         | 'CONFLICT'
         | 'CONTENT_SOURCE_ALREADY_EXISTS'
         | 'CONTENT_SOURCE_IDENTITY_LOCKED'
@@ -2052,6 +2375,927 @@ export interface operations {
         };
         content: {
           'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Administrative collection list. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminCollectionListResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsCreate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateCollectionDto'];
+      };
+    };
+    responses: {
+      /** @description Created draft collection. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminCollectionSummaryResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection slug conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsGet: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        collectionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Administrative collection detail. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminCollectionDetailResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsDelete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        collectionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted collection. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection has an active import */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsUpdate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        collectionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateCollectionDto'];
+      };
+    };
+    responses: {
+      /** @description Updated collection metadata. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminCollectionSummaryResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection slug conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsGetPhoto: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        collectionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Administrative collection cover image. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/*': string;
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsUploadPhoto: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        collectionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': {
+          /** Format: binary */
+          photo: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Collection with replaced cover photo. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminCollectionSummaryResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Payload too large */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Unsupported media type */
+      415: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsRemovePhoto: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        collectionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Removed collection cover photo. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsAddPlace: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        collectionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AddCollectionPlaceDto'];
+      };
+    };
+    responses: {
+      /** @description Added place to collection. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection membership conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsRemovePlace: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeId: string;
+        collectionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Removed place from collection. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection membership conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsReorderPlaces: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        collectionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReorderCollectionPlacesDto'];
+      };
+    };
+    responses: {
+      /** @description Reordered places in a collection. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection reorder conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsUpdateStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        collectionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateCollectionStatusDto'];
+      };
+    };
+    responses: {
+      /** @description Updated collection lifecycle status. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminCollectionSummaryResponseDto'];
+        };
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection requires an active place */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminCollectionsReorder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReorderCollectionsDto'];
+      };
+    };
+    responses: {
+      /** @description Reordered collections. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection reorder conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
         };
       };
       /** @description Internal server error */
@@ -2997,7 +4241,7 @@ export interface operations {
           'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      /** @description Place import preview not ready; Place import identity conflict */
+      /** @description Place import preview not ready; Place import identity conflict; Collection membership conflict */
       409: {
         headers: {
           [name: string]: unknown;
@@ -3437,7 +4681,7 @@ export interface operations {
           'application/problem+json': components['schemas']['ProblemResponseDto'];
         };
       };
-      /** @description Place import already active */
+      /** @description Place import already active; Collection membership conflict */
       409: {
         headers: {
           [name: string]: unknown;
@@ -3480,6 +4724,7 @@ export interface operations {
       query?: {
         page?: number;
         pageSize?: number;
+        search?: string;
         status?: 'active' | 'hidden';
       };
       header?: never;
@@ -3741,6 +4986,84 @@ export interface operations {
         };
       };
       /** @description Place slug conflict */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  adminPlaceCollectionsReplace: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        placeId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReplacePlaceCollectionsDto'];
+      };
+    };
+    responses: {
+      /** @description Replaced all collections assigned to a place. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Malformed request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Authorization denied */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Collection membership conflict */
       409: {
         headers: {
           [name: string]: unknown;
@@ -5095,6 +6418,127 @@ export interface operations {
         };
       };
       /** @description Category not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  collectionsList: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Public collection list. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicCollectionListResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  collectionsGet: {
+    parameters: {
+      query?: {
+        pageSize?: number;
+        page?: number;
+      };
+      header?: never;
+      path: {
+        collectionSlug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Public collection detail. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicCollectionDetailResponseDto'];
+        };
+      };
+      /** @description Collection not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+      /** @description Validation failed */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ValidationProblemResponseDto'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/problem+json': components['schemas']['ProblemResponseDto'];
+        };
+      };
+    };
+  };
+  collectionsGetPhoto: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        collectionSlug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Public collection cover image. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/*': string;
+        };
+      };
+      /** @description Collection not found */
       404: {
         headers: {
           [name: string]: unknown;
