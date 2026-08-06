@@ -16,7 +16,7 @@ const BASE_PAGE = {
   slug: 'weekend-spots',
   title: 'Места для выходных',
   description: 'Описание выходных мест.',
-  coverImageUrl: 'http://127.0.0.1:3000/v1/collections/weekend-spots/photo',
+  coverImageUrl: '/v1/collections/weekend-spots/photo',
   items: [],
   total: 21,
   page: 1,
@@ -39,12 +39,26 @@ describe('getCollectionMetadata', () => {
         url: '/collections/weekend-spots',
         images: [
           {
-            url: 'http://127.0.0.1:3000/v1/collections/weekend-spots/photo',
+            url: '/v1/collections/weekend-spots/photo',
           },
         ],
       },
     });
     expect(fetchPublicCollectionPageMock).toHaveBeenCalledWith('weekend-spots', 1);
+  });
+
+  it('keeps a relative backend cover path relative at the metadata helper boundary', async () => {
+    fetchPublicCollectionPageMock.mockResolvedValueOnce({ kind: 'success', data: BASE_PAGE });
+
+    const metadata = await getCollectionMetadata('weekend-spots', 1);
+    const openGraph = metadata.openGraph as { images?: Array<{ url: string }> };
+    const imageUrl = openGraph.images?.[0]?.url;
+
+    expect(imageUrl).toBe('/v1/collections/weekend-spots/photo');
+    expect(new URL(imageUrl ?? '', 'https://guide.example.test/').href).toBe(
+      'https://guide.example.test/v1/collections/weekend-spots/photo',
+    );
+    expect(imageUrl).not.toContain('localhost:3000');
   });
 
   it('uses fallback copy, omits a null-cover image and canonicalizes later pages', async () => {

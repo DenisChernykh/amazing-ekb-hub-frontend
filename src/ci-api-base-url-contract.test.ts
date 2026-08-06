@@ -19,6 +19,7 @@ describe('CI API base URL contract', () => {
         '',
         '    env:',
         '      API_BASE_URL: http://127.0.0.1:3000',
+        '      PUBLIC_BASE_URL: http://localhost:3001',
       ].join('\n'),
     );
     expect(workflow).toContain('node ./scripts/ci/catalog-build-fixture-server.mjs');
@@ -41,9 +42,29 @@ describe('CI API base URL contract', () => {
         '',
         '    env:',
         '      API_BASE_URL: ${{ vars.API_BASE_URL }}',
+        '      PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL || vars.PUBLIC_BASE_URL }}',
       ].join('\n'),
     );
     expect(workflow).toContain(missingApiBaseUrlError);
+    expect(workflow).toContain(
+      'PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL || vars.PUBLIC_BASE_URL }}',
+    );
+    expect(workflow).toContain('test -n "${PUBLIC_BASE_URL}"');
+  });
+
+  it('passes the production public origin to the Docker build environment', () => {
+    const workflow = readWorkflow('deploy-production.yml');
+
+    expect(workflow).toContain(
+      '      PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL || vars.PUBLIC_BASE_URL }}',
+    );
+    expect(workflow).toContain('--build-arg PUBLIC_BASE_URL="${PUBLIC_BASE_URL}"');
+    expect(readFileSync(resolve(process.cwd(), 'Dockerfile'), 'utf8')).toContain(
+      'ARG PUBLIC_BASE_URL',
+    );
+    expect(readFileSync(resolve(process.cwd(), 'Dockerfile'), 'utf8')).toContain(
+      'ENV PUBLIC_BASE_URL=${PUBLIC_BASE_URL}',
+    );
   });
 
   it('keeps the collection build fixture on the optional-cover contract path', () => {

@@ -11,7 +11,7 @@
 
 1. `pnpm install`
 2. `cp .env.example .env.local`
-3. Проверить, что в `.env.local` указано `API_BASE_URL=http://127.0.0.1:3000`
+3. Проверить, что в `.env.local` указаны `API_BASE_URL=http://127.0.0.1:3000` и `PUBLIC_BASE_URL=http://localhost:3001`
 4. `pnpm dev`
 5. Открыть `http://localhost:3001`
 
@@ -20,10 +20,12 @@
 1. Frontend dev server по умолчанию запускается на `3001`.
 2. По умолчанию frontend проксирует `/v1/*` на локальный backend `http://127.0.0.1:3000/v1/*`.
 3. Browser и frontend-клиент работают с same-origin путём `/v1`.
-4. `API_BASE_URL` содержит только origin; Next добавляет `/v1` и в локальной разработке `next.config.ts` проксирует `/v1/:path*` на `${API_BASE_URL}/v1/:path*`.
-5. `API_BASE_URL` обязателен для build/runtime вызовов из Next server-side кода, даже если внешняя инфраструктура обслуживает browser-facing same-origin `/v1`.
-6. Если нужно временно работать с удаленным backend, поменять `.env.local` на origin без `/v1`, например `https://api.example.test`, и перезапустить `pnpm dev`.
-7. В production со схемой “frontend и backend на одном домене” reverse proxy / ingress отвечает только за browser-facing `/v1/:path*`; server-side вызовы продолжают использовать `API_BASE_URL`.
+4. `API_BASE_URL` содержит только backend origin; Next добавляет `/v1` и в локальной разработке `next.config.ts` проксирует `/v1/:path*` на `${API_BASE_URL}/v1/:path*`.
+5. `PUBLIC_BASE_URL` содержит только public frontend origin и используется server-only для metadata URL resolution.
+6. Оба origin обязаны быть абсолютными `http`/`https` URL без пути, credentials, query и fragment; в production отсутствие или невалидность `PUBLIC_BASE_URL` останавливает build/runtime с безопасной configuration error.
+7. `API_BASE_URL` обязателен для build/runtime вызовов из Next server-side кода, даже если внешняя инфраструктура обслуживает browser-facing same-origin `/v1`.
+8. Если нужно временно работать с удаленным backend, поменять `.env.local` на origin без `/v1`, например `https://api.example.test`, и перезапустить `pnpm dev`; `PUBLIC_BASE_URL` при этом остаётся origin frontend.
+9. В production со схемой “frontend и backend на одном домене” reverse proxy / ingress отвечает только за browser-facing `/v1/:path*`; server-side вызовы продолжают использовать `API_BASE_URL`.
 
 ## Tooling setup
 

@@ -17,7 +17,9 @@ RUN pnpm install --frozen-lockfile
 
 FROM deps AS builder
 ARG API_BASE_URL
+ARG PUBLIC_BASE_URL
 ENV API_BASE_URL=${API_BASE_URL}
+ENV PUBLIC_BASE_URL=${PUBLIC_BASE_URL}
 COPY . .
 RUN pnpm run build
 

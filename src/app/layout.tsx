@@ -1,3 +1,4 @@
+import { getPublicBaseUrl } from '@/shared/config/public-base-url';
 import { SiteHeader } from '@/widgets/site-header';
 import type { Metadata } from 'next';
 import { Onest } from 'next/font/google';
@@ -15,6 +16,7 @@ const onest = Onest({
 export const metadata: Metadata = {
   title: 'Стрельчук в Екатеринбурге',
   description: 'Удобный навигатор по моим обзорам',
+  metadataBase: new URL(getPublicBaseUrl()),
 };
 
 /** Корневой layout с общей типографикой и sticky header. */
