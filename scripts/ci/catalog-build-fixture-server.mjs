@@ -36,12 +36,16 @@ const placeDetail = {
   pinnedMaterial: null,
 };
 
-const collection = {
+const collectionDetail = {
   id: 'ci-collection',
   slug: 'ci-collection',
   title: 'CI Collection',
   description: null,
   coverImageUrl: null,
+};
+
+const collection = {
+  ...collectionDetail,
   placeCount: 1,
 };
 
@@ -85,7 +89,6 @@ export function createCatalogBuildFixtureServer() {
     if (url.pathname === `/v1/collections/${collection.slug}`) {
       const page = Number(url.searchParams.get('page') ?? 1);
       const pageSize = Number(url.searchParams.get('pageSize') ?? 20);
-      const { placeCount: _placeCount, ...collectionDetail } = collection;
       sendJson(response, 200, {
         ...collectionDetail,
         items: [placeSummary],
