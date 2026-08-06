@@ -3,6 +3,7 @@ export type { FetchPublicCollectionPageResult } from './api/fetch-public-collect
 export { fetchPublicCollections } from './api/fetch-public-collections';
 export type { FetchPublicCollectionsResult } from './api/fetch-public-collections';
 export { buildCollectionHref } from './lib/build-collection-href';
+export { formatPlaceCount } from './model/format-place-count';
 export { mapCollectionToCardModel } from './model/map-collection-to-card-model';
 export { normalizeCollectionSlug } from './model/normalize-collection-slug';
 export { COLLECTION_PAGE_SIZE } from './model/types';

@@ -1,4 +1,3 @@
-import { ErrorState } from '@/shared/ui/error-state';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CollectionPageContent } from './_components/collection-page-content';
@@ -37,10 +36,6 @@ export default async function CollectionPage({
   const model = await getCollectionPageData(collectionSlug, page);
 
   if (model.kind === 'not_found') notFound();
-
-  if (model.kind === 'unexpected_error') {
-    return <ErrorState title="Не удалось загрузить подборку" description={model.message} />;
-  }
 
   return <CollectionPageContent {...model} />;
 }

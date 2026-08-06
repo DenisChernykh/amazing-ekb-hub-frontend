@@ -1,4 +1,4 @@
-import { ErrorState } from '@/shared/ui/error-state';
+import { ErrorState } from '@/shared/ui';
 import { PlaceDetail } from '@/widgets/place-detail';
 import { notFound } from 'next/navigation';
 import { getPlacePageData } from './_lib/get-place-page-data';

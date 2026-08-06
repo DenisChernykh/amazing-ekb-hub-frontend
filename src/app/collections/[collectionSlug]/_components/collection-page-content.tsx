@@ -1,10 +1,10 @@
 import { CollectionCardImage } from '@/entities/collection';
 import type { PlaceCardModel } from '@/entities/place';
+import { CollectionPagination } from '@/features/collection-pagination';
 import { Container } from '@/shared/ui';
 import { PlaceFeed } from '@/widgets/place-feed';
 import Link from 'next/link';
 import type { CollectionDetailViewModel } from '../_lib/get-collection-page-data';
-import { CollectionPagination } from './collection-pagination';
 
 /** Собирает заголовок, optional cover/description и упорядоченную ленту мест подборки. */
 export function CollectionPageContent({

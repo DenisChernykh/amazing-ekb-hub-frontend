@@ -1,15 +1,10 @@
 import { Container } from '@/shared/ui';
-import { ErrorState } from '@/shared/ui/error-state';
 import { CollectionGrid } from '@/widgets/collection-grid';
 import { getCollectionsPageData } from './_lib/get-collections-page-data';
 
 /** Серверная страница полного упорядоченного списка публичных подборок. */
 export default async function CollectionsPage() {
   const model = await getCollectionsPageData();
-
-  if (model.kind === 'unexpected_error') {
-    return <ErrorState title="Не удалось загрузить подборки" description={model.message} />;
-  }
 
   return (
     <Container as="main" className="py-10 sm:py-14 lg:py-16">

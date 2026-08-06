@@ -4,9 +4,10 @@ import { PUBLIC_CATALOG_CACHE_LIFE, getCollectionsCacheTag } from '@/shared/lib/
 import { cacheLife, cacheTag } from 'next/cache';
 
 /** Нормализованный результат загрузки списка публичных подборок. */
-export type FetchPublicCollectionsResult =
-  | { kind: 'success'; data: PublicCollectionListResponseDto['items'] }
-  | { kind: 'unexpected_error'; message: string };
+export type FetchPublicCollectionsResult = {
+  kind: 'success';
+  data: PublicCollectionListResponseDto['items'];
+};
 
 /** Загружает кешируемый список публичных подборок. */
 async function fetchCachedPublicCollections(): Promise<PublicCollectionListResponseDto['items']> {
@@ -19,14 +20,11 @@ async function fetchCachedPublicCollections(): Promise<PublicCollectionListRespo
 }
 
 /**
- * Загружает список публичных подборок и приводит технический сбой к controlled union.
+ * Загружает список публичных подборок, сохраняя технические ошибки для route error boundary.
  *
- * @returns Упорядоченный список подборок или deterministic error state.
+ * @returns Упорядоченный список подборок.
+ * @throws Исходную техническую ошибку загрузки или разбора ответа.
  */
 export async function fetchPublicCollections(): Promise<FetchPublicCollectionsResult> {
-  try {
-    return { kind: 'success', data: await fetchCachedPublicCollections() };
-  } catch {
-    return { kind: 'unexpected_error', message: 'Не удалось загрузить подборки.' };
-  }
+  return { kind: 'success', data: await fetchCachedPublicCollections() };
 }

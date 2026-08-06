@@ -69,12 +69,12 @@ describe('fetchPublicCollectionPage', () => {
     });
   });
 
-  it('maps technical failures to unexpected_error', async () => {
-    collectionsGetMock.mockRejectedValueOnce(new Error('backend offline'));
+  it.each([
+    new Error('backend offline'),
+    Object.assign(new Error('server error'), { status: 500 }),
+  ])('rethrows a fatal technical failure for the route error boundary', async (failure) => {
+    collectionsGetMock.mockRejectedValueOnce(failure);
 
-    await expect(fetchPublicCollectionPage('weekend-spots', 1)).resolves.toEqual({
-      kind: 'unexpected_error',
-      message: 'Не удалось загрузить подборку.',
-    });
+    await expect(fetchPublicCollectionPage('weekend-spots', 1)).rejects.toBe(failure);
   });
 });

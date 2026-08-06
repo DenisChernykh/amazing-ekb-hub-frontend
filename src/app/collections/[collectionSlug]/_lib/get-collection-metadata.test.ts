@@ -77,10 +77,40 @@ describe('getCollectionMetadata', () => {
     expect(metadata.openGraph).not.toHaveProperty('images');
   });
 
+  it('trims a cover URL once and omits a whitespace-only cover', async () => {
+    fetchPublicCollectionPageMock.mockResolvedValueOnce({
+      kind: 'success',
+      data: { ...BASE_PAGE, coverImageUrl: '  /v1/collections/weekend-spots/photo  ' },
+    });
+
+    await expect(getCollectionMetadata('weekend-spots', 1)).resolves.toMatchObject({
+      openGraph: { images: [{ url: '/v1/collections/weekend-spots/photo' }] },
+    });
+
+    fetchPublicCollectionPageMock.mockResolvedValueOnce({
+      kind: 'success',
+      data: { ...BASE_PAGE, coverImageUrl: '   ' },
+    });
+
+    const metadata = await getCollectionMetadata('weekend-spots', 1);
+    expect(metadata.openGraph).not.toHaveProperty('images');
+  });
+
+  it('uses fallback metadata after page one for an empty collection', async () => {
+    fetchPublicCollectionPageMock.mockResolvedValueOnce({
+      kind: 'success',
+      data: { ...BASE_PAGE, total: 0, page: 2 },
+    });
+
+    await expect(getCollectionMetadata('weekend-spots', 2)).resolves.toEqual({
+      title: 'Стрельчук в Екатеринбурге',
+      description: 'Удобный навигатор по моим обзорам',
+    });
+  });
+
   it.each([
     ['unsafe slug', '../draft-collection', 1],
     ['not found', 'missing', 1],
-    ['unexpected error', 'weekend-spots', 1],
     ['out of range', 'weekend-spots', 3],
   ])('does not leak data for %s', async (_name, slug, page) => {
     if (slug === '../draft-collection') {
@@ -97,11 +127,6 @@ describe('getCollectionMetadata', () => {
           title: 'Not Found',
           type: 'about:blank',
         },
-      });
-    } else if (_name === 'unexpected error') {
-      fetchPublicCollectionPageMock.mockResolvedValueOnce({
-        kind: 'unexpected_error',
-        message: 'Не удалось загрузить подборку.',
       });
     } else {
       fetchPublicCollectionPageMock.mockResolvedValueOnce({

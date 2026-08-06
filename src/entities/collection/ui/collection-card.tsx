@@ -1,22 +1,8 @@
 import Link from 'next/link';
 import { buildCollectionHref } from '../lib/build-collection-href';
+import { formatPlaceCount } from '../model/format-place-count';
 import type { CollectionCardModel } from '../model/types';
 import { CollectionCardImage } from './collection-card-image';
-
-function formatPlaceCount(count: number): string {
-  const lastTwoDigits = count % 100;
-  const lastDigit = count % 10;
-  const word =
-    lastTwoDigits >= 11 && lastTwoDigits <= 14
-      ? 'мест'
-      : lastDigit === 1
-        ? 'место'
-        : lastDigit >= 2 && lastDigit <= 4
-          ? 'места'
-          : 'мест';
-
-  return `${count} ${word}`;
-}
 
 /** Отображает одну ссылку-карточку публичной подборки. */
 export function CollectionCard({

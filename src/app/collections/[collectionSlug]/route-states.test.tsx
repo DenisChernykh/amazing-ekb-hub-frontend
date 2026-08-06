@@ -54,22 +54,15 @@ describe('collection route states', () => {
   it('renders recoverable error copy and wires reset', () => {
     const reset = vi.fn();
     const tree = CollectionError({ error: new Error('offline'), reset }) as ReactElement<{
-      children: ReactElement<{ children: ReactElement[] }>;
-    }>;
-    const section = tree.props.children;
-    const button = section.props.children[2] as ReactElement<{
-      className: string;
-      onClick: () => void;
-      type: string;
+      retry: () => void;
     }>;
     const html = renderToStaticMarkup(tree);
 
     expect(html).toContain('Не удалось загрузить подборку');
     expect(html).toContain('Попробуйте запросить данные ещё раз.');
     expect(html).toContain('>Повторить</button>');
-    expect(button.props.type).toBe('button');
-    expect(button.props.className).not.toContain('rounded');
-    button.props.onClick();
+    expect(html).toContain('data-slot="button"');
+    tree.props.retry();
     expect(reset).toHaveBeenCalledOnce();
   });
 
@@ -89,16 +82,11 @@ describe('collection route states', () => {
     await expect(CollectionPage(PAGE_PROPS)).rejects.toThrow('NEXT_NOT_FOUND');
   });
 
-  it('renders unexpected backend error instead of throwing', async () => {
-    getCollectionPageDataMock.mockResolvedValueOnce({
-      kind: 'unexpected_error',
-      message: 'Не удалось загрузить подборку.',
-    });
+  it('propagates a fatal backend error to the route error boundary', async () => {
+    const failure = new Error('backend offline');
+    getCollectionPageDataMock.mockRejectedValueOnce(failure);
 
-    const html = renderToStaticMarkup(await CollectionPage(PAGE_PROPS));
-
-    expect(html).toContain('Не удалось загрузить подборку');
-    expect(html).not.toContain('undefined');
+    await expect(CollectionPage(PAGE_PROPS)).rejects.toBe(failure);
   });
 
   it('renders the empty collection page without a duplicated feed', async () => {

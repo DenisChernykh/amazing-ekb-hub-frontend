@@ -82,28 +82,12 @@ describe('getCollectionPageData', () => {
     });
   });
 
-  it('keeps an empty collection page renderable even when page is above one', async () => {
+  it('returns not_found after page one for an empty collection', async () => {
     fetchPublicCollectionPageMock.mockResolvedValueOnce({
       kind: 'success',
       data: { ...DETAIL, items: [], page: 2, total: 0 },
     });
 
-    await expect(getCollectionPageData('empty', 2)).resolves.toMatchObject({
-      kind: 'ready',
-      places: [],
-      total: 0,
-    });
-  });
-
-  it('preserves unexpected backend failures for route error UI', async () => {
-    fetchPublicCollectionPageMock.mockResolvedValueOnce({
-      kind: 'unexpected_error',
-      message: 'Не удалось загрузить подборку.',
-    });
-
-    await expect(getCollectionPageData('weekend-spots', 1)).resolves.toEqual({
-      kind: 'unexpected_error',
-      message: 'Не удалось загрузить подборку.',
-    });
+    await expect(getCollectionPageData('empty', 2)).resolves.toEqual({ kind: 'not_found' });
   });
 });

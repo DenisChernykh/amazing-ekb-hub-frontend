@@ -51,7 +51,11 @@ export function CollectionPagination({
       <PaginationContent>
         {page > 1 && (
           <PaginationItem>
-            <PaginationPrevious href={buildPageHref(collectionSlug, page - 1)} text="Предыдущая" />
+            <PaginationPrevious
+              href={buildPageHref(collectionSlug, page - 1)}
+              text="Предыдущая"
+              aria-label="Перейти на предыдущую страницу"
+            />
           </PaginationItem>
         )}
         {buildPageItems(page, lastPage).map((item, index) => (
@@ -71,7 +75,11 @@ export function CollectionPagination({
         ))}
         {page < lastPage && (
           <PaginationItem>
-            <PaginationNext href={buildPageHref(collectionSlug, page + 1)} text="Следующая" />
+            <PaginationNext
+              href={buildPageHref(collectionSlug, page + 1)}
+              text="Следующая"
+              aria-label="Перейти на следующую страницу"
+            />
           </PaginationItem>
         )}
       </PaginationContent>

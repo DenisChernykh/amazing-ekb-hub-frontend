@@ -4,9 +4,5 @@ import { fetchPublicCollections } from '@/entities/collection';
 export async function getCollectionStaticParams() {
   const result = await fetchPublicCollections();
 
-  if (result.kind === 'unexpected_error') {
-    throw new Error(result.message);
-  }
-
   return result.data.map(({ slug: collectionSlug }) => ({ collectionSlug }));
 }

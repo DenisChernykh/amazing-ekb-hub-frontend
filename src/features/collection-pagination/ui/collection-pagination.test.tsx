@@ -21,7 +21,7 @@ describe('CollectionPagination', () => {
     expect(html).toContain('Следующая');
   });
 
-  it('renders previous/next and bounded ellipses on a middle page', () => {
+  it('renders localized previous/next links and bounded ellipses on a middle page', () => {
     const html = renderToStaticMarkup(
       createElement(CollectionPagination, {
         collectionSlug: 'weekend-spots',
@@ -33,8 +33,10 @@ describe('CollectionPagination', () => {
 
     expect(html).toContain('href="/collections/weekend-spots?page=4"');
     expect(html).toContain('href="/collections/weekend-spots?page=6"');
-    expect(html).toContain('Предыдущая');
-    expect(html).toContain('Следующая');
+    expect(html).toContain('aria-label="Перейти на предыдущую страницу"');
+    expect(html).toContain('aria-label="Перейти на следующую страницу"');
+    expect(html).not.toContain('Go to previous page');
+    expect(html).not.toContain('Go to next page');
     expect(html.match(/data-slot="pagination-ellipsis"/g)).toHaveLength(2);
     expect(html).not.toContain('page=0');
   });

@@ -22,7 +22,7 @@ export function CollectionGrid({
           <CollectionCard
             key={collection.id}
             collection={collection}
-            imageLoading={index < 4 ? 'eager' : 'lazy'}
+            imageLoading={index === 0 ? 'eager' : 'lazy'}
           />
         ))}
       </div>

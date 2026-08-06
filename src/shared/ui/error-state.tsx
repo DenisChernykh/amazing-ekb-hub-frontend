@@ -1,11 +1,13 @@
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert';
 import { CircleAlertIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 interface ErrorStateProps {
   title: string;
   description?: string;
   issues?: Array<{ path?: string; message: string }>;
   requestId?: string;
+  action?: ReactNode;
 }
 /**
  * Рендерит базовое inline-состояние ошибки для route-level и page-level сценариев.
@@ -15,8 +17,10 @@ export function ErrorState({
   description,
   issues = [],
   requestId,
+  action,
 }: Readonly<ErrorStateProps>) {
-  const hasDetails = Boolean(description) || issues.length > 0 || Boolean(requestId);
+  const hasDetails =
+    Boolean(description) || issues.length > 0 || Boolean(requestId) || Boolean(action);
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
       <Alert variant="destructive">
@@ -38,6 +42,8 @@ export function ErrorState({
             )}
 
             {requestId && <p>Request ID: {requestId}</p>}
+
+            {action}
           </AlertDescription>
         )}
       </Alert>

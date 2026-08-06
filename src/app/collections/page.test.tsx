@@ -44,15 +44,10 @@ describe('CollectionsPage', () => {
     expect(html).toContain('5 мест');
   });
 
-  it('renders route-level unexpected error without undefined copy', async () => {
-    getCollectionsPageDataMock.mockResolvedValueOnce({
-      kind: 'unexpected_error',
-      message: 'Не удалось загрузить подборки.',
-    });
+  it('propagates a technical failure to the route error boundary', async () => {
+    const failure = new Error('backend offline');
+    getCollectionsPageDataMock.mockRejectedValueOnce(failure);
 
-    const html = renderToStaticMarkup(await CollectionsPage());
-
-    expect(html).toContain('Не удалось загрузить подборки');
-    expect(html).not.toContain('undefined');
+    await expect(CollectionsPage()).rejects.toBe(failure);
   });
 });

@@ -4,6 +4,7 @@ import {
   normalizeCollectionSlug,
 } from '@/entities/collection';
 import type { Metadata } from 'next';
+import { isCollectionPageValid } from './is-collection-page-valid';
 
 const FALLBACK_METADATA: Metadata = {
   title: 'Стрельчук в Екатеринбурге',
@@ -26,10 +27,11 @@ export async function getCollectionMetadata(rawSlug: string, page: number): Prom
   if (!collectionSlug) return FALLBACK_METADATA;
 
   const result = await fetchPublicCollectionPage(collectionSlug, page);
-  if (result.kind !== 'success') return FALLBACK_METADATA;
+  if (result.kind === 'not_found') return FALLBACK_METADATA;
 
-  const lastPage = Math.ceil(result.data.total / result.data.pageSize);
-  if (result.data.total > 0 && page > lastPage) return FALLBACK_METADATA;
+  if (!isCollectionPageValid(page, result.data.pageSize, result.data.total)) {
+    return FALLBACK_METADATA;
+  }
 
   const title = `${result.data.title} — Стрельчук в Екатеринбурге`;
   const metadataTitle = page > 1 ? `${title} — Страница ${page}` : title;
@@ -41,6 +43,7 @@ export async function getCollectionMetadata(rawSlug: string, page: number): Prom
     page === 1
       ? buildCollectionHref(collectionSlug)
       : `${buildCollectionHref(collectionSlug)}?page=${page}`;
+  const coverImageUrl = result.data.coverImageUrl?.trim() || null;
 
   return {
     title: metadataTitle,
@@ -50,7 +53,7 @@ export async function getCollectionMetadata(rawSlug: string, page: number): Prom
       title: metadataTitle,
       description,
       url: canonical,
-      ...(result.data.coverImageUrl ? { images: [{ url: result.data.coverImageUrl }] } : {}),
+      ...(coverImageUrl ? { images: [{ url: coverImageUrl }] } : {}),
     },
   };
 }

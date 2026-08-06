@@ -44,15 +44,10 @@ describe('getCollectionsPageData', () => {
     });
   });
 
-  it('passes through deterministic unexpected error state', async () => {
-    fetchPublicCollectionsMock.mockResolvedValueOnce({
-      kind: 'unexpected_error',
-      message: 'Не удалось загрузить подборки.',
-    });
+  it('propagates a technical failure to the route error boundary', async () => {
+    const failure = new Error('backend offline');
+    fetchPublicCollectionsMock.mockRejectedValueOnce(failure);
 
-    await expect(getCollectionsPageData()).resolves.toEqual({
-      kind: 'unexpected_error',
-      message: 'Не удалось загрузить подборки.',
-    });
+    await expect(getCollectionsPageData()).rejects.toBe(failure);
   });
 });

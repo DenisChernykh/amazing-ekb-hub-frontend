@@ -39,6 +39,7 @@ describe('CI API base URL contract', () => {
         '  quality:',
         '    name: Verify frontend before production deploy',
         '    runs-on: ubuntu-latest',
+        '    environment: production',
         '',
         '    env:',
         '      API_BASE_URL: ${{ vars.API_BASE_URL }}',

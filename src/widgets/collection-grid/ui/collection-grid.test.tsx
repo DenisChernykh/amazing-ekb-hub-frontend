@@ -14,7 +14,7 @@ const COLLECTIONS: CollectionCardModel[] = Array.from({ length: 6 }, (_, index) 
 }));
 
 describe('CollectionGrid', () => {
-  it('renders collections in API order with responsive grid and eager first row', () => {
+  it('renders collections in API order and eagerly loads only the mobile above-fold cover', () => {
     const html = renderToStaticMarkup(
       createElement(CollectionGrid, {
         collections: COLLECTIONS,
@@ -28,8 +28,8 @@ describe('CollectionGrid', () => {
     expect(html).toContain('aria-label="Подборки мест"');
     expect(html.indexOf('Подборка 1')).toBeLessThan(html.indexOf('Подборка 2'));
     expect(html.match(/href="\/collections\//g)).toHaveLength(COLLECTIONS.length);
-    expect(html.match(/loading="eager"/g)).toHaveLength(4);
-    expect(html.match(/loading="lazy"/g)).toHaveLength(1);
+    expect(html.match(/loading="eager"/g)).toHaveLength(1);
+    expect(html.match(/loading="lazy"/g)).toHaveLength(4);
   });
 
   it('renders a deterministic empty state without collection links', () => {

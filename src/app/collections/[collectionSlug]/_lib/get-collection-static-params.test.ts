@@ -41,11 +41,9 @@ describe('getCollectionStaticParams', () => {
   });
 
   it('fails the build when collection enumeration is unexpectedly unavailable', async () => {
-    fetchPublicCollectionsMock.mockResolvedValueOnce({
-      kind: 'unexpected_error',
-      message: 'Не удалось загрузить подборки.',
-    });
+    const failure = new Error('backend offline');
+    fetchPublicCollectionsMock.mockRejectedValueOnce(failure);
 
-    await expect(getCollectionStaticParams()).rejects.toThrow('Не удалось загрузить подборки.');
+    await expect(getCollectionStaticParams()).rejects.toBe(failure);
   });
 });

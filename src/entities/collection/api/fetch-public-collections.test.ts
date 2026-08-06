@@ -54,12 +54,10 @@ describe('fetchPublicCollections', () => {
     expect(collectionsListMock).toHaveBeenCalledOnce();
   });
 
-  it('returns a controlled unexpected error for technical failures', async () => {
-    collectionsListMock.mockRejectedValueOnce(new Error('backend offline'));
+  it('rethrows technical failures for the route error boundary', async () => {
+    const failure = new Error('backend offline');
+    collectionsListMock.mockRejectedValueOnce(failure);
 
-    await expect(fetchPublicCollections()).resolves.toEqual({
-      kind: 'unexpected_error',
-      message: 'Не удалось загрузить подборки.',
-    });
+    await expect(fetchPublicCollections()).rejects.toBe(failure);
   });
 });

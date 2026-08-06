@@ -15,8 +15,7 @@ import { COLLECTION_PAGE_SIZE } from '../model/types';
 /** Нормализованный результат загрузки страницы публичной подборки. */
 export type FetchPublicCollectionPageResult =
   | { kind: 'success'; data: collectionsGetResponseSuccess['data'] }
-  | { kind: 'not_found'; data: collectionsGetResponseError['data'] }
-  | { kind: 'unexpected_error'; message: string };
+  | { kind: 'not_found'; data: collectionsGetResponseError['data'] };
 
 /** Загружает кешируемую страницу публичной подборки. */
 async function fetchCachedPublicCollectionPage(
@@ -36,11 +35,12 @@ async function fetchCachedPublicCollectionPage(
 }
 
 /**
- * Загружает страницу подборки и нормализует 404 и технические ошибки.
+ * Загружает страницу подборки и нормализует ожидаемый 404.
  *
  * @param collectionSlug - Проверенный public slug подборки.
  * @param page - Положительный номер страницы.
- * @returns Результат загрузки со штатными ветками `success`, `not_found` или `unexpected_error`.
+ * @returns Результат загрузки со штатными ветками `success` или `not_found`.
+ * @throws Исходную техническую ошибку, чтобы её обработал ближайший route error boundary.
  */
 export async function fetchPublicCollectionPage(
   collectionSlug: string,
@@ -59,6 +59,6 @@ export async function fetchPublicCollectionPage(
       };
     }
 
-    return { kind: 'unexpected_error', message: 'Не удалось загрузить подборку.' };
+    throw error;
   }
 }

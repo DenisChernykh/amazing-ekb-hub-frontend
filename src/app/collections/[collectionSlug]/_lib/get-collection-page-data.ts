@@ -4,6 +4,7 @@ import {
   type CollectionCardModel,
 } from '@/entities/collection';
 import { mapPlaceSummaryToCardModel, type PlaceCardModel } from '@/entities/place';
+import { isCollectionPageValid } from './is-collection-page-valid';
 
 /** Заголовочные данные detail-страницы подборки. */
 export type CollectionDetailViewModel = Pick<
@@ -21,8 +22,7 @@ export type CollectionPageData =
       pageSize: number;
       total: number;
     }
-  | { kind: 'not_found' }
-  | { kind: 'unexpected_error'; message: string };
+  | { kind: 'not_found' };
 
 /** Загружает и собирает server-side данные detail-страницы подборки. */
 export async function getCollectionPageData(
@@ -35,10 +35,9 @@ export async function getCollectionPageData(
   const result = await fetchPublicCollectionPage(collectionSlug, page);
 
   if (result.kind === 'not_found') return { kind: 'not_found' };
-  if (result.kind === 'unexpected_error') return result;
-
-  const lastPage = Math.ceil(result.data.total / result.data.pageSize);
-  if (result.data.total > 0 && page > lastPage) return { kind: 'not_found' };
+  if (!isCollectionPageValid(page, result.data.pageSize, result.data.total)) {
+    return { kind: 'not_found' };
+  }
 
   return {
     kind: 'ready',
