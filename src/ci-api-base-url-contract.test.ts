@@ -45,4 +45,16 @@ describe('CI API base URL contract', () => {
     );
     expect(workflow).toContain(missingApiBaseUrlError);
   });
+
+  it('keeps the collection build fixture on the optional-cover contract path', () => {
+    const fixture = readFileSync(
+      resolve(process.cwd(), 'scripts/ci/catalog-build-fixture-server.mjs'),
+      'utf8',
+    );
+
+    expect(fixture).toContain("'/v1/collections'");
+    expect(fixture).toContain('`/v1/collections/${collection.slug}`');
+    expect(fixture).toContain('coverImageUrl: null');
+    expect(fixture).not.toContain("'/v1/collections/ci-collection/photo'");
+  });
 });
