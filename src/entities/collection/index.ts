@@ -7,3 +7,4 @@ export { mapCollectionToCardModel } from './model/map-collection-to-card-model';
 export { normalizeCollectionSlug } from './model/normalize-collection-slug';
 export { COLLECTION_PAGE_SIZE } from './model/types';
 export type { CollectionCardModel } from './model/types';
+export { CollectionCard } from './ui/collection-card';

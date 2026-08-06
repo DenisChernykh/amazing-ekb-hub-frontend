@@ -12,6 +12,8 @@ describe('SiteHeader', () => {
     expect(html).toContain('Стрельчук в Екатеринбурге');
     expect(html).toContain('href="/categories"');
     expect(html).toContain('>Категории<');
+    expect(html).toContain('href="/collections"');
+    expect(html).toContain('>Подборки<');
     expect(html).toContain('site-header-expanded');
     expect(html).toContain('border-border');
     expect(html).not.toContain('border-transparent');
