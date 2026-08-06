@@ -37,10 +37,11 @@ OPENAPI_SPEC_SOURCE=https://example.test/openapi.json pnpm run api:update
 
 1. Browser runtime использует same-origin путь `/v1`.
 2. `API_BASE_URL` — server-only origin без `/v1`; generated paths уже включают `/v1`.
-3. В локальной разработке Next rewrite проксирует `/v1/*` на `${API_BASE_URL}/v1/*`.
-4. В production внешняя инфраструктура настраивает только browser-facing same-origin `/v1`.
-5. Server-side код Next не должен напрямую полагаться на относительный `/v1`.
-6. Generated server-side clients используют absolute backend origin из `API_BASE_URL`; request origin и относительный `/v1` автоматически не подставляются.
+3. `PUBLIC_BASE_URL` — server-only public frontend origin, который задаёт `metadataBase` для canonical и Open Graph URL; backend origin в metadata не публикуется.
+4. В локальной разработке Next rewrite проксирует `/v1/*` на `${API_BASE_URL}/v1/*`.
+5. В production внешняя инфраструктура настраивает только browser-facing same-origin `/v1`.
+6. Server-side код Next не должен напрямую полагаться на относительный `/v1`.
+7. Generated server-side clients используют absolute backend origin из `API_BASE_URL`; request origin и относительный `/v1` автоматически не подставляются.
 
 ## Target Server-Side Data Flow
 

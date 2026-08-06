@@ -75,6 +75,13 @@ export const AdminPlaceImportsGet200Response = zod.strictObject({
     'expired',
     'cancelled',
   ]),
+  targetCollection: zod
+    .strictObject({
+      id: zod.string().nullable(),
+      slug: zod.string(),
+      title: zod.string(),
+    })
+    .nullable(),
   title: zod.string().nullable(),
   updatedAt: zod.iso.datetime({ offset: true }),
   version: zod.number().min(adminPlaceImportsGet200ResponseVersionMin),
@@ -148,6 +155,13 @@ export const AdminPlaceImportsCancel201Response = zod.strictObject({
     'expired',
     'cancelled',
   ]),
+  targetCollection: zod
+    .strictObject({
+      id: zod.string().nullable(),
+      slug: zod.string(),
+      title: zod.string(),
+    })
+    .nullable(),
   title: zod.string().nullable(),
   updatedAt: zod.iso.datetime({ offset: true }),
   version: zod.number().min(adminPlaceImportsCancel201ResponseVersionMin),
@@ -221,6 +235,13 @@ export const AdminPlaceImportsConfirm201Response = zod.strictObject({
     'expired',
     'cancelled',
   ]),
+  targetCollection: zod
+    .strictObject({
+      id: zod.string().nullable(),
+      slug: zod.string(),
+      title: zod.string(),
+    })
+    .nullable(),
   title: zod.string().nullable(),
   updatedAt: zod.iso.datetime({ offset: true }),
   version: zod.number().min(adminPlaceImportsConfirm201ResponseVersionMin),
@@ -327,6 +348,13 @@ export const AdminPlaceImportsGetEvents200Response = zod.strictObject({
       'expired',
       'cancelled',
     ]),
+    targetCollection: zod
+      .strictObject({
+        id: zod.string().nullable(),
+        slug: zod.string(),
+        title: zod.string(),
+      })
+      .nullable(),
     title: zod.string().nullable(),
     updatedAt: zod.iso.datetime({ offset: true }),
     version: zod.number().min(adminPlaceImportsGetEvents200ResponseOperationVersionMin),
@@ -433,6 +461,13 @@ export const AdminPlaceImportsGetActive200Response = zod.strictObject({
     'expired',
     'cancelled',
   ]),
+  targetCollection: zod
+    .strictObject({
+      id: zod.string().nullable(),
+      slug: zod.string(),
+      title: zod.string(),
+    })
+    .nullable(),
   title: zod.string().nullable(),
   updatedAt: zod.iso.datetime({ offset: true }),
   version: zod.number().min(adminPlaceImportsGetActive200ResponseVersionMin),
@@ -441,9 +476,11 @@ export const AdminPlaceImportsGetActive200Response = zod.strictObject({
 /**
  * @summary Accepted place import operation.
  */
+
 export const adminPlaceImportsStartBodyUrlMax = 2048;
 
 export const AdminPlaceImportsStartBody = zod.strictObject({
+  targetCollectionId: zod.string().min(1).optional(),
   url: zod.string().min(1).max(adminPlaceImportsStartBodyUrlMax),
 });
 
@@ -508,6 +545,13 @@ export const AdminPlaceImportsStart202Response = zod.strictObject({
     'expired',
     'cancelled',
   ]),
+  targetCollection: zod
+    .strictObject({
+      id: zod.string().nullable(),
+      slug: zod.string(),
+      title: zod.string(),
+    })
+    .nullable(),
   title: zod.string().nullable(),
   updatedAt: zod.iso.datetime({ offset: true }),
   version: zod.number().min(adminPlaceImportsStart202ResponseVersionMin),

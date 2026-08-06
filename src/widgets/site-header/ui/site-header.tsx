@@ -39,23 +39,31 @@ export function SiteHeader() {
     >
       <nav
         aria-label="Основная навигация"
-        className="container mx-auto flex h-full items-center justify-between px-4 sm:px-6 lg:px-8"
+        className="container mx-auto flex h-full items-center justify-between gap-4 px-4 sm:gap-6 sm:px-6 lg:px-8"
       >
         <Link
           href="/"
           className={cn(
-            'font-medium text-black transition duration-site-header ease-catalog focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black motion-reduce:transition-none',
+            'min-w-0 truncate font-medium text-black transition duration-site-header ease-catalog focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black motion-reduce:transition-none',
             compact ? 'scale-95 text-sm' : 'scale-100 text-base',
           )}
         >
           Стрельчук в Екатеринбурге
         </Link>
-        <Link
-          href="/categories"
-          className="text-sm font-medium text-black transition-colors hover:text-card-title-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
-        >
-          Категории
-        </Link>
+        <div className="flex shrink-0 items-center gap-3 sm:gap-6">
+          <Link
+            href="/categories"
+            className="text-xs font-medium text-black transition-colors hover:text-card-title-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black sm:text-sm"
+          >
+            Категории
+          </Link>
+          <Link
+            href="/collections"
+            className="text-xs font-medium text-black transition-colors hover:text-card-title-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black sm:text-sm"
+          >
+            Подборки
+          </Link>
+        </div>
       </nav>
     </header>
   );

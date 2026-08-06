@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  AdminPlaceCollectionsReplacePathParameters,
   AdminPlaceListResponseDto,
   AdminPlaceMaterialsCreatePathParameters,
   AdminPlaceMaterialsHidePathParameters,
@@ -28,6 +29,7 @@ import type {
   PlaceDetailResponseDto,
   PlaceSummaryResponseDto,
   ProblemResponseDto,
+  ReplacePlaceCollectionsDto,
   SetPinnedMaterialDto,
   UpdatePlaceDto,
   UpdatePlaceMaterialLinkDto,
@@ -354,6 +356,98 @@ export const adminPlacesUpdate = async (
   }
   const data: adminPlacesUpdateResponseSuccess['data'] = body ? JSON.parse(body) : {};
   return { data, status: res.status, headers: res.headers } as adminPlacesUpdateResponseSuccess;
+};
+
+/**
+ * @summary Replaced all collections assigned to a place.
+ */
+export type adminPlaceCollectionsReplaceResponse204 = {
+  data: void;
+  status: 204;
+};
+
+export type adminPlaceCollectionsReplaceResponse400 = {
+  data: ProblemResponseDto;
+  status: 400;
+};
+
+export type adminPlaceCollectionsReplaceResponse401 = {
+  data: ProblemResponseDto;
+  status: 401;
+};
+
+export type adminPlaceCollectionsReplaceResponse403 = {
+  data: ProblemResponseDto;
+  status: 403;
+};
+
+export type adminPlaceCollectionsReplaceResponse409 = {
+  data: ProblemResponseDto;
+  status: 409;
+};
+
+export type adminPlaceCollectionsReplaceResponse422 = {
+  data: ValidationProblemResponseDto;
+  status: 422;
+};
+
+export type adminPlaceCollectionsReplaceResponse500 = {
+  data: ProblemResponseDto;
+  status: 500;
+};
+
+export type adminPlaceCollectionsReplaceResponseSuccess =
+  adminPlaceCollectionsReplaceResponse204 & {
+    headers: Headers;
+  };
+export type adminPlaceCollectionsReplaceResponseError = (
+  | adminPlaceCollectionsReplaceResponse400
+  | adminPlaceCollectionsReplaceResponse401
+  | adminPlaceCollectionsReplaceResponse403
+  | adminPlaceCollectionsReplaceResponse409
+  | adminPlaceCollectionsReplaceResponse422
+  | adminPlaceCollectionsReplaceResponse500
+) & {
+  headers: Headers;
+};
+
+export const getAdminPlaceCollectionsReplaceUrl = ({
+  placeId,
+}: AdminPlaceCollectionsReplacePathParameters) => {
+  return `${process.env.API_BASE_URL}/v1/admin/places/${placeId}/collections`;
+};
+
+export const adminPlaceCollectionsReplace = async (
+  { placeId }: AdminPlaceCollectionsReplacePathParameters,
+  replacePlaceCollectionsDto: ReplacePlaceCollectionsDto,
+  options?: RequestInit,
+): Promise<adminPlaceCollectionsReplaceResponseSuccess> => {
+  const res = await fetch(getAdminPlaceCollectionsReplaceUrl({ placeId }), {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(replacePlaceCollectionsDto),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  if (!res.ok) {
+    const err: globalThis.Error & {
+      info?: adminPlaceCollectionsReplaceResponseError['data'];
+      status?: number;
+    } = new globalThis.Error();
+    const data: adminPlaceCollectionsReplaceResponseError['data'] = body ? JSON.parse(body) : {};
+    err.info = data;
+    err.status = res.status;
+    throw err;
+  }
+  const data: adminPlaceCollectionsReplaceResponseSuccess['data'] = body
+    ? JSON.parse(body)
+    : undefined;
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as adminPlaceCollectionsReplaceResponseSuccess;
 };
 
 /**

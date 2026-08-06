@@ -14,9 +14,11 @@ jobs:
   quality:
     name: Verify frontend before production deploy
     runs-on: ubuntu-latest
+    environment: production
 
     env:
       API_BASE_URL: ${{ vars.API_BASE_URL }}
+      PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL || vars.PUBLIC_BASE_URL }}
 
     steps:
       - name: Checkout
@@ -57,6 +59,11 @@ jobs:
             exit 1
           fi
 
+          if [ -z "${PUBLIC_BASE_URL}" ]; then
+            echo "::error::PUBLIC_BASE_URL production secret or variable is required."
+            exit 1
+          fi
+
       - name: Run build
         run: pnpm run build
 
@@ -71,6 +78,7 @@ jobs:
       IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.run_id }}-${{ github.sha }}
       IMAGE_ARTIFACT_PATH: frontend-runtime-image.tar.gz
       API_BASE_URL: ${{ vars.API_BASE_URL }}
+      PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL || vars.PUBLIC_BASE_URL }}
 
     steps:
       - name: Checkout
@@ -83,11 +91,13 @@ jobs:
           set -euo pipefail
 
           test -n "${API_BASE_URL}"
+          test -n "${PUBLIC_BASE_URL}"
 
       - name: Build runtime image
         run: |
           docker build \
             --build-arg API_BASE_URL="${API_BASE_URL}" \
+            --build-arg PUBLIC_BASE_URL="${PUBLIC_BASE_URL}" \
             -t "${IMAGE_NAME}:${GITHUB_SHA}" \
             -t "${IMAGE_NAME}:prod" \
             .
@@ -192,6 +202,7 @@ jobs:
           services:
             frontend:
               environment:
+                PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:?PUBLIC_BASE_URL is required}
                 CACHE_REVALIDATION_SECRET: ${CACHE_REVALIDATION_SECRET:?CACHE_REVALIDATION_SECRET is required}
           COMPOSE
           chmod 600 "${FRONTEND_COMPOSE_OVERRIDE_PATH}"

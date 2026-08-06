@@ -4,6 +4,9 @@ import {
   getCategoriesCacheTag,
   getCategoryCacheTag,
   getCategoryPlacesCacheTag,
+  getCollectionCacheTag,
+  getCollectionPlacesCacheTag,
+  getCollectionsCacheTag,
   getPlaceCacheTag,
 } from './public-catalog-cache';
 
@@ -18,8 +21,11 @@ describe('public catalog cache contract', () => {
 
   it('builds the exact public catalog tags', () => {
     expect(getCategoriesCacheTag()).toBe('categories');
+    expect(getCollectionsCacheTag()).toBe('collections');
     expect(getCategoryCacheTag('family-spa')).toBe('category:family-spa');
     expect(getCategoryPlacesCacheTag('family-spa')).toBe('category-places:family-spa');
+    expect(getCollectionCacheTag('weekend-spots')).toBe('collection:weekend-spots');
+    expect(getCollectionPlacesCacheTag('weekend-spots')).toBe('collection-places:weekend-spots');
     expect(getPlaceCacheTag('baden-baden-uktus')).toBe('place:baden-baden-uktus');
   });
 
@@ -46,6 +52,10 @@ describe('public catalog cache contract', () => {
 
     expect(getCategoryCacheTag(firstSlug)).not.toBe(getCategoryCacheTag(secondSlug));
     expect(getCategoryPlacesCacheTag(firstSlug)).toMatch(/^category-places:sha256:[a-f0-9]{64}$/);
+    expect(getCollectionCacheTag(firstSlug)).toMatch(/^collection:sha256:[a-f0-9]{64}$/);
+    expect(getCollectionPlacesCacheTag(firstSlug)).toMatch(
+      /^collection-places:sha256:[a-f0-9]{64}$/,
+    );
     expect(getPlaceCacheTag(firstSlug)).toMatch(/^place:sha256:[a-f0-9]{64}$/);
   });
 });

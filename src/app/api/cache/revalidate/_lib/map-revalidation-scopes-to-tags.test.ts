@@ -7,6 +7,8 @@ describe('mapRevalidationScopesToTags', () => {
       mapRevalidationScopesToTags({
         categories: true,
         categorySlugs: ['old-slug', 'old-slug', 'new-slug'],
+        collections: true,
+        collectionSlugs: ['old-collection', 'old-collection', 'new-collection'],
         placeSlugs: ['old-place', 'old-place', 'new-place'],
       }),
     ).toEqual([
@@ -15,6 +17,11 @@ describe('mapRevalidationScopesToTags', () => {
       'category-places:old-slug',
       'category:new-slug',
       'category-places:new-slug',
+      'collections',
+      'collection:old-collection',
+      'collection-places:old-collection',
+      'collection:new-collection',
+      'collection-places:new-collection',
       'place:old-place',
       'place:new-place',
     ]);

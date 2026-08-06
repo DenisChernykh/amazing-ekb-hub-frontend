@@ -36,6 +36,19 @@ const placeDetail = {
   pinnedMaterial: null,
 };
 
+const collectionDetail = {
+  id: 'ci-collection',
+  slug: 'ci-collection',
+  title: 'CI Collection',
+  description: null,
+  coverImageUrl: null,
+};
+
+const collection = {
+  ...collectionDetail,
+  placeCount: 1,
+};
+
 function sendJson(response, statusCode, body) {
   response.writeHead(statusCode, {
     'content-type': 'application/json; charset=utf-8',
@@ -65,6 +78,24 @@ export function createCatalogBuildFixtureServer() {
 
     if (url.pathname === `/v1/categories/${category.slug}`) {
       sendJson(response, 200, category);
+      return;
+    }
+
+    if (url.pathname === '/v1/collections') {
+      sendJson(response, 200, { items: [collection] });
+      return;
+    }
+
+    if (url.pathname === `/v1/collections/${collection.slug}`) {
+      const page = Number(url.searchParams.get('page') ?? 1);
+      const pageSize = Number(url.searchParams.get('pageSize') ?? 20);
+      sendJson(response, 200, {
+        ...collectionDetail,
+        items: [placeSummary],
+        page,
+        pageSize,
+        total: 1,
+      });
       return;
     }
 

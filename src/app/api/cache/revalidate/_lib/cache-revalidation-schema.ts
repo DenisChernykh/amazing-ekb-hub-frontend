@@ -11,12 +11,16 @@ export const cacheRevalidationPayloadSchema = z.strictObject({
     .strictObject({
       categories: z.literal(true).optional(),
       categorySlugs: z.array(slugSchema).min(1).optional(),
+      collections: z.literal(true).optional(),
+      collectionSlugs: z.array(slugSchema).min(1).optional(),
       placeSlugs: z.array(slugSchema).min(1).optional(),
     })
     .refine(
       (scopes) =>
         scopes.categories === true ||
         (scopes.categorySlugs?.length ?? 0) > 0 ||
+        scopes.collections === true ||
+        (scopes.collectionSlugs?.length ?? 0) > 0 ||
         (scopes.placeSlugs?.length ?? 0) > 0,
       { message: 'At least one invalidation scope is required.' },
     ),

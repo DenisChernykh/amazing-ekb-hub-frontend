@@ -3,5 +3,8 @@ export {
   getCategoriesCacheTag,
   getCategoryCacheTag,
   getCategoryPlacesCacheTag,
+  getCollectionCacheTag,
+  getCollectionPlacesCacheTag,
+  getCollectionsCacheTag,
   getPlaceCacheTag,
 } from './public-catalog-cache';

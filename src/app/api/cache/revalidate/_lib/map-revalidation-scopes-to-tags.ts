@@ -2,6 +2,9 @@ import {
   getCategoriesCacheTag,
   getCategoryCacheTag,
   getCategoryPlacesCacheTag,
+  getCollectionCacheTag,
+  getCollectionPlacesCacheTag,
+  getCollectionsCacheTag,
   getPlaceCacheTag,
 } from '@/shared/lib/cache';
 import type { CacheRevalidationPayload } from './cache-revalidation-schema';
@@ -14,6 +17,11 @@ export function mapRevalidationScopesToTags(scopes: CacheRevalidationPayload['sc
   for (const slug of scopes.categorySlugs ?? []) {
     tags.add(getCategoryCacheTag(slug));
     tags.add(getCategoryPlacesCacheTag(slug));
+  }
+  if (scopes.collections) tags.add(getCollectionsCacheTag());
+  for (const slug of scopes.collectionSlugs ?? []) {
+    tags.add(getCollectionCacheTag(slug));
+    tags.add(getCollectionPlacesCacheTag(slug));
   }
   for (const slug of scopes.placeSlugs ?? []) {
     tags.add(getPlaceCacheTag(slug));

@@ -29,6 +29,8 @@ const VALID_PAYLOAD = {
   scopes: {
     categories: true,
     categorySlugs: ['old-slug', 'old-slug', 'new-slug'],
+    collections: true,
+    collectionSlugs: ['old-collection', 'old-collection', 'new-collection'],
     placeSlugs: ['old-place', 'old-place', 'new-place'],
   },
 };
@@ -39,6 +41,11 @@ const EXPECTED_TAGS = [
   'category-places:old-slug',
   'category:new-slug',
   'category-places:new-slug',
+  'collections',
+  'collection:old-collection',
+  'collection-places:old-collection',
+  'collection:new-collection',
+  'collection-places:new-collection',
   'place:old-place',
   'place:new-place',
 ];

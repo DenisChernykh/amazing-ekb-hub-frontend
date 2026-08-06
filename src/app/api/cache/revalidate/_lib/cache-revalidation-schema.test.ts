@@ -8,6 +8,8 @@ const VALID_PAYLOAD = {
   scopes: {
     categories: true,
     categorySlugs: ['old-slug', 'new-slug'],
+    collections: true,
+    collectionSlugs: ['old-collection', 'new-collection'],
     placeSlugs: ['old-place', 'new-place'],
   },
 };
@@ -25,6 +27,7 @@ describe('cacheRevalidationPayloadSchema', () => {
     ['malformed place slug', { ...VALID_PAYLOAD, scopes: { placeSlugs: ['bad_slug'] } }],
     ['empty scopes', { ...VALID_PAYLOAD, scopes: {} }],
     ['empty category slugs', { ...VALID_PAYLOAD, scopes: { categorySlugs: [] } }],
+    ['empty collection slugs', { ...VALID_PAYLOAD, scopes: { collectionSlugs: [] } }],
     ['empty place slugs', { ...VALID_PAYLOAD, scopes: { placeSlugs: [] } }],
     ['unknown root field', { ...VALID_PAYLOAD, deliveryAttempt: 1 }],
     [

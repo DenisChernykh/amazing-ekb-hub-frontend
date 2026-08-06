@@ -15,6 +15,8 @@ export const adminPlacesListQueryPageDefault = 1;
 export const adminPlacesListQueryPageSizeDefault = 20;
 export const adminPlacesListQueryPageSizeMax = 100;
 
+export const adminPlacesListQuerySearchMax = 100;
+
 export const AdminPlacesListQueryParams = zod.strictObject({
   page: zod.number().min(1).default(adminPlacesListQueryPageDefault),
   pageSize: zod
@@ -22,6 +24,7 @@ export const AdminPlacesListQueryParams = zod.strictObject({
     .min(1)
     .max(adminPlacesListQueryPageSizeMax)
     .default(adminPlacesListQueryPageSizeDefault),
+  search: zod.string().max(adminPlacesListQuerySearchMax).optional(),
   status: zod.enum(['active', 'hidden']).optional(),
 });
 
@@ -36,6 +39,13 @@ export const AdminPlacesList200Response = zod.strictObject({
         slug: zod.string(),
         title: zod.string(),
       }),
+      collections: zod.array(
+        zod.strictObject({
+          id: zod.string(),
+          status: zod.enum(['draft', 'active']),
+          title: zod.string(),
+        }),
+      ),
       coverImageUrl: zod.string().nullable(),
       id: zod.string(),
       mapsUrl: zod.url().nullable(),
@@ -164,6 +174,17 @@ export const AdminPlacesUpdate200Response = zod.strictObject({
   summary: zod.string(),
   tags: zod.array(zod.string()),
   title: zod.string(),
+});
+
+/**
+ * @summary Replaced all collections assigned to a place.
+ */
+export const AdminPlaceCollectionsReplaceParams = zod.strictObject({
+  placeId: zod.string(),
+});
+
+export const AdminPlaceCollectionsReplaceBody = zod.strictObject({
+  collectionIds: zod.array(zod.string()),
 });
 
 /**
