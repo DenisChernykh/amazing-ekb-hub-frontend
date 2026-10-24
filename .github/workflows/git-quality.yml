@@ -14,6 +14,10 @@ jobs:
   validate:
     runs-on: ubuntu-latest
 
+    env:
+      API_BASE_URL: http://127.0.0.1:3000
+      PUBLIC_BASE_URL: http://localhost:3001
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,12 +27,12 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 11.15.1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install dependencies
@@ -70,5 +74,19 @@ jobs:
       - name: Run typecheck
         run: pnpm run typecheck
 
-      - name: Run build
-        run: pnpm run build
+      - name: Run build with local catalog fixture
+        run: |
+          node ./scripts/ci/catalog-build-fixture-server.mjs >"${RUNNER_TEMP}/catalog-build-fixture.log" 2>&1 &
+          fixture_pid=$!
+          trap 'kill "${fixture_pid}" 2>/dev/null || true' EXIT
+
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error http://127.0.0.1:3000/__ci/ready >/dev/null; then
+              pnpm run build
+              exit 0
+            fi
+            sleep 1
+          done
+
+          cat "${RUNNER_TEMP}/catalog-build-fixture.log"
+          exit 1

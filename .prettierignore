@@ -1,0 +1,2 @@
+# Backend-owned canonical OpenAPI bytes; update only through pnpm run api:sync.
+openapi.json

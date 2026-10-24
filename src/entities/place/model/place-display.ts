@@ -1,15 +1,4 @@
-import type { MaterialType } from '@/shared/api/generated/model/materialType';
-import type { PlaceCategory } from '@/shared/api/generated/model/placeCategory';
-import type { Platform } from '@/shared/api/generated/model/platform';
-import type { PlaceDisplayMeta, PlatformCounters } from './types';
-
-const CATEGORY_DISPLAY: Record<PlaceCategory, PlaceDisplayMeta> = {
-  pools: { label: 'Бассейны', color: '#075985', backgroundColor: '#e0f2fe' },
-  spa: { label: 'SPA', color: '#9f1239', backgroundColor: '#ffe4e6' },
-  cafe: { label: 'Кафе', color: '#92400e', backgroundColor: '#fef3c7' },
-  hotels: { label: 'Отели', color: '#3730a3', backgroundColor: '#e0e7ff' },
-  workshops: { label: 'Мастерские', color: '#065f46', backgroundColor: '#d1fae5' },
-};
+import type { MaterialType, PlaceDisplayMeta, Platform, PlatformCounters } from './types';
 
 const PLATFORM_DISPLAY: Record<Platform, PlaceDisplayMeta> = {
   dzen: { label: 'Дзен', color: '#111827', backgroundColor: '#e5e7eb' },
@@ -22,16 +11,6 @@ const MATERIAL_TYPE_DISPLAY: Record<MaterialType, string> = {
   reel: 'Reels',
   video: 'Видео',
 };
-
-/**
- * Это хелпер. Возвращает подпись и цветовой тон категории.
- *
- * @param category - Категория места из API.
- * @returns Display-метаданные категории для UI.
- */
-export function getPlaceCategoryDisplay(category: PlaceCategory): PlaceDisplayMeta {
-  return CATEGORY_DISPLAY[category];
-}
 
 /**
  * Это хелпер. Возвращает подпись и цветовой тон платформы.
@@ -74,10 +53,18 @@ const MATERIAL_DATE_FORMATTER = new Intl.DateTimeFormat('ru-RU', {
 /**
  * Это хелпер. Форматирует дату публикации материала.
  *
- * @param publishedAt - ISO-дата публикации из API.
+ * @param publishedAt - Календарная дата публикации из API в формате `YYYY-MM-DD`.
  * @returns Дата для отображения в карточке материала.
  */
 export function formatMaterialPublishedDate(publishedAt: string): string {
+  const calendarDateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(publishedAt);
+
+  if (calendarDateMatch) {
+    const [, year, month, day] = calendarDateMatch.map(Number);
+
+    return MATERIAL_DATE_FORMATTER.format(new Date(year, month - 1, day));
+  }
+
   return MATERIAL_DATE_FORMATTER.format(new Date(publishedAt));
 }
 

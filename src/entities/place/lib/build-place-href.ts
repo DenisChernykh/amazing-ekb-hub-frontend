@@ -1,9 +1,9 @@
 /**
  * Это хелпер. Собирает публичный href страницы места.
  *
- * @param placeId - Идентификатор места.
+ * @param placeSlug - Публичный slug места.
  * @returns Абсолютный path внутри приложения.
  */
-export function buildPlaceHref(placeId: string): string {
-  return `/places/${encodeURIComponent(placeId)}`;
+export function buildPlaceHref(placeSlug: string): string {
+  return `/places/${encodeURIComponent(placeSlug)}`;
 }

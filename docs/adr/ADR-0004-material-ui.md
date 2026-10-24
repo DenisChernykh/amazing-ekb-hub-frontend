@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-0006](./ADR-0006-tailwind-shadcn-ui-migration.md).
 
 ## Decision
 

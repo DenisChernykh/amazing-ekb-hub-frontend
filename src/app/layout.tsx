@@ -1,36 +1,35 @@
+import { getPublicBaseUrl } from '@/shared/config/public-base-url';
+import { SiteHeader } from '@/widgets/site-header';
 import type { Metadata } from 'next';
-import { Roboto } from 'next/font/google';
-import { Providers } from './providers';
+import { Onest } from 'next/font/google';
 
-import { getCurrentSession } from '@/entities/session/server';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import './globals.css';
 
-const roboto = Roboto({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin', 'cyrillic'],
+const onest = Onest({
+  weight: ['400', '500', '600'],
+  subsets: ['cyrillic', 'latin'],
   display: 'swap',
-  variable: '--font-roboto',
+  variable: '--font-onest',
 });
 
+/** Базовые metadata публичного приложения. */
 export const metadata: Metadata = {
   title: 'Стрельчук в Екатеринбурге',
   description: 'Удобный навигатор по моим обзорам',
+  metadataBase: new URL(getPublicBaseUrl()),
 };
 
-export default async function RootLayout({
+/** Корневой layout с общей типографикой и sticky header. */
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialSession = await getCurrentSession();
-
   return (
-    <html lang="ru" className={roboto.variable}>
+    <html lang="ru" className={onest.variable}>
       <body>
-        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-          <Providers initialSession={initialSession}>{children}</Providers>
-        </AppRouterCacheProvider>
+        <SiteHeader />
+        {children}
       </body>
     </html>
   );

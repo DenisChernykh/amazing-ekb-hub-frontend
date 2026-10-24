@@ -1,8 +1,11 @@
+export { fetchAllPublicPlaceSlugs } from './api/fetch-all-public-place-slugs';
+export { fetchPublicCategoryPlacePage } from './api/fetch-public-category-place-page';
 export { buildPlaceHref } from './lib/build-place-href';
+export { buildPlaceMaterialsAnchor } from './lib/build-place-materials-anchor';
 export {
-  buildPlaceMaterialsAnchor,
-  buildPlaceMaterialsHref,
-} from './lib/build-place-materials-href';
+  categoryPlacesPageSchema,
+  type CategoryPlacesPage,
+} from './model/category-places-page-schema';
 export { mapPlaceDetailToModel } from './model/map-place-detail-to-model';
 export { mapPlaceSummaryToCardModel } from './model/map-place-summary-to-card';
 export {
@@ -10,17 +13,18 @@ export {
   formatMaterialPublishedDate,
   formatMaterialsCount,
   getMaterialTypeDisplay,
-  getPlaceCategoryDisplay,
   getPlatformDisplay,
 } from './model/place-display';
 export {
-  PLACE_CATEGORIES,
   PLACE_PLATFORMS,
+  type MaterialType,
   type PlaceCardModel,
+  type PlaceCardVariant,
   type PlaceCategory,
   type PlaceDetailModel,
   type PlaceMaterialModel,
   type PlaceMaterialsByPlatform,
+  type Platform,
   type PlatformCounters,
 } from './model/types';
 export { PlaceCard } from './ui/place-card';

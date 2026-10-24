@@ -1,19 +1,15 @@
-import type { MaterialType } from '@/shared/api/generated/model/materialType';
-import type { PlaceCategory } from '@/shared/api/generated/model/placeCategory';
-import type { Platform } from '@/shared/api/generated/model/platform';
+import type { PlaceSummaryCategoryResponseDto } from '@/shared/api/generated/model/placeSummaryCategoryResponseDto';
+import type { PublicMaterialResponseDtoPlatform } from '@/shared/api/generated/model/publicMaterialResponseDtoPlatform';
+import type { PublicMaterialResponseDtoType } from '@/shared/api/generated/model/publicMaterialResponseDtoType';
 
-export type { PlaceCategory };
+/** Стабильный тип материала, принадлежащий сущности места. */
+export type MaterialType = PublicMaterialResponseDtoType;
 
-/**
- * Это хелпер. Фиксированный порядок категорий в публичном каталоге.
- */
-export const PLACE_CATEGORIES = [
-  'pools',
-  'spa',
-  'cafe',
-  'hotels',
-  'workshops',
-] as const satisfies readonly PlaceCategory[];
+/** Стабильный тип категории, принадлежащий сущности места. */
+export type PlaceCategory = PlaceSummaryCategoryResponseDto;
+
+/** Стабильный тип платформы, принадлежащий сущности места. */
+export type Platform = PublicMaterialResponseDtoPlatform;
 
 /**
  * Счетчики материалов места по платформам.
@@ -25,11 +21,13 @@ export type PlatformCounters = Record<Platform, number>;
  */
 export type PlaceCardModel = {
   id: string;
+  slug: string;
   title: string;
-  category: PlaceCategory;
   coverImageUrl: string | null;
-  platformCounters: PlatformCounters;
 };
+
+/** Визуальный размер карточки места внутри неравномерной сетки. */
+export type PlaceCardVariant = 'regular' | 'tall';
 
 /**
  * Frontend contract материала места.
@@ -54,11 +52,13 @@ export type PlaceMaterialsByPlatform = Record<Platform, PlaceMaterialModel[]>;
  */
 export type PlaceDetailModel = {
   id: string;
+  slug: string;
   title: string;
   summary: string;
   tags: string[];
   category: PlaceCategory;
   coverImageUrl: string | null;
+  mapsUrl: string | null;
   platformCounters: PlatformCounters;
   pinnedMaterial: PlaceMaterialModel | null;
   materialsByPlatform: PlaceMaterialsByPlatform;

@@ -247,9 +247,10 @@ Fatal failures должны сохранять diagnostics, достаточны
 
 Reference routes:
 
-- `src/app/page.tsx`
-- `src/app/_components/home-page-content.tsx`
-- `src/app/_lib/get-home-page-data.ts`
+- `src/app/categories/[categorySlug]/error.tsx`
+- `src/app/categories/[categorySlug]/_lib/get-category-page-data.ts`
+- `src/app/places/[placeSlug]/page.tsx`
+- `src/app/places/[placeSlug]/_lib/get-place-page-data.ts`
 
 Reference shared UI:
 
@@ -257,7 +258,10 @@ Reference shared UI:
 
 Reference app-facing helpers:
 
-- `src/server/std-errors`
+- `src/shared/lib/api/is-generated-api-error.ts`
+
+The previously documented `src/server/std-errors` package remains a target
+direction rather than a current source path.
 
 ## Limits
 

@@ -16,7 +16,7 @@
 
 ## Стек
 
-React, Next.js, TypeScript, Vitest.
+React, Next.js, TypeScript, Tailwind CSS, Vitest.
 
 ## Навигация по коду
 
@@ -25,7 +25,7 @@ React, Next.js, TypeScript, Vitest.
 
 ## Разработка
 
-Инструменты: pnpm.
+Инструменты: Node.js 24, pnpm@11.15.1.
 
 ```sh
 pnpm install

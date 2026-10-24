@@ -1,6 +1,7 @@
-import type { Material } from '@/shared/api/generated/model/material';
-import type { PlaceDetail } from '@/shared/api/generated/model/placeDetail';
+import type { PlaceDetailResponseDto } from '@/shared/api/generated/model/placeDetailResponseDto';
+import type { PublicMaterialResponseDto } from '@/shared/api/generated/model/publicMaterialResponseDto';
 import { normalizeCoverImageUrl } from './normalize-cover-image-url';
+import { normalizeMapsUrl } from './normalize-maps-url';
 import { normalizeMaterialRedirectUrl } from './normalize-material-redirect-url';
 import {
   PLACE_PLATFORMS,
@@ -9,11 +10,13 @@ import {
   type PlaceMaterialsByPlatform,
 } from './types';
 
-type PlaceDetailFields = PlaceDetail & {
+type PlaceDetailFields = PlaceDetailResponseDto & {
   coverImageUrl?: string | null;
 };
 
-type PlaceMaterialsByPlatformInput = Partial<Record<PlaceMaterialModel['platform'], Material[]>>;
+type PlaceMaterialsByPlatformInput = Partial<
+  Record<PlaceMaterialModel['platform'], PublicMaterialResponseDto[]>
+>;
 
 /**
  * Это хелпер. Преобразует API material в frontend contract материала.
@@ -21,16 +24,49 @@ type PlaceMaterialsByPlatformInput = Partial<Record<PlaceMaterialModel['platform
  * @param material - Материал из API.
  * @returns Данные материала для UI детальной страницы места.
  */
-function mapMaterialToModel(material: Material): PlaceMaterialModel {
+function mapMaterialToModel(material: PublicMaterialResponseDto): PlaceMaterialModel {
   return {
     id: material.id,
     platform: material.platform,
     type: material.type,
-    title: material.title,
+    title: material.title ?? 'Без названия',
     publishedAt: material.publishedAt,
     durationSec: material.durationSec,
     redirectUrl: normalizeMaterialRedirectUrl(material.redirectUrl, material.id),
   };
+}
+
+/**
+ * Это хелпер. Сортирует материалы от новых к старым со стабильным id tie-breaker.
+ */
+function compareMaterials(
+  left: PublicMaterialResponseDto,
+  right: PublicMaterialResponseDto,
+): number {
+  const dateComparison = right.publishedAt.localeCompare(left.publishedAt);
+
+  return dateComparison || left.id.localeCompare(right.id);
+}
+
+/**
+ * Это хелпер. Дедуплицирует и нормализует материалы одной платформы.
+ */
+function normalizePlatformMaterials(
+  materials: PublicMaterialResponseDto[],
+  pinnedMaterial: PublicMaterialResponseDto | null,
+  platform: PlaceMaterialModel['platform'],
+): PlaceMaterialModel[] {
+  const uniqueMaterials = new Map(
+    materials
+      .filter((material) => material.platform === platform)
+      .map((material) => [material.id, material]),
+  );
+
+  if (pinnedMaterial?.platform === platform) {
+    uniqueMaterials.set(pinnedMaterial.id, pinnedMaterial);
+  }
+
+  return [...uniqueMaterials.values()].sort(compareMaterials).map(mapMaterialToModel);
 }
 
 /**
@@ -41,11 +77,16 @@ function mapMaterialToModel(material: Material): PlaceMaterialModel {
  */
 function normalizeMaterialsByPlatform(
   materialsByPlatform: PlaceMaterialsByPlatformInput,
+  pinnedMaterial: PublicMaterialResponseDto | null,
 ): PlaceMaterialsByPlatform {
   return PLACE_PLATFORMS.reduce<PlaceMaterialsByPlatform>(
     (result, platform) => ({
       ...result,
-      [platform]: (materialsByPlatform[platform] ?? []).map(mapMaterialToModel),
+      [platform]: normalizePlatformMaterials(
+        materialsByPlatform[platform] ?? [],
+        pinnedMaterial,
+        platform,
+      ),
     }),
     {
       dzen: [],
@@ -68,13 +109,15 @@ export function mapPlaceDetailToModel(
 ): PlaceDetailModel {
   return {
     id: place.id,
+    slug: place.slug,
     title: place.title,
     summary: place.summary,
     tags: place.tags,
     category: place.category,
     coverImageUrl: normalizeCoverImageUrl(place.coverImageUrl),
+    mapsUrl: normalizeMapsUrl(place.mapsUrl),
     platformCounters: place.counters,
     pinnedMaterial: place.pinnedMaterial ? mapMaterialToModel(place.pinnedMaterial) : null,
-    materialsByPlatform: normalizeMaterialsByPlatform(materialsByPlatform),
+    materialsByPlatform: normalizeMaterialsByPlatform(materialsByPlatform, place.pinnedMaterial),
   };
 }

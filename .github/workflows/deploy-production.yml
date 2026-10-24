@@ -14,6 +14,11 @@ jobs:
   quality:
     name: Verify frontend before production deploy
     runs-on: ubuntu-latest
+    environment: production
+
+    env:
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL || vars.PUBLIC_BASE_URL }}
 
     steps:
       - name: Checkout
@@ -24,12 +29,12 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
         with:
-          version: 10
+          version: 11.15.1
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install dependencies
@@ -47,6 +52,18 @@ jobs:
       - name: Run unit tests
         run: pnpm run test:unit
 
+      - name: Validate build environment
+        run: |
+          if [ -z "${API_BASE_URL}" ]; then
+            echo "::error::API_BASE_URL repository variable is required."
+            exit 1
+          fi
+
+          if [ -z "${PUBLIC_BASE_URL}" ]; then
+            echo "::error::PUBLIC_BASE_URL production secret or variable is required."
+            exit 1
+          fi
+
       - name: Run build
         run: pnpm run build
 
@@ -61,6 +78,7 @@ jobs:
       IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.run_id }}-${{ github.sha }}
       IMAGE_ARTIFACT_PATH: frontend-runtime-image.tar.gz
       API_BASE_URL: ${{ vars.API_BASE_URL }}
+      PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL || vars.PUBLIC_BASE_URL }}
 
     steps:
       - name: Checkout
@@ -73,11 +91,13 @@ jobs:
           set -euo pipefail
 
           test -n "${API_BASE_URL}"
+          test -n "${PUBLIC_BASE_URL}"
 
       - name: Build runtime image
         run: |
           docker build \
             --build-arg API_BASE_URL="${API_BASE_URL}" \
+            --build-arg PUBLIC_BASE_URL="${PUBLIC_BASE_URL}" \
             -t "${IMAGE_NAME}:${GITHUB_SHA}" \
             -t "${IMAGE_NAME}:prod" \
             .
@@ -117,7 +137,9 @@ jobs:
       IMAGE_ARTIFACT_NAME: frontend-runtime-image-${{ github.run_id }}-${{ github.sha }}
       IMAGE_ARTIFACT_DIR: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}
       IMAGE_ARTIFACT_PATH: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}/frontend-runtime-image.tar.gz
+      FRONTEND_COMPOSE_OVERRIDE_PATH: /tmp/amazing-ekb-hub-frontend-${{ github.sha }}/frontend-secret.override.yml
       PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL || vars.PUBLIC_BASE_URL }}
+      CACHE_REVALIDATION_SECRET: ${{ secrets.CACHE_REVALIDATION_SECRET }}
 
     steps:
       - name: Download runtime image
@@ -165,6 +187,25 @@ jobs:
 
           test -f "${IMAGE_ARTIFACT_PATH}"
           test -n "${PUBLIC_BASE_URL}"
+          test -n "${CACHE_REVALIDATION_SECRET}"
+
+          if [ "${#CACHE_REVALIDATION_SECRET}" -lt 32 ]; then
+            echo "::error::CACHE_REVALIDATION_SECRET must contain at least 32 characters."
+            exit 1
+          fi
+
+      - name: Prepare frontend runtime environment
+        run: |
+          set -euo pipefail
+
+          cat > "${FRONTEND_COMPOSE_OVERRIDE_PATH}" <<'COMPOSE'
+          services:
+            frontend:
+              environment:
+                PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:?PUBLIC_BASE_URL is required}
+                CACHE_REVALIDATION_SECRET: ${CACHE_REVALIDATION_SECRET:?CACHE_REVALIDATION_SECRET is required}
+          COMPOSE
+          chmod 600 "${FRONTEND_COMPOSE_OVERRIDE_PATH}"
 
       - name: Load runtime image
         run: |
@@ -180,8 +221,10 @@ jobs:
           set -euo pipefail
 
           cd "${APP_DIR}"
-          docker compose --env-file .env -f compose.yml --profile apps up -d frontend
-          docker compose --env-file .env -f compose.yml ps frontend
+          docker compose --env-file .env -f compose.yml \
+            -f "${FRONTEND_COMPOSE_OVERRIDE_PATH}" --profile apps up -d frontend
+          docker compose --env-file .env -f compose.yml \
+            -f "${FRONTEND_COMPOSE_OVERRIDE_PATH}" ps frontend
           DEPLOY
 
       - name: Cleanup runtime image artifact

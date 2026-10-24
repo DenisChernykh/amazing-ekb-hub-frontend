@@ -1,11 +1,10 @@
-import type { PlaceCategory } from '@/shared/api/generated/model/placeCategory';
-import { Chip, type ChipProps } from '@mui/material';
-import { getPlaceCategoryDisplay } from '../model/place-display';
+import { cn } from '@/shared/lib/utils';
+import { Badge } from '@/shared/ui';
+import type { PlaceCategory } from '../model/types';
 
 interface PlaceCategoryBadgeProps {
   category: PlaceCategory;
-  size?: ChipProps['size'];
-  sx?: ChipProps['sx'];
+  className?: string;
 }
 
 /**
@@ -13,25 +12,10 @@ interface PlaceCategoryBadgeProps {
  *
  * @param props - Категория и визуальные настройки бейджа.
  */
-export function PlaceCategoryBadge({
-  category,
-  size = 'small',
-  sx,
-}: Readonly<PlaceCategoryBadgeProps>) {
-  const categoryDisplay = getPlaceCategoryDisplay(category);
-
+export function PlaceCategoryBadge({ category, className }: Readonly<PlaceCategoryBadgeProps>) {
   return (
-    <Chip
-      label={categoryDisplay.label}
-      size={size}
-      sx={[
-        {
-          bgcolor: categoryDisplay.backgroundColor,
-          color: categoryDisplay.color,
-          fontWeight: 700,
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
-    />
+    <Badge className={cn('border-transparent font-bold', className)} variant="secondary">
+      {category.title}
+    </Badge>
   );
 }

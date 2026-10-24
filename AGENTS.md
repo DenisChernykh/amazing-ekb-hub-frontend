@@ -25,7 +25,10 @@
 
 ## Архитектурный стиль
 
-Целевой frontend-подход: Next.js App Router + FSD + Material UI.
+Текущий frontend-подход: Next.js App Router + FSD + Tailwind CSS + shadcn/ui.
+
+Миграция с Material UI завершена. Не добавлять MUI, Emotion или MUI provider/theme
+infrastructure обратно без отдельного ADR.
 
 `src/app` — только framework/route слой:
 
@@ -71,18 +74,16 @@
 6. Слои импортируются через public API (`index.ts`), если компонент/тип предназначен для внешнего использования.
 7. Внутри одного slice допустимы локальные relative imports.
 
-## Material UI rules
+## Tailwind и shadcn/ui rules
 
-1. По умолчанию использовать нативные MUI-компоненты, а не собирать аналоги вручную.
-2. Для карточек использовать `Card`, `CardActionArea`, `CardContent`, `CardMedia`.
-3. Для пагинации использовать `Pagination`.
-4. Для сеток использовать `Container` и `Grid`.
-5. Для состояний использовать `Alert`, `Paper`, `CircularProgress`, `Skeleton`, `Typography`.
-6. Для метаданных использовать `Chip`, `Avatar`, `Badge` по смыслу.
-7. `Box` и `Stack` использовать как layout primitives, а не как замену готовым компонентам.
-8. Если MUI-компоненту нужно передать function component через `component={...}`, этот leaf-компонент должен быть client component (`'use client'`).
-9. Не передавать функции в Client Components из Server Components.
-10. CSS Modules не использовать для нового UI без отдельной причины.
+1. shadcn/ui добавлять через CLI, не копировать registry-файлы вручную.
+2. Не выполнять массовый `shadcn add --all`; добавлять только компоненты текущей задачи.
+3. Project-owned shadcn components держать в `src/shared/ui`, generic helpers — в `src/shared/lib`.
+4. Tailwind tokens в `src/app/globals.css` должны сохранять текущие app-level цвета, радиусы, тени и типографику, пока отдельно не принято решение о redesign.
+5. UI не импортирует MUI или Emotion. Их повторное добавление требует отдельного архитектурного решения.
+6. Повторяемые состояния loading, empty, error, disabled, focus и confirmation оформлять через shared UI contracts, а не локальными ad-hoc решениями.
+7. Для каждого заметного UI-изменения сохранять desktop/mobile visual check для затронутых состояний.
+8. Tailwind preflight включён глобально; порядок cascade layers `theme, base, components, utilities` не менять без отдельной визуальной проверки.
 
 ## Component structure
 
@@ -116,16 +117,23 @@ Helpers должны быть маленькими, pure и жить рядом 
 - feature helpers — `src/features/<name>/lib`;
 - generic helpers — `src/shared/lib`.
 
+## Отдельная задача TSDoc
+
+Не добавлять и не обновлять TSDoc по умолчанию. Делать это только по явной
+задаче пользователя; тогда использовать `docs/architecture/tsdoc-guidelines.md`
+и `pnpm run lint:tsdoc`. Команда выводит warnings и не входит в `pnpm run lint`
+или `pnpm run lint:strict`.
+
 ## Git
 
 Целевая история:
 
-1. `linear + squash`.
-2. Conventional Commits: `type(scope): subject`.
-3. Feature-ветки: `<type>/<short-name>`, старт от `stage`.
-4. В `stage` — только squash merge через PR.
-5. В `main` — fast-forward от `stage`.
-6. Не переписывать исторические merge-коммиты.
+1. Feature-ветки попадают в `stage` через обычный merge PR без squash.
+2. `main` продвигается из `stage` только fast-forward, без release merge-коммита.
+3. Conventional Commits: `type(scope): subject`.
+4. Feature-ветки: `<type>/<short-name>`, старт от актуального `stage`.
+5. При невозможности fast-forward операция должна завершиться ошибкой; дополнительный merge для исправления истории не создаётся.
+6. Исторические merge-коммиты не переписываются.
 
 Коммиты делать логическими группами:
 

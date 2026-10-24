@@ -1,58 +1,35 @@
-import { appStyleTokens } from '@/shared/ui/theme';
-import { Box, CardMedia } from '@mui/material';
-import type { PlaceCardModel } from '../model/types';
-import { PlaceCategoryBadge } from './place-category-badge';
+import { cn } from '@/shared/lib/utils';
+import Image from 'next/image';
+import type { PlaceCardVariant } from '../model/types';
 
 const PLACE_PLACEHOLDER_IMAGE_SRC = '/images/places/place-placeholder.webp';
 
-interface PlaceCardImageProps {
-  category: PlaceCardModel['category'];
+/** Отображает обложку места или стандартный placeholder. */
+export function PlaceCardImage({
+  src,
+  variant,
+  loading,
+}: Readonly<{
   src: string | null;
-  title: string;
-}
-
-/**
- * Рендерит фото карточки места с локальной заглушкой.
- *
- * @param props - Данные изображения карточки.
- */
-export function PlaceCardImage({ category, src, title }: Readonly<PlaceCardImageProps>) {
-  const imageSrc = src?.trim() ? src : PLACE_PLACEHOLDER_IMAGE_SRC;
-
+  variant: PlaceCardVariant;
+  loading: 'eager' | 'lazy';
+}>) {
   return (
-    <Box
-      sx={{
-        position: 'relative',
-        overflow: 'hidden',
-        width: '100%',
-        aspectRatio: '4 / 3',
-        bgcolor: appStyleTokens.palette.imagePlaceholder,
-      }}
+    <div
+      className={cn(
+        'bg-muted',
+        variant === 'tall' ? 'place-card-media-tall' : 'place-card-media-regular',
+      )}
     >
-      <CardMedia
-        component="img"
-        src={imageSrc}
-        alt={`Фото места ${title}`}
-        className="place-card-image"
-        loading="lazy"
-        sx={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          transition: 'transform 260ms ease',
-        }}
+      <Image
+        fill
+        unoptimized
+        src={src ?? PLACE_PLACEHOLDER_IMAGE_SRC}
+        alt=""
+        loading={loading}
+        sizes="(min-width: 1024px) 33vw, 50vw"
+        className="object-cover"
       />
-
-      <PlaceCategoryBadge
-        category={category}
-        sx={{
-          position: 'absolute',
-          top: 12,
-          left: 12,
-          zIndex: 1,
-          boxShadow: appStyleTokens.shadows.overlayBadge,
-        }}
-      />
-    </Box>
+    </div>
   );
 }

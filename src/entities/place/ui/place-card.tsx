@@ -1,91 +1,35 @@
-'use client';
-
-import { appStyleTokens } from '@/shared/ui/theme';
-import { Card, CardActionArea, CardContent, Link as MuiLink, Typography } from '@mui/material';
+import { cn } from '@/shared/lib/utils';
 import Link from 'next/link';
 import { buildPlaceHref } from '../lib/build-place-href';
-import type { PlaceCardModel } from '../model/types';
-import { PlaceCardBadges } from './place-card-badges';
+import type { PlaceCardModel, PlaceCardVariant } from '../model/types';
 import { PlaceCardImage } from './place-card-image';
 
-interface PlaceCardProps {
+/** Отображает ссылку-карточку публичного места. */
+export function PlaceCard({
+  place,
+  variant,
+  imageLoading = 'lazy',
+}: Readonly<{
   place: PlaceCardModel;
-}
-
-/**
- * Рендерит кликабельную карточку места.
- *
- * @param props - Данные карточки места.
- */
-export function PlaceCard({ place }: Readonly<PlaceCardProps>) {
+  variant: PlaceCardVariant;
+  imageLoading?: 'eager' | 'lazy';
+}>) {
   return (
-    <Card
-      sx={{
-        display: 'flex',
-        height: '100%',
-        flexDirection: 'column',
-        '&:hover .place-card-image, &:focus-within .place-card-image': {
-          transform: 'scale(1.035)',
-        },
-        '@media (prefers-reduced-motion: reduce)': {
-          transition: 'none',
-          '& .place-card-image': {
-            transition: 'none',
-          },
-        },
-      }}
-    >
-      <CardActionArea
-        component={Link}
-        href={buildPlaceHref(place.id)}
-        sx={{
-          display: 'block',
-        }}
+    <article className="h-full border border-border bg-white">
+      <Link
+        href={buildPlaceHref(place.slug)}
+        className="group flex h-full flex-col text-black focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
       >
-        <PlaceCardImage category={place.category} src={place.coverImageUrl} title={place.title} />
-      </CardActionArea>
-
-      <CardContent
-        sx={{
-          display: 'flex',
-          width: '100%',
-          minHeight: 112,
-          p: 1.75,
-          gap: 1.25,
-          flexDirection: 'column',
-          '&:last-child': {
-            pb: 1.75,
-          },
-        }}
-      >
-        <Typography
-          color="text.primary"
-          sx={{
-            display: '-webkit-box',
-            overflow: 'hidden',
-            WebkitBoxOrient: 'vertical',
-            WebkitLineClamp: 2,
-            ...appStyleTokens.typography.cardTitle,
-          }}
+        <PlaceCardImage src={place.coverImageUrl} variant={variant} loading={imageLoading} />
+        <h2
+          className={cn(
+            'px-4 py-4 font-medium transition-colors group-hover:text-card-title-hover group-focus-visible:text-card-title-hover sm:px-5',
+            variant === 'tall' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg',
+          )}
         >
-          <MuiLink
-            component={Link}
-            href={buildPlaceHref(place.id)}
-            underline="none"
-            sx={{
-              color: 'inherit',
-              '&:focus-visible': {
-                borderRadius: 0.5,
-                outline: `3px solid ${appStyleTokens.palette.focusRing}`,
-                outlineOffset: 2,
-              },
-            }}
-          >
-            {place.title}
-          </MuiLink>
-        </Typography>
-        <PlaceCardBadges place={place} />
-      </CardContent>
-    </Card>
+          {place.title}
+        </h2>
+      </Link>
+    </article>
   );
 }

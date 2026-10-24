@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/.pnpm-store
 /.pnp
 .pnp.*
 .yarn/*
@@ -12,6 +13,7 @@
 
 # testing
 /coverage
+/output
 
 # next.js
 /.next/
@@ -19,6 +21,9 @@
 
 # production
 /build
+
+# local worktrees
+.worktrees/
 
 # misc
 .DS_Store
